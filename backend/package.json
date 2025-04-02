@@ -1,0 +1,20 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "private": true,
+    "dependencies": {
+      "express": "^4.18.0",
+      "sequelize": "^6.6.5",
+      "mysql2": "^3.0.0",
+      "cors": "^2.8.5"
+    },
+    "scripts": {
+      "start": "node index.js",
+      "test": "jest"
+    },
+    "devDependencies": {
+      "jest": "^28.0.0",
+      "supertest": "^6.0.0"
+    }
+  }
+  
