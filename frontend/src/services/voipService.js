@@ -21,3 +21,4 @@ export const initVoIP = () => {
     session.on('failed', (e) => console.error('Call failed:', e.cause));
   });
 };
+

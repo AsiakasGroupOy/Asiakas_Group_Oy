@@ -19,3 +19,4 @@ export const analyzeText = async (text) => {
   const response = await axios.post(pythonAPIURL, { text });
   return response.data;
 };
+
