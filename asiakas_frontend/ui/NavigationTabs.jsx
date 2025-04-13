@@ -15,6 +15,7 @@ const NavigationTabs = () => {
         value={activeTab}
         onChange={handleChange}
         indicatorColor="primary"
+        textColor="inherit"
         sx={{
           "& .MuiTab-root": {
             color: "#a6b8e0", // Default tab color
@@ -29,7 +30,7 @@ const NavigationTabs = () => {
         }}
       >
         <Tab label="Contact list" component={Link} to="/" />
-        <Tab label="Call view" component={Link} to="/CallView" />
+        <Tab label="Call view" component={Link} to="/callview" />
       </Tabs>
     );
   };
