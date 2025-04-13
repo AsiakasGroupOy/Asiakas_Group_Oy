@@ -1,39 +1,41 @@
-import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import {Container, CssBaseline, AppBar, Toolbar, Typography, Box} from '@mui/material';
 import './App.css'
 import NavigationTabs from '../ui/NavigationTabs';
+import { Outlet } from 'react-router-dom';
 
+
+/*''*/
 
 function App() {
   
   return (
+   <>
     <Container maxWidth="xl">
       <CssBaseline />
-      <AppBar position="fixed" sx={{ backgroundColor: '#08205e' }}>
+      <AppBar position="fixed" sx={{ backgroundColor: "#08205e"  }}>
         <Toolbar sx={{ alignItems: 'flex-start' }}>
           <Typography variant="h6"
               noWrap
               component="div"
-              sx={{ flexGrow: 1,marginTop:1, display: { xs: 'none', sm: 'block', md: 'flex' } }}>
+              sx={{ flexGrow: 1, marginTop:1, display: { xs: 'none', sm: 'block', md: 'flex' } }}>
            AsiakasGroup Oy
           </Typography> 
-         <NavigationTabs />
+         <NavigationTabs  />
         </Toolbar>
          <Box
             sx={{
               width: "100%",
               height: "1px",
               backgroundColor: "white", 
-              opacity: 0.3,
+              opacity: 0.7,
               marginBottom: 1,
           }}
           /> 
       </AppBar>
+    
     </Container>
+    <Outlet />
+   </>
   );
 }
   
