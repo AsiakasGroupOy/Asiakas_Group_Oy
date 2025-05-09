@@ -20,5 +20,13 @@ def analyze():
 
     return jsonify(result)
 
+@app.route('/test')
+def test():
+    return "Test route is working!"
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    #app.run(host='0.0.0.0', port=8000)
+    app.run(debug=True)
+    
+
+
