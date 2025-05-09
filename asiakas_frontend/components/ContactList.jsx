@@ -1,19 +1,29 @@
 import { AgGridReact } from "ag-grid-react";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import Groups2RoundedIcon from "@mui/icons-material/Groups2Rounded";
-import Button from "@mui/material/Button";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import {
+  Button,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Checkbox,
+  Divider,
+} from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Typography from "@mui/material/Typography";
 import {
   faUserPlus,
   faTrashCan,
   faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../src/theme";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-console.log(AllCommunityModule);
 
 export default function ContactList() {
   const [customers] = useState([
@@ -74,85 +84,145 @@ export default function ContactList() {
     },
   ]);
 
-  const [columnDefs] = useState([
-    { headerName: "Calling List", field: "calling_list", filter: true },
-    { headerName: "Organization", field: "organization", filter: true },
+  const [columnDefs, setColumnDefs] = useState([
+    {
+      headerName: "Calling List",
+      field: "calling_list",
+      filter: true,
+    },
+    {
+      headerName: "Organization",
+      field: "organization",
+      filter: true,
+    },
     { headerName: "Contact", field: "contact", filter: true },
     { headerName: "Phone Number", field: "phone" },
     { headerName: "Additional Information", field: "add_info" },
     { headerName: "Status", field: "status", filter: true },
-    { headerName: "Last Activity", field: "last_activity", filter: true },
-    { headerName: "Number of Calls", field: "number_of_calls", filter: true },
+    {
+      headerName: "Last Activity",
+      field: "last_activity",
+      filter: true,
+    },
+    {
+      headerName: "Number of Calls",
+      field: "number_of_calls",
+      filter: true,
+    },
     { headerName: "Actions", field: "actions" },
   ]);
+
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const gridRef = useRef();
+
+  const handleSelectedRows = () => {
+    const handleSelected = gridRef.current.getSelectedRows();
+    setSelectedRows(handleSelected);
+  };
+
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleToggleColumn = (index) => {
+    const currentlyHidden = columnDefs[index].hide === true;
+
+    setColumnDefs((prevDefs) => {
+      const newDefs = [...prevDefs];
+      newDefs[index] = {
+        ...newDefs[index],
+        hide: !currentlyHidden,
+      };
+      // Save updated columns into localStorage
+      localStorage.setItem("savedColumnDefs", JSON.stringify(newDefs));
+
+      return newDefs;
+    });
+  };
+
+  const areAllColumnsVisible = () => {
+    return columnDefs.every((col) => col.hide !== true);
+  };
+
+  const handleToggleAll = () => {
+    const allVisible = areAllColumnsVisible();
+
+    const newDefs = columnDefs.map((col) => ({
+      ...col,
+      hide: allVisible, // if all were visible → hide all, else → show all
+    }));
+
+    setColumnDefs(newDefs);
+
+    localStorage.setItem("savedColumnDefs", JSON.stringify(newDefs));
+  };
+
+  const handleColumnMoved = () => {
+    const columnState = gridRef.current.getColumnState();
+    const orderAndVisibilityState = columnState.map((state) => ({
+      colId: state.colId,
+      hide: state.hide,
+    }));
+    window.orderAndVisibilityState = orderAndVisibilityState;
+    console.log("order and visibility state saved", orderAndVisibilityState);
+    localStorage.setItem('columnState', JSON.stringify(orderAndVisibilityState));
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem("savedColumnDefs");
+    if (saved) {
+      setColumnDefs(JSON.parse(saved));
+    }
+  }, []);
+
+  
+  const exportToCsv = () => {
+    const columnKeys = columnDefs.map(col => col.field);
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, "-");
+    const fileName = `Contact list_${timestamp}.csv`;
+      const params = {
+          columnKeys:columnKeys,
+          fileName: fileName, // Specify the file name for the exported CSV file
+      };
+      gridRef.current.exportDataAsCsv(params);
+  };
+
+
   console.log("Works");
-
-  const defaultColDef = {
-    flex: 1,
-    minWidth: 50,
-    sortable: true,
-  };
-
-  const rowSelection = {
-    mode: "multiRow",
-  };
-
-  const theme = createTheme({
-    typography: {
-      fontSize: 10, // base font size (affects rem-based sizing)
-      fontFamily: "Arial, sans-serif", // base font family
-    },
-    palette: {
-      dustblue: {
-        main: "#374c86",
-        light: "#a1b3e6",
-        dark: "#333f61",
-        contrastText: "#fff",
-      },
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            "& .MuiButton-startIcon": {
-              marginRight: 8, // spacing between icon and text
-            },
-            "& .MuiButton-startIcon svg": {
-              fontSize: "13px", // target the FontAwesome SVG inside
-            },
-
-            "&:focus:not(:focus-visible)": {
-              outline: "none",
-            },
-          },
-        },
-      },
-    },
-  });
 
   return (
     <>
       <div
         style={{
           position: "sticky",
-          top: 64,
+          top: 82,
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
-          marginTop: 30,
+          marginTop: 50,
           gap: 10,
         }}
       >
         <Groups2RoundedIcon />
-        <h3 style={{ color: "#08205e" }}>Contact list</h3>
+        <Typography variant="h6" sx={{ color: "#08205e" }}>
+          Contact list
+        </Typography>
       </div>
 
       <div
-       
         style={{
-          position: "sticky",
-          top: 128,
           display: "flex",
+          position: "sticky",
+          top: 125,
           flexDirection: "row",
           justifyContent: "end",
           gap: 10,
@@ -177,24 +247,100 @@ export default function ContactList() {
             variant="contained"
             color="dustblue"
             startIcon={<FontAwesomeIcon icon={faFileExport} />}
+            onClick={exportToCsv}
           >
             Export to Excel
           </Button>
         </ThemeProvider>
       </div>
-      <div style={{ width: "100%", height: "100%" }}>
+
+      <div
+        style={{
+          position: "sticky",
+          top: 160,
+          justifyItems: "end",
+        }}
+      >
+        <Typography variant="subtitle2" sx={{ color: "#08205e" }}>
+          {selectedRows?.length > 0 && `Selected rows ${selectedRows.length}`}
+        </Typography>
+
+        <ThemeProvider theme={theme}>
+          <Tooltip title="Columns" placement="right-start">
+            <Button color="dustblue" onClick={handleClick}>
+              <ViewColumnIcon />
+            </Button>
+
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem
+                onClick={handleToggleAll}
+                disableRipple
+                sx={{ fontWeight: "bold" }}
+              >
+                {areAllColumnsVisible() ? "Deselect All" : "Select All"}
+              </MenuItem>
+              <Divider />
+              {columnDefs.map((col, index) => (
+                <MenuItem key={col.field} disableRipple>
+                  <Checkbox
+                    checked={col.hide !== true} // hidden if hide === true
+                    onChange={() => handleToggleColumn(index)}
+                    sx={{
+                      color: "#374c86",
+                      "&.Mui-checked": {
+                        color: "#374c86",
+                      },
+                    }}
+                  />
+                  {col.headerName}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Tooltip>
+        </ThemeProvider>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          marginTop: 20,
+          height: "calc(100vh - 240px)", // Adjust based on total height above
+        }}
+      >
         <div
-          className="ag-theme-material"
-          style={{ height: "80%", width: "100%",  position: "sticky", top: 180,}}
+          style={{
+            position: "sticky",
+            top: 190,
+            width: "100%",
+          }}
         >
-          <AgGridReact
-            rowData={customers}
-            columnDefs={columnDefs}
-            pagination={true}
-            rowSelection={rowSelection}
-            onSelectionChanged={(event) => console.log("Row Selected!")}
-            defaultColDef={defaultColDef}
-          />
+          <div className="ag-theme-material" style={{ height: "100%" }}>
+            <AgGridReact
+              rowData={customers}
+              columnDefs={columnDefs}
+              pagination={true}
+              rowSelection={{
+                mode: "multiRow",
+                selectAll: "filtered",
+              }}
+              onSelectionChanged={handleSelectedRows}
+              defaultColDef={{
+                flex: 1,
+                minWidth: 50,
+              }}
+              rowHeight={36}
+              headerHeight={40}
+              suppressDragLeaveHidesColumns={true}
+              onColumnMoved={handleColumnMoved}
+              ref={gridRef}
+              onGridReady={(params) => (gridRef.current = params.api)}
+            />
+          </div>
         </div>
       </div>
     </>
