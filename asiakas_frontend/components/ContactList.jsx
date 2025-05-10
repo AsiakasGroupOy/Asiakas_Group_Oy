@@ -1,5 +1,5 @@
 import { AgGridReact } from "ag-grid-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import Groups2RoundedIcon from "@mui/icons-material/Groups2Rounded";
@@ -84,7 +84,7 @@ export default function ContactList() {
     },
   ]);
 
-  const [columnDefs, setColumnDefs] = useState([
+  const columnDefs = useMemo(()=>[
     {
       headerName: "Calling List",
       field: "calling_list",
@@ -110,8 +110,8 @@ export default function ContactList() {
       filter: true,
     },
     { headerName: "Actions", field: "actions" },
-  ]);
-
+  ],[]);
+  const [columnStateVersion, setColumnStateVersion] = useState(0);
   const [selectedRows, setSelectedRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -132,56 +132,42 @@ export default function ContactList() {
     setAnchorEl(null);
   };
 
-  const handleToggleColumn = (index) => {
-    const currentlyHidden = columnDefs[index].hide === true;
-
-    setColumnDefs((prevDefs) => {
-      const newDefs = [...prevDefs];
-      newDefs[index] = {
-        ...newDefs[index],
-        hide: !currentlyHidden,
-      };
-      // Save updated columns into localStorage
-      localStorage.setItem("savedColumnDefs", JSON.stringify(newDefs));
-
-      return newDefs;
-    });
-  };
-
   const areAllColumnsVisible = () => {
-    return columnDefs.every((col) => col.hide !== true);
-  };
-
-  const handleToggleAll = () => {
-    const allVisible = areAllColumnsVisible();
-
-    const newDefs = columnDefs.map((col) => ({
-      ...col,
-      hide: allVisible, // if all were visible → hide all, else → show all
-    }));
-
-    setColumnDefs(newDefs);
-
-    localStorage.setItem("savedColumnDefs", JSON.stringify(newDefs));
-  };
-
-  const handleColumnMoved = () => {
-    const columnState = gridRef.current.getColumnState();
-    const orderAndVisibilityState = columnState.map((state) => ({
-      colId: state.colId,
-      hide: state.hide,
-    }));
-    window.orderAndVisibilityState = orderAndVisibilityState;
-    console.log("order and visibility state saved", orderAndVisibilityState);
-    localStorage.setItem('columnState', JSON.stringify(orderAndVisibilityState));
-  };
-
-  useEffect(() => {
-    const saved = localStorage.getItem("savedColumnDefs");
-    if (saved) {
-      setColumnDefs(JSON.parse(saved));
+  if (!gridRef.current) return true;
+  const state = gridRef.current.getColumnState();
+  return columnDefs.every(
+    (col) => {
+      const colState = state.find(c => c.colId === col.field);
+      return colState ? !colState.hide : true;
     }
-  }, []);
+  );
+};
+  
+const handleToggleColumn = (field) => {
+  const colState = gridRef.current.getColumnState().find(c => c.colId === field);
+  const isCurrentlyVisible = colState ? !colState.hide : true;
+  gridRef.current.setColumnsVisible([field], !isCurrentlyVisible);
+  // Save state after change
+  const state = gridRef.current.getColumnState();
+  localStorage.setItem("savedColumnState", JSON.stringify(state));
+  setColumnStateVersion(v => v + 1); // force re-render for immediate checkbox update
+  
+};
+
+
+const handleToggleAll = () => {
+  if (!gridRef.current) return;
+  const allVisible = areAllColumnsVisible();
+  console.log("allVisible", allVisible);
+  columnDefs.forEach((col) => {
+    gridRef.current.setColumnsVisible([col.field], !allVisible);
+  });
+  // Save state after change
+  const state = gridRef.current.getColumnState();
+  localStorage.setItem("savedColumnState", JSON.stringify(state));
+  gridRef.current.sizeColumnsToFit();
+  setColumnStateVersion(v => v + 1);
+};
 
   
   const exportToCsv = () => {
@@ -282,14 +268,18 @@ export default function ContactList() {
                 disableRipple
                 sx={{ fontWeight: "bold" }}
               >
-                {areAllColumnsVisible() ? "Deselect All" : "Select All"}
+                {areAllColumnsVisible() ?  "Deselect All": "Select All"}
               </MenuItem>
               <Divider />
-              {columnDefs.map((col, index) => (
+              {columnDefs.map((col) => (
                 <MenuItem key={col.field} disableRipple>
                   <Checkbox
-                    checked={col.hide !== true} // hidden if hide === true
-                    onChange={() => handleToggleColumn(index)}
+                    checked={
+                      gridRef.current && gridRef.current.getColumnState().find(c => c.colId === col.field)
+                        ? !gridRef.current.getColumnState().find(c => c.colId === col.field).hide
+                        : true
+                    }
+                    onChange={() => handleToggleColumn(col.field)}
                     sx={{
                       color: "#374c86",
                       "&.Mui-checked": {
@@ -329,16 +319,37 @@ export default function ContactList() {
                 selectAll: "filtered",
               }}
               onSelectionChanged={handleSelectedRows}
+             
               defaultColDef={{
+                resizable: true,
                 flex: 1,
-                minWidth: 50,
+                minWidth: 100,
+                suppressMenu: true
               }}
               rowHeight={36}
               headerHeight={40}
               suppressDragLeaveHidesColumns={true}
-              onColumnMoved={handleColumnMoved}
+              suppressColumnReset={true}
               ref={gridRef}
-              onGridReady={(params) => (gridRef.current = params.api)}
+              onGridReady={(params) => {
+                gridRef.current = params.api;
+                  // Restore column state if saved
+                const savedState = localStorage.getItem("savedColumnState");
+                if (savedState) {
+                  params.api.applyColumnState({
+                    state: JSON.parse(savedState),
+                    applyOrder: true,
+                  });
+                }
+                 params.api.sizeColumnsToFit();
+                }}
+             
+              onColumnVisible={(params) => {
+                const state = params.api.getColumnState();
+                params.api.sizeColumnsToFit();
+                localStorage.setItem("savedColumnState", JSON.stringify(state));
+                
+                }}  
             />
           </div>
         </div>
