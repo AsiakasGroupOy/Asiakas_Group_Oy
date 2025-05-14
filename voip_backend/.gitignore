@@ -15,3 +15,6 @@ instance/
 *.idea/
 *.vscode/
 .env.*
+.env
+/.sql
+/backup/

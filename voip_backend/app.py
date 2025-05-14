@@ -1,33 +1,42 @@
 # app.py
 
 from flask import Flask
-from extensions import db
+from extensions import db , ma
 from flask_cors import CORS
-from routes import register_routes
-from models.models import *  # ✅ Import all models here!
+from routes import register_routes  # Register all blueprints here
+from models.models import *  # Ensure all models are loaded
+
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env
+load_dotenv()
 
 # Create Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Load configuration
+# Load configuration from config.py
 app.config.from_object('config.Config')
 
-# Initialize database extension
+# Initialize database
 db.init_app(app)
+ma.init_app(app)
 
-# Create tables inside app context
-#with app.app_context():
-    #db.create_all()
-    #print("✅ Tables created!")
-
-# Routes registration (temporarily commented)
+# Register all routes via central router
 register_routes(app)
 
-# Test home route
+# Health check route
 @app.route('/')
 def home():
-    return "Backend API is running!"
+    return "✅ Backend API is running!"
 
+# Run the app
 if __name__ == "__main__":
+    
+    with app.app_context():
+        print("\n🔍 Registered Flask routes:")
+        for rule in app.url_map.iter_rules():
+            print(f"{rule.methods} -> {rule.rule}")
+
     app.run(debug=True)

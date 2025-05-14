@@ -1,6 +1,7 @@
+from extensions import ma
 from marshmallow import Schema, fields, validate
 
-class CallLogSchema(Schema):
+class CallLogSchema(ma.Schema):
     id = fields.Int(dump_only=True)
     contact_id = fields.Int(required=True)
     status_id = fields.Int(required=True)
