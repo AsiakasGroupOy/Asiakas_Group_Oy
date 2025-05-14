@@ -1,48 +1,50 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.models import ContactList, Organization, CallingList
+from schemas.contact_schemas import ContactSchema
 import re
 
-# Create Blueprint
 contact_bp = Blueprint('contact_bp', __name__)
+contact_schema = ContactSchema()
+contacts_schema = ContactSchema(many=True)
 
 # 📌 Helper: Validate email format
 def is_valid_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email) is not None
 
-# ✅ NEW: GET all contacts (non-paginated)
+# ✅ GET all contacts (non-paginated)
 @contact_bp.route('/all', methods=['GET'])
 def get_all_contacts():
     contacts = ContactList.query.all()
-    return jsonify([contact.serialize() for contact in contacts]), 200
+    return jsonify(contacts_schema.dump(contacts)), 200
 
-# 📌 GET contacts with pagination
+# ✅ GET contacts with pagination
 @contact_bp.route('/', methods=['GET'])
 def get_contacts():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
 
     pagination = ContactList.query.paginate(page=page, per_page=per_page, error_out=False)
-    contacts = [contact.serialize() for contact in pagination.items]
+    contacts = pagination.items
 
     return jsonify({
         "total": pagination.total,
         "pages": pagination.pages,
         "current_page": pagination.page,
         "per_page": pagination.per_page,
-        "contacts": contacts
+        "contacts": contacts_schema.dump(contacts)
     }), 200
 
-# 📌 GET a single contact by ID
+# ✅ GET a single contact by ID
 @contact_bp.route('/<int:contact_id>', methods=['GET'])
 def get_contact(contact_id):
     contact = ContactList.query.get(contact_id)
     if contact:
-        return jsonify(contact.serialize()), 200
+        return jsonify(contact_schema.dump(contact)), 200
     return jsonify({"error": "Contact not found"}), 404
 
-# 📌 CREATE a new contact
+# ✅ CREATE a new contact
 @contact_bp.route('/', methods=['POST'])
 def create_contact():
     data = request.get_json()
@@ -63,9 +65,9 @@ def create_contact():
     if 'phone' in data and ContactList.query.filter_by(phone=data['phone']).first():
         return jsonify({"error": "Phone number already exists"}), 400
 
-    # Create or find organization
-    organization_name = data.get('organization_name')
+    # Organization
     organization = None
+    organization_name = data.get('organization_name')
     if organization_name:
         organization = Organization.query.filter_by(organization_name=organization_name).first()
         if not organization:
@@ -73,10 +75,10 @@ def create_contact():
             db.session.add(organization)
             db.session.commit()
 
+    # Calling List
     calling_list_id = data.get('calling_list_id')
-    if calling_list_id:
-        if not CallingList.query.get(calling_list_id):
-            return jsonify({"error": "Calling List not found"}), 404
+    if calling_list_id and not CallingList.query.get(calling_list_id):
+        return jsonify({"error": "Calling List not found"}), 404
 
     new_contact = ContactList(
         first_name=first_name,
@@ -88,12 +90,13 @@ def create_contact():
         organization_id=organization.organization_id if organization else None,
         calling_list_id=calling_list_id
     )
+
     db.session.add(new_contact)
     db.session.commit()
 
-    return jsonify(new_contact.serialize()), 201
+    return jsonify(contact_schema.dump(new_contact)), 201
 
-# 📌 UPDATE a contact
+# ✅ UPDATE a contact
 @contact_bp.route('/<int:contact_id>', methods=['PUT'])
 def update_contact(contact_id):
     contact = ContactList.query.get(contact_id)
@@ -102,7 +105,6 @@ def update_contact(contact_id):
 
     data = request.get_json()
 
-    # Update and validate email if changed
     new_email = data.get('email')
     if new_email and new_email != contact.email:
         if not is_valid_email(new_email):
@@ -111,7 +113,7 @@ def update_contact(contact_id):
             return jsonify({"error": "Email already exists"}), 400
         contact.email = new_email
 
-    # Create or find organization if organization_name provided
+    # Organization
     organization_name = data.get('organization_name')
     if organization_name:
         organization = Organization.query.filter_by(organization_name=organization_name).first()
@@ -121,14 +123,14 @@ def update_contact(contact_id):
             db.session.commit()
         contact.organization_id = organization.organization_id
 
-    # Validate and update calling list if provided
+    # Calling List
     calling_list_id = data.get('calling_list_id')
     if calling_list_id:
         if not CallingList.query.get(calling_list_id):
             return jsonify({"error": "Calling List not found"}), 404
         contact.calling_list_id = calling_list_id
 
-    # Update basic fields
+    # Basic fields
     contact.first_name = data.get('first_name', contact.first_name)
     contact.last_name = data.get('last_name', contact.last_name)
     contact.job_title = data.get('job_title', contact.job_title)
@@ -136,10 +138,9 @@ def update_contact(contact_id):
     contact.note = data.get('note', contact.note)
 
     db.session.commit()
+    return jsonify(contact_schema.dump(contact)), 200
 
-    return jsonify(contact.serialize()), 200
-
-# 📌 DELETE a contact
+# ✅ DELETE a contact
 @contact_bp.route('/<int:contact_id>', methods=['DELETE'])
 def delete_contact(contact_id):
     contact = ContactList.query.get(contact_id)
@@ -151,24 +152,20 @@ def delete_contact(contact_id):
 
     return jsonify({"message": f"Contact with ID {contact_id} deleted successfully"}), 200
 
-# 📌 BULK DELETE contacts
+# ✅ BULK DELETE contacts
 @contact_bp.route('/bulk-delete', methods=['DELETE'])
 def bulk_delete_contacts():
     try:
-        # 🔐 Ensure JSON is parsed even for DELETE requests
         data = request.get_json(force=True)
-
-        # ✅ Extract and validate IDs
         ids = data.get('ids')
+
         if not ids or not isinstance(ids, list):
             return jsonify({"error": "Please provide a list of contact IDs"}), 400
 
-        # 🔍 Fetch matching contacts
         contacts = ContactList.query.filter(ContactList.contact_id.in_(ids)).all()
         if not contacts:
             return jsonify({"error": "No matching contacts found"}), 404
 
-        # ❌ Delete all found contacts
         for contact in contacts:
             db.session.delete(contact)
         db.session.commit()

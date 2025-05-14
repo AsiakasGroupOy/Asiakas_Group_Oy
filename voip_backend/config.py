@@ -1,10 +1,19 @@
 # config.py
+import os
+from dotenv import load_dotenv
 
-# Application configuration class
+load_dotenv()
+
 class Config:
-    # Update with your actual MySQL password
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:2016@localhost:3306/voip_db"
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT", 3306)  # default if not set
+    DB_NAME = os.getenv("DB_NAME")
 
-    # Disable event system (saves resources unless needed)
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
