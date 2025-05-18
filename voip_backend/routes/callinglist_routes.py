@@ -1,51 +1,51 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
 from models.models import CallingList
+from schemas.calling_list_schemas import CallingListSchema  # ✅ Correct import
 
-# Create Blueprint
 callinglist_bp = Blueprint('callinglist_bp', __name__)
+calling_list_schema = CallingListSchema()
+calling_lists_schema = CallingListSchema(many=True)
 
-# ✅ NEW: GET all calling lists (non-paginated)
+# ✅ GET all calling lists (non-paginated)
 @callinglist_bp.route('/all', methods=['GET'])
 def get_all_calling_lists():
     calling_lists = CallingList.query.all()
-    return jsonify([cl.serialize() for cl in calling_lists]), 200
+    return jsonify(calling_lists_schema.dump(calling_lists)), 200
 
-# 📌 GET all calling lists (this is currently non-paginated too)
+# ✅ GET all calling lists (alias)
 @callinglist_bp.route('/', methods=['GET'])
 def get_calling_lists():
     calling_lists = CallingList.query.all()
-    return jsonify([cl.serialize() for cl in calling_lists]), 200
+    return jsonify(calling_lists_schema.dump(calling_lists)), 200
 
-# 📌 GET a single calling list by ID
+# ✅ GET a single calling list by ID
 @callinglist_bp.route('/<int:calling_list_id>', methods=['GET'])
 def get_calling_list(calling_list_id):
     calling_list = CallingList.query.get(calling_list_id)
     if calling_list:
-        return jsonify(calling_list.serialize()), 200
+        return jsonify(calling_list_schema.dump(calling_list)), 200
     return jsonify({"error": "Calling List not found"}), 404
 
-# 📌 CREATE a new calling list
+# ✅ CREATE a new calling list
 @callinglist_bp.route('/', methods=['POST'])
 def create_calling_list():
     data = request.get_json()
-
     calling_list_name = data.get('calling_list_name')
+
     if not calling_list_name:
         return jsonify({"error": "Calling List Name is required."}), 400
 
     if CallingList.query.filter_by(calling_list_name=calling_list_name).first():
         return jsonify({"error": "Calling List with this name already exists."}), 400
 
-    new_calling_list = CallingList(
-        calling_list_name=calling_list_name
-    )
+    new_calling_list = CallingList(calling_list_name=calling_list_name)
     db.session.add(new_calling_list)
     db.session.commit()
 
-    return jsonify(new_calling_list.serialize()), 201
+    return jsonify(calling_list_schema.dump(new_calling_list)), 201
 
-# 📌 UPDATE a calling list
+# ✅ UPDATE a calling list
 @callinglist_bp.route('/<int:calling_list_id>', methods=['PUT'])
 def update_calling_list(calling_list_id):
     calling_list = CallingList.query.get(calling_list_id)
@@ -56,12 +56,11 @@ def update_calling_list(calling_list_id):
     calling_list.calling_list_name = data.get('calling_list_name', calling_list.calling_list_name)
 
     db.session.commit()
-    return jsonify(calling_list.serialize()), 200
+    return jsonify(calling_list_schema.dump(calling_list)), 200
 
-# 📌 DELETE a calling list
+# ✅ BULK DELETE calling lists
 @callinglist_bp.route('/bulk-delete', methods=['DELETE'])
 def bulk_delete_calling_lists():
-    print("bulk_delete_calling_lists route hit")
     try:
         data = request.get_json(force=True)
         ids = data.get('ids')
@@ -86,4 +85,3 @@ def bulk_delete_calling_lists():
 
     except Exception as e:
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
-

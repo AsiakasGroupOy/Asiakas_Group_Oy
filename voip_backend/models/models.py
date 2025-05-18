@@ -64,7 +64,7 @@ class Status(db.Model):
     def serialize(self):
         return {
             'status_id': self.status_id,
-            'name': self.name,
+            'name': self.status_name,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
