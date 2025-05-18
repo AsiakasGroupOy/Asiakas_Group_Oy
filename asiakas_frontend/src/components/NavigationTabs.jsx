@@ -1,19 +1,22 @@
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Tabs, Tab } from '@mui/material';
-import React ,{ useState }from 'react';
+
 
 const NavigationTabs = () => {
-    const [activeTab, setActiveTab] = useState(0);
-  
-    const handleChange = (event, newValue) => {
-      setActiveTab(newValue);
-    };
-  
+    const location = useLocation();
+    const path = location.pathname;
+   
+    const getTabValue = () => {
+    if (path === "/") return "/";
+    if (path === "/callview") return "/callview";
+    return false;
+  };
+
+    
     return (
       <Tabs
-        value={activeTab}
-        onChange={handleChange}
+        value={getTabValue()}
         indicatorColor="primary"
         textColor="inherit"
         sx={{
@@ -29,8 +32,8 @@ const NavigationTabs = () => {
           },
         }}
       >
-        <Tab label="Contact list" component={Link} to="/" />
-        <Tab label="Call view" component={Link} to="/callview" />
+        <Tab label="Contact list" value="/" component={Link} to="/" />
+        <Tab label="Call view" value="/callview" component={Link} to="/callview" />
       </Tabs>
     );
   };

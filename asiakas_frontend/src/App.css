@@ -45,7 +45,7 @@
 .ag-theme-material .ag-header-cell {
   background-color: #f0f0f0;
     padding: 5px !important;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: bold;
     color: #333;
     
@@ -53,5 +53,5 @@
 .ag-theme-material .ag-cell
 {
   padding:  0px 5px  !important;
-  
+  font-size: 11px;
 }
