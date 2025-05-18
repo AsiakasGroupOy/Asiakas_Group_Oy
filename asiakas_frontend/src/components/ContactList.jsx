@@ -5,14 +5,7 @@ import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import Groups2RoundedIcon from "@mui/icons-material/Groups2Rounded";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import {
-  Button,
-  Tooltip,
-  Menu,
-  MenuItem,
-  Checkbox,
-  Divider,
-} from "@mui/material";
+import { Button,Tooltip,Menu,MenuItem,Checkbox, Divider} from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Typography from "@mui/material/Typography";
 import {
@@ -20,7 +13,7 @@ import {
   faTrashCan,
   faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
-
+import { getContactList } from "../contactListApi";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 
@@ -28,10 +21,11 @@ import theme from "../theme";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ContactList() {
-  const [customers] = useState([
-    { contact_id: 1,
+  /*const [customers] = useState([
+     {
+      contact_id: 1,
       calling_list_name: "List 1",
-      company_name: "Org A",
+      organization_name: "Org A",
       first_name: "John",
       last_name: "Doe",
       phone: "123-456-7890",
@@ -39,11 +33,29 @@ export default function ContactList() {
       status_type: "Active",
       call_date: "2023-01-01",
       number_of_calls: 5,
-     
+      email: "werty@erttyyu.com",
+      note: "",
+      job_title: "Software Engineer",
     },
-    { contact_id: 2,
-      calling_list_name: "List 2",
-      company_name: "Org B",
+    {
+      contact_id: 21,
+      calling_list_name: "List 1",
+      organization_name: "Org A",
+      first_name: "GOOO",
+      last_name: "GOOO",
+      phone: "123-456-7890",
+      website: "Info A",
+      status_type: "Active",
+      call_date: "2023-01-01",
+      number_of_calls: 5,
+      email: "sxfdsh@erttyyu.com",
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
+      job_title: "Engineer",
+    },
+    {
+      contact_id: 2,
+      calling_list_name: "List 1",
+      organization_name: "Org B",
       first_name: "Jane",
       last_name: "Smith",
       phone: "987-654-3210",
@@ -51,11 +63,16 @@ export default function ContactList() {
       status_type: "Inactive",
       call_date: "2023-02-01",
       number_of_calls: 10,
-      
+      email: "wedvfdrty@erttyyu.com",
+      note:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut" +
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
+      job_title: "Manager",
     },
-    { contact_id: 3,
+    {
+      contact_id: 3,
       calling_list_name: "List 3",
-      company_name: "Org C",
+      organization_name: "Org C",
       first_name: "Alice",
       last_name: "Johnson",
       phone: "555-555-5555",
@@ -63,11 +80,14 @@ export default function ContactList() {
       status_type: "Active",
       call_date: "2023-03-01",
       number_of_calls: 15,
-      
+      email: "dd@erttyyu.com",
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
+      job_title: "Director",
     },
-    { contact_id: 4,
+    {
+      contact_id: 4,
       calling_list_name: "List 4",
-      company_name: "Org D",
+      organization_name: "Org D",
       first_name: "Bob",
       last_name: "Brown",
       phone: "444-444-4444",
@@ -75,11 +95,14 @@ export default function ContactList() {
       status_type: "Inactive",
       call_date: "2023-04-01",
       number_of_calls: 20,
-      
+       email: "",
+      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
+      job_title: "Sales",
     },
-    { contact_id: 5,
+    {
+      contact_id: 5,
       calling_list_name: "List 5",
-      company_name: "Org E",
+      organization_name: "Org E",
       first_name: "Charlie",
       last_name: "Green",
       phone: "333-333-3333",
@@ -87,9 +110,12 @@ export default function ContactList() {
       status_type: "Active",
       call_date: "2023-05-01",
       number_of_calls: 25,
-      
+      email: "",
+      note: "",
+      job_title: "Analyst",
     },
   ]);
+  */
   const [contactList, setContactList] = useState();
   //Must be set up to AgGridReact instead of "customers" in rowData={customers}
 
@@ -101,7 +127,7 @@ export default function ContactList() {
     },
     {
       headerName: "Company",
-      field: "company_name",
+      field: "organization_name",
       filter: true,
     },
     { headerName: "Contact",
@@ -140,24 +166,19 @@ export default function ContactList() {
     setAnchorEl(event.currentTarget);
   };
 
-  /*useEffect(() => {
+  useEffect(() => {
       fetchContactList();
     }, []);
 
  const fetchContactList = async () => {
     try {
-      const response = await getContactList();
-       
-      if (!response.ok) {
-        throw new Error("Error in retrieving contacts" + response.statusText);
-      }
-      const data = await response.json();
+      const data = await getContactList();;
       setContactList(data);
     } catch (error) {
       console.error("Failed to load contacts: ", error);
     }
   };
-*/
+ 
 
   const handleSelectedRows = () => {
       const handleSelected = gridRef.current.getSelectedRows();
@@ -350,7 +371,7 @@ export default function ContactList() {
         >
           <div className="ag-theme-material" style={{ height: "100%" }}>
             <AgGridReact
-              rowData={customers}
+              rowData={contactList}
               columnDefs={columnDefs}
               pagination={true}
               rowSelection={{

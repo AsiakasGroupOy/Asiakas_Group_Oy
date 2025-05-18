@@ -17,7 +17,7 @@ export default function CallView() {
     {
       contact_id: 1,
       calling_list_name: "List 1",
-      company_name: "Org A",
+      organization_name: "Org A",
       first_name: "John",
       last_name: "Doe",
       phone: "123-456-7890",
@@ -32,7 +32,7 @@ export default function CallView() {
     {
       contact_id: 21,
       calling_list_name: "List 1",
-      company_name: "Org A",
+      organization_name: "Org A",
       first_name: "GOOO",
       last_name: "GOOO",
       phone: "123-456-7890",
@@ -47,7 +47,7 @@ export default function CallView() {
     {
       contact_id: 2,
       calling_list_name: "List 1",
-      company_name: "Org B",
+      organization_name: "Org B",
       first_name: "Jane",
       last_name: "Smith",
       phone: "987-654-3210",
@@ -64,7 +64,7 @@ export default function CallView() {
     {
       contact_id: 3,
       calling_list_name: "List 3",
-      company_name: "Org C",
+      organization_name: "Org C",
       first_name: "Alice",
       last_name: "Johnson",
       phone: "555-555-5555",
@@ -79,7 +79,7 @@ export default function CallView() {
     {
       contact_id: 4,
       calling_list_name: "List 4",
-      company_name: "Org D",
+      organization_name: "Org D",
       first_name: "Bob",
       last_name: "Brown",
       phone: "444-444-4444",
@@ -94,7 +94,7 @@ export default function CallView() {
     {
       contact_id: 5,
       calling_list_name: "List 5",
-      company_name: "Org E",
+      organization_name: "Org E",
       first_name: "Charlie",
       last_name: "Green",
       phone: "333-333-3333",
@@ -143,11 +143,11 @@ export default function CallView() {
   useEffect(() => {
      if (currentContact) {
     setCallListSearch(currentContact.calling_list_name || "");
-    setCompanySearch(currentContact.company_name || "");
+    setCompanySearch(currentContact.organization_name || "");
     // Filter contacts by current contact's company or call list
     const filtered = contacts.filter(
       c =>
-        c.company_name === currentContact.company_name ||
+        c.organization_name === currentContact.organization_name ||
         c.calling_list_name === currentContact.calling_list_name
     );
     setFilteredContacts(filtered);
@@ -160,7 +160,7 @@ export default function CallView() {
     if (!selectedCallList) {
       const filteredByCallList = contacts;
       setFilteredContacts(filteredByCallList);
-      setCompanySearch(filteredByCallList[0].company_name || "");
+      setCompanySearch(filteredByCallList[0].organization_name || "");
       setCallListSearch("");
       setCurrentIndex(0);
       return;
@@ -173,7 +173,7 @@ export default function CallView() {
     // If there are companies in this call list, set the company search and navigate to the first contact
     if (filteredByCallList.length > 0) {
       setFilteredContacts(filteredByCallList);
-      setCompanySearch(filteredByCallList[0].company_name || "");
+      setCompanySearch(filteredByCallList[0].organization_name || "");
       setCurrentIndex(0);
     } else {
       setCompanySearch("");
@@ -196,7 +196,7 @@ export default function CallView() {
 
 
   let companyMatch = filteredContacts.filter((c) =>
-    c.company_name.toLowerCase().includes(companySearch.trim().toLowerCase())
+    c.organization_name.toLowerCase().includes(companySearch.trim().toLowerCase())
   );
 
   // If no matches, use the currentContact as the only result (if it exists)
@@ -212,7 +212,7 @@ export default function CallView() {
   const goToContact = (idx) => {
     if (activeContacts[idx]) {
       setCurrentIndex(idx);
-      setCompanySearch(activeContacts[idx].company_name || "");
+      setCompanySearch(activeContacts[idx].organization_name || "");
     }
   };
 
@@ -251,7 +251,7 @@ export default function CallView() {
                   sx={{ color: "#08205e", fontSize: 22}}
                 />
                 <Typography variant="h6" >
-                  {contact.company_name}
+                  {contact.organization_name}
                 </Typography>
               </Stack>
             ) : null}
