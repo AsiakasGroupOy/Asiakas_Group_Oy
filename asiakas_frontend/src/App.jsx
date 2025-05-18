@@ -1,6 +1,6 @@
 import {Container, CssBaseline, AppBar, Toolbar, Typography, Box} from '@mui/material';
 import './App.css'
-import NavigationTabs from '../ui/NavigationTabs';
+import NavigationTabs from './components/NavigationTabs';
 import { Outlet } from 'react-router-dom';
 
 
