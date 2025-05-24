@@ -1,20 +1,34 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Environment
 .env
+.env.*
 *.env
+
+# Virtual Environment
+.venv/
+
+# Databases
 *.db
 *.sqlite3
-instance/
-.DS_Store
+
+# Logs, temp, IDEs
 *.log
 *.bak
 *.swp
 *.tmp
-*.idea/
-*.vscode/
-.env.*
-.env
-/.sql
+*.DS_Store
+.idea/
+.vscode/
+
+# SQL & backups
+.sql
 /backup/
+
+# Node.js (if frontend exists)
+node_modules/
+
