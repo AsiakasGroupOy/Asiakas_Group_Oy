@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "VoIP API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Contacts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/contacts/all",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "contacts",
+            "all"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bulk Delete Contacts",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ids\": [1, 2, 3]\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/contacts/bulk-delete",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "contacts",
+            "bulk-delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bulk Delete Organizations",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ids\": [1, 2]\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/organizations/bulk-delete",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "organizations",
+            "bulk-delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bulk Delete Statuses",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ids\": [1, 2]\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/statuses/bulk-delete",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "statuses",
+            "bulk-delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bulk Delete Calling Lists",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ids\": [1, 2]\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/callinglists/bulk-delete",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "callinglists",
+            "bulk-delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bulk Delete Call Logs",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ids\": [1, 2]\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/calllogs/bulk-delete",
+          "protocol": "http",
+          "host": [
+            "127.0.0.1"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "calllogs",
+            "bulk-delete"
+          ]
+        }
+      }
+    }
+  ]
+}
