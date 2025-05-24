@@ -7,7 +7,8 @@ import os
 from src.configuration.config import Config
 from src.voip_backend.extensions import db
 from src.voip_backend.models.models import *  # Includes Status
-from src.scripts.preload_statuses import preload_statuses
+from src.voip_backend.scripts.preload_statuses import preload_statuses
+
 
 load_dotenv()
 
