@@ -10,9 +10,7 @@ class Organization(db.Model):
     organization_id = db.Column(db.Integer, primary_key=True)
     organization_name = db.Column(db.String(255), nullable=False, unique=True)
     website = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    
     # Relationships
     contacts = db.relationship('ContactList', backref='organization', lazy=True)
 
@@ -21,8 +19,7 @@ class Organization(db.Model):
             'organization_id': self.organization_id,
             'organization_name': self.organization_name,
             'website': self.website,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+          
         }
 
 # -----------------------------------------
@@ -33,18 +30,15 @@ class CallingList(db.Model):
 
     calling_list_id = db.Column(db.Integer, primary_key=True)
     calling_list_name = db.Column(db.String(255), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    
     # Relationships
-    contacts = db.relationship('ContactList', backref='calling_list', lazy=True, cascade="all, delete")
+    contact_calling_lists = db.relationship('ContactCallingList', back_populates='calling_list', cascade="all, delete-orphan")
+    contacts = db.relationship('ContactList',secondary='contact_calling_list', back_populates='calling_lists'  )
 
     def serialize(self):
         return {
             'calling_list_id': self.calling_list_id,
             'calling_list_name': self.calling_list_name,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
 # -----------------------------------------
@@ -55,8 +49,6 @@ class Status(db.Model):
 
     status_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     call_logs = db.relationship('CallLog', backref='status', lazy=True)
@@ -65,8 +57,6 @@ class Status(db.Model):
         return {
             'status_id': self.status_id,
             'name': self.status_name,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
 # -----------------------------------------
@@ -84,11 +74,11 @@ class ContactList(db.Model):
     note = db.Column(db.Text)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.organization_id', ondelete="SET NULL"), nullable=True)
     calling_list_id = db.Column(db.Integer, db.ForeignKey('calling_list.calling_list_id', ondelete="SET NULL"), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    
     # Relationships
     call_logs = db.relationship('CallLog', backref='contact', lazy=True, cascade="all, delete")
+    contact_calling_lists = db.relationship('ContactCallingList', back_populates='contact', cascade="all, delete-orphan")
+    calling_lists = db.relationship('CallingList', secondary='contact_calling_list', back_populates='contacts' )
 
     def serialize(self):
         return {
@@ -101,8 +91,6 @@ class ContactList(db.Model):
             'note': self.note,
             'organization_id': self.organization_id,
             'calling_list_id': self.calling_list_id,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
 # -----------------------------------------
@@ -115,9 +103,6 @@ class CallLog(db.Model):
     contact_id = db.Column(db.Integer, db.ForeignKey('contact_list.contact_id', ondelete="CASCADE"), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('status.status_id'), nullable=True)  # ✅ status_id is optional
     call_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    call_notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def serialize(self):
         return {
@@ -125,7 +110,17 @@ class CallLog(db.Model):
             'contact_id': self.contact_id,
             'status_id': self.status_id,
             'call_timestamp': self.call_timestamp.isoformat() if self.call_timestamp else None,
-            'call_notes': self.call_notes,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+# -----------------------------------------
+# CONTACT CALLING LIST MODEL/Tatiana
+# -----------------------------------------    
+class ContactCallingList(db.Model):
+    __tablename__ = "contact_calling_list"
+
+    concal_id = db.Column(db.Integer, primary_key=True)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact_list.contact_id', ondelete="CASCADE"), nullable=False)
+    calling_list_id = db.Column(db.Integer, db.ForeignKey('calling_list.calling_list_id', ondelete="CASCADE"), nullable=False)
+
+    # Optional: relationships for easier access
+    contact = db.relationship('ContactList', back_populates='contact_calling_lists')
+    calling_list = db.relationship('CallingList', back_populates='contact_calling_lists')
