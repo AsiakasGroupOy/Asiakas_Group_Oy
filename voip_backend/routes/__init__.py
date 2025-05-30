@@ -3,6 +3,7 @@ from .organization_routes import organization_bp
 from .status_routes import status_bp
 from .callinglist_routes import callinglist_bp
 from .call_log_routes import calllog_bp
+from .contact_call_list import contact_calllist_bp
 
 def register_routes(app):
     app.register_blueprint(contact_bp, url_prefix='/api/contacts')
@@ -10,3 +11,4 @@ def register_routes(app):
     app.register_blueprint(status_bp, url_prefix='/api/statuses')
     app.register_blueprint(callinglist_bp, url_prefix='/api/callinglist') 
     app.register_blueprint(calllog_bp, url_prefix='/api/calllogs')
+    app.register_blueprint(contact_calllist_bp, url_prefix='/api/concalllist')

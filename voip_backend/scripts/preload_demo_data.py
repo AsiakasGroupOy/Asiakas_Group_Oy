@@ -5,7 +5,7 @@ from faker import Faker
 from dotenv import load_dotenv
 
 from extensions import db
-from models.models import Organization, CallingList, ContactList
+from models.models import Organization, CallingList, ContactList, ContactCallingList
 from app import app
 
 load_dotenv()
@@ -35,6 +35,7 @@ def preload_demo_data():
         db.session.commit()
 
         # 3. Create 10 contacts, randomly assigning company and calling list
+        contacts = []
         for i in range(10):
             company = fake.random_element(companies)
             calling_list = fake.random_element(calling_lists)
@@ -46,11 +47,24 @@ def preload_demo_data():
                 email=fake.email(),
                 note=fake.sentence(),
                 organization_id=company.organization_id,
-                calling_list_id=calling_list.calling_list_id
+                
             )
             db.session.add(contact)
+            contacts.append(contact)
         db.session.commit()
-        print("✅ Demo data loaded: 5 companies, 3 calling lists, 10 contacts.")
+
+        # 4. Create associations in contact_calling_list
+        for contact in contacts:
+            # Assign 1-2 random calling lists to each contact
+            assigned_lists = fake.random_elements(elements=calling_lists, length=fake.random_int(1, 2), unique=True)
+            for cl in assigned_lists:
+                assoc = ContactCallingList(
+                    contact_id=contact.contact_id,
+                    calling_list_id=cl.calling_list_id
+                )
+                db.session.add(assoc)
+        db.session.commit()
+        print("✅ Demo data loaded: 5 companies, 3 calling lists, 10 contacts, contact_calling_list associations.")
 
 if __name__ == "__main__":
     preload_demo_data()

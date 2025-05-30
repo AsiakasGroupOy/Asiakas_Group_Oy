@@ -5,152 +5,63 @@ import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import Groups2RoundedIcon from "@mui/icons-material/Groups2Rounded";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import { Button,Tooltip,Menu,MenuItem,Checkbox, Divider} from "@mui/material";
+import {
+  Button,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Checkbox,
+  Divider,
+} from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Typography from "@mui/material/Typography";
-import {
-  faUserPlus,
-  faTrashCan,
-  faFileExport,
-} from "@fortawesome/free-solid-svg-icons";
-import { getContactList } from "../contactListApi";
+import { faTrashCan, faFileExport } from "@fortawesome/free-solid-svg-icons";
+import { fullContactsCallLists, addContact,getContactList, removeContactsCallLists } from "../contactListApi";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
-
+import AddNewContact from "./AddNewContact";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ContactList() {
-  /*const [customers] = useState([
-     {
-      contact_id: 1,
-      calling_list_name: "List 1",
-      organization_name: "Org A",
-      first_name: "John",
-      last_name: "Doe",
-      phone: "123-456-7890",
-      website: "Info A",
-      status_type: "Active",
-      call_date: "2023-01-01",
-      number_of_calls: 5,
-      email: "werty@erttyyu.com",
-      note: "",
-      job_title: "Software Engineer",
-    },
-    {
-      contact_id: 21,
-      calling_list_name: "List 1",
-      organization_name: "Org A",
-      first_name: "GOOO",
-      last_name: "GOOO",
-      phone: "123-456-7890",
-      website: "Info A",
-      status_type: "Active",
-      call_date: "2023-01-01",
-      number_of_calls: 5,
-      email: "sxfdsh@erttyyu.com",
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
-      job_title: "Engineer",
-    },
-    {
-      contact_id: 2,
-      calling_list_name: "List 1",
-      organization_name: "Org B",
-      first_name: "Jane",
-      last_name: "Smith",
-      phone: "987-654-3210",
-      website: "Info B",
-      status_type: "Inactive",
-      call_date: "2023-02-01",
-      number_of_calls: 10,
-      email: "wedvfdrty@erttyyu.com",
-      note:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut" +
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
-      job_title: "Manager",
-    },
-    {
-      contact_id: 3,
-      calling_list_name: "List 3",
-      organization_name: "Org C",
-      first_name: "Alice",
-      last_name: "Johnson",
-      phone: "555-555-5555",
-      website: "Info C",
-      status_type: "Active",
-      call_date: "2023-03-01",
-      number_of_calls: 15,
-      email: "dd@erttyyu.com",
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
-      job_title: "Director",
-    },
-    {
-      contact_id: 4,
-      calling_list_name: "List 4",
-      organization_name: "Org D",
-      first_name: "Bob",
-      last_name: "Brown",
-      phone: "444-444-4444",
-      website: "Info D",
-      status_type: "Inactive",
-      call_date: "2023-04-01",
-      number_of_calls: 20,
-       email: "",
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut",
-      job_title: "Sales",
-    },
-    {
-      contact_id: 5,
-      calling_list_name: "List 5",
-      organization_name: "Org E",
-      first_name: "Charlie",
-      last_name: "Green",
-      phone: "333-333-3333",
-      website: "Info E",
-      status_type: "Active",
-      call_date: "2023-05-01",
-      number_of_calls: 25,
-      email: "",
-      note: "",
-      job_title: "Analyst",
-    },
-  ]);
-  */
   const [contactList, setContactList] = useState();
-  //Must be set up to AgGridReact instead of "customers" in rowData={customers}
-
-  const columnDefs = useMemo(()=>[
-    {
-      headerName: "Calling List",
-      field: "calling_list_name",
-      filter: true,
-    },
-    {
-      headerName: "Company",
-      field: "organization_name",
-      filter: true,
-    },
-    { headerName: "Contact",
-      field: "contact_name",
-      valueGetter: params => `${params.data.first_name} ${params.data.last_name}`,
-      filter: true
-    },
-    { headerName: "Phone Number", field: "phone" },
-    { headerName: "Additional Information", field: "website" },
-    { headerName: "Status", field: "status_type", filter: true },
-    {
-      headerName: "Last Activity",
-      field: "call_date",
-      filter: true,
-    },
-    {
-      headerName: "Number of Calls",
-      field: "number_of_calls",
-      filter: true,
-    },
-    //{ cellRenderer: (params) => {<EditContact data={params.data} />},
-    //}   
-  ],[]);
+  const columnDefs = useMemo(
+    () => [
+      {
+        headerName: "Calling List",
+        field: "calling_list.calling_list_name",
+        filter: true,
+      },
+      {
+        headerName: "Company",
+        field: "contact.organization_name",
+        filter: true,
+      },
+      {
+        headerName: "Contact",
+        field: "contact_name",
+        valueGetter: (params) =>
+          `${params.data.contact.first_name} ${params.data.contact.last_name}`,
+        filter: true,
+      },
+      { headerName: "Phone Number", field: "contact.phone" },
+      { headerName: "Additional Information", field: "contact.website" },
+      { headerName: "Status", field: "status_type", filter: true },
+      {
+        headerName: "Last Activity",
+        field: "call_date",
+        filter: true,
+      },
+      {
+        headerName: "Number of Calls",
+        field: "number_of_calls",
+        filter: true,
+      },
+      //{ cellRenderer: (params) => {<EditContact data={params.data} />},
+      //}
+    ],
+    []
+  );
 
   const [columnStateVersion, setColumnStateVersion] = useState(0);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -160,58 +71,56 @@ export default function ContactList() {
 
   const open = Boolean(anchorEl);
   const handleClose = () => {
-      setAnchorEl(null);
-    };
+    setAnchorEl(null);
+  };
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   useEffect(() => {
-      fetchContactList();
-    }, []);
+    fetchContactList();
+  }, []);
 
- const fetchContactList = async () => {
+  const fetchContactList = async () => {
     try {
-      const data = await getContactList();;
+      const data = await fullContactsCallLists();
+      console.log("Fetched contact list:", data);
       setContactList(data);
     } catch (error) {
       console.error("Failed to load contacts: ", error);
     }
   };
- 
 
   const handleSelectedRows = () => {
-      const handleSelected = gridRef.current.getSelectedRows();
-      setSelectedRows(handleSelected);
-    };
+    const handleSelected = gridRef.current.getSelectedRows();
+console.log("Selected rows:", handleSelected);
+    setSelectedRows(handleSelected);
+  };
 
   const areAllColumnsVisible = () => {
-      if (!gridRef.current) return true;
-      const state = gridRef.current.getColumnState();
-      return columnDefs.every(
-        (col) => {
-          const colState = state.find(c => c.colId === col.field);
-          return colState ? !colState.hide : true;
-        }
-      );
-    };
-  
+    if (!gridRef.current) return true;
+    const state = gridRef.current.getColumnState();
+    return columnDefs.every((col) => {
+      const colState = state.find((c) => c.colId === col.field);
+      return colState ? !colState.hide : true;
+    });
+  };
+
   const handleToggleColumn = (field) => {
-    const colState = gridRef.current.getColumnState().find(c => c.colId === field);
+    const colState = gridRef.current
+      .getColumnState()
+      .find((c) => c.colId === field);
     const isCurrentlyVisible = colState ? !colState.hide : true;
     gridRef.current.setColumnsVisible([field], !isCurrentlyVisible);
     // Save state after change
     const state = gridRef.current.getColumnState();
     localStorage.setItem("savedColumnState", JSON.stringify(state));
-    setColumnStateVersion(v => v + 1); // force re-render for immediate checkbox update
-    
+    setColumnStateVersion((v) => v + 1); // force re-render for immediate checkbox update
   };
-
 
   const handleToggleAll = () => {
     if (!gridRef.current) return;
     const allVisible = areAllColumnsVisible();
-    console.log("allVisible", allVisible);
     columnDefs.forEach((col) => {
       gridRef.current.setColumnsVisible([col.field], !allVisible);
     });
@@ -219,30 +128,62 @@ export default function ContactList() {
     const state = gridRef.current.getColumnState();
     localStorage.setItem("savedColumnState", JSON.stringify(state));
     gridRef.current.sizeColumnsToFit();
-    setColumnStateVersion(v => v + 1);
+    setColumnStateVersion((v) => v + 1);
   };
 
-  
   const exportToCsv = () => {
-    const columnKeys = columnDefs.map(col => col.field);
+    const columnKeys = columnDefs.map((col) => col.field);
     const now = new Date();
     const timestamp = now.toISOString().replace(/[:.]/g, "-");
     const fileName = `Contact list_${timestamp}.csv`;
-      const params = {
-          columnKeys:columnKeys,
-          fileName: fileName, // Specify the file name for the exported CSV file
-      };
-      gridRef.current.exportDataAsCsv(params);
+    const params = {
+      columnKeys: columnKeys,
+      fileName: fileName, // Specify the file name for the exported CSV file
+    };
+    gridRef.current.exportDataAsCsv(params);
   };
 
   const navigate = useNavigate();
+
   const handleRowClick = (params) => {
-    const contactId = params.data.contact_id;
-      navigate('/callview', {
-      state: { id: contactId }
-       });
+    const concal_id = params.data.concal_id;
+    navigate("/callview", {
+      state: { id: concal_id },
+    });
   };
 
+  const addNewContact = async (newContact) => {
+    try {
+      await addContact(newContact);
+      fetchContactList(); // Refresh contact list after adding
+      alert("Contact added!");
+    } catch (err) {
+      alert(err.message || "Failed to add contact");
+    }
+  };
+
+const handleDelete = async () => {
+  if (selectedRows.length === 0) {
+    alert("Please select at least one contact to delete.");
+    return;
+  }
+
+  const contactIds = selectedRows.map((row) => ({
+    contact_id: row.contact.contact_id,
+    calling_list_id: row.calling_list.calling_list_id,
+    concal_id: row.concal_id})
+     );
+  
+  try {
+    const response = await removeContactsCallLists(contactIds);
+    alert(response.message);
+    fetchContactList(); // Refresh contact list after deletion
+  } catch (error) {
+    console.error("Error deleting contacts:", error);
+    alert("Failed to delete contacts: " + (error.message || "Unknown error"));
+  } 
+
+};
 
 
   return (
@@ -258,7 +199,7 @@ export default function ContactList() {
           gap: 10,
         }}
       >
-        <Groups2RoundedIcon sx={{ color: "#08205e"}}/>
+        <Groups2RoundedIcon sx={{ color: "#08205e" }} />
         <Typography variant="h6" sx={{ color: "#08205e" }}>
           Contact list
         </Typography>
@@ -275,17 +216,13 @@ export default function ContactList() {
         }}
       >
         <ThemeProvider theme={theme}>
-          <Button
-            variant="contained"
-            color="dustblue"
-            startIcon={<FontAwesomeIcon icon={faUserPlus} />}
-          >
-            Add New Contact
-          </Button>
+          <AddNewContact addNewContact={addNewContact} />
+
           <Button
             variant="contained"
             color="dustblue"
             startIcon={<FontAwesomeIcon icon={faTrashCan} />}
+            onClick={handleDelete}
           >
             Delete
           </Button>
@@ -328,15 +265,20 @@ export default function ContactList() {
                 disableRipple
                 sx={{ fontWeight: "bold" }}
               >
-                {areAllColumnsVisible() ?  "Deselect All": "Select All"}
+                {areAllColumnsVisible() ? "Deselect All" : "Select All"}
               </MenuItem>
               <Divider />
               {columnDefs.map((col) => (
                 <MenuItem key={col.field} disableRipple>
                   <Checkbox
                     checked={
-                      gridRef.current && gridRef.current.getColumnState().find(c => c.colId === col.field)
-                        ? !gridRef.current.getColumnState().find(c => c.colId === col.field).hide
+                      gridRef.current &&
+                      gridRef.current
+                        .getColumnState()
+                        .find((c) => c.colId === col.field)
+                        ? !gridRef.current
+                            .getColumnState()
+                            .find((c) => c.colId === col.field).hide
                         : true
                     }
                     onChange={() => handleToggleColumn(col.field)}
@@ -383,7 +325,6 @@ export default function ContactList() {
                 resizable: true,
                 flex: 1,
                 minWidth: 100,
-              
               }}
               rowHeight={36}
               headerHeight={40}
@@ -391,7 +332,7 @@ export default function ContactList() {
               ref={gridRef}
               onGridReady={(params) => {
                 gridRef.current = params.api;
-                  // Restore column state if saved
+                // Restore column state if saved
                 const savedState = localStorage.getItem("savedColumnState");
                 if (savedState) {
                   params.api.applyColumnState({
@@ -399,13 +340,13 @@ export default function ContactList() {
                     applyOrder: true,
                   });
                 }
-                 params.api.sizeColumnsToFit();
-                }}
+                params.api.sizeColumnsToFit();
+              }}
               onColumnVisible={(params) => {
                 const state = params.api.getColumnState();
                 params.api.sizeColumnsToFit();
                 localStorage.setItem("savedColumnState", JSON.stringify(state));
-                }}  
+              }}
               onRowClicked={handleRowClick}
             />
           </div>
