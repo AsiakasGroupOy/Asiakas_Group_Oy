@@ -16,7 +16,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Typography from "@mui/material/Typography";
 import { faTrashCan, faFileExport } from "@fortawesome/free-solid-svg-icons";
-import { fullContactsCallLists, addContact,getContactList, removeContactsCallLists } from "../contactListApi";
+import { fullContactsCallLists, addContact, removeContactsCallLists } from "../contactListApi";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AddNewContact from "./AddNewContact";
@@ -46,19 +46,18 @@ export default function ContactList() {
       },
       { headerName: "Phone Number", field: "contact.phone" },
       { headerName: "Additional Information", field: "contact.website" },
-      { headerName: "Status", field: "status_type", filter: true },
+      { headerName: "Status", field: "latest_call_log.status", filter: true },
       {
         headerName: "Last Activity",
-        field: "call_date",
+        field: "latest_call_log.call_timestamp",
         filter: true,
       },
       {
         headerName: "Number of Calls",
-        field: "number_of_calls",
+        field: "latest_call_log.call_count",
         filter: true,
       },
-      //{ cellRenderer: (params) => {<EditContact data={params.data} />},
-      //}
+     
     ],
     []
   );
@@ -158,13 +157,13 @@ console.log("Selected rows:", handleSelected);
       fetchContactList(); // Refresh contact list after adding
       alert("Contact added!");
     } catch (err) {
-      alert(err.message || "Failed to add contact");
+      alert(err.message);
     }
   };
 
 const handleDelete = async () => {
   if (selectedRows.length === 0) {
-    alert("Please select at least one contact to delete.");
+    alert("Please select at least one row to delete.");
     return;
   }
 

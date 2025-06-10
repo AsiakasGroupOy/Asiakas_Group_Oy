@@ -38,14 +38,14 @@ def preload_demo_data():
         contacts = []
         for i in range(10):
             company = fake.random_element(companies)
-            calling_list = fake.random_element(calling_lists)
+          
             contact = ContactList(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 job_title=fake.job(),
                 phone=fake.phone_number(),
                 email=fake.email(),
-                note=fake.sentence(),
+                
                 organization_id=company.organization_id,
                 
             )
@@ -59,8 +59,9 @@ def preload_demo_data():
             assigned_lists = fake.random_elements(elements=calling_lists, length=fake.random_int(1, 2), unique=True)
             for cl in assigned_lists:
                 assoc = ContactCallingList(
-                    contact_id=contact.contact_id,
-                    calling_list_id=cl.calling_list_id
+                    contact=contact,
+                    calling_list=cl,
+                    note=fake.sentence(),
                 )
                 db.session.add(assoc)
         db.session.commit()

@@ -31,11 +31,13 @@ register_routes(app)
 def home():
     return "✅ Backend API is running!"
 
+
 # Run the app
 if __name__ == "__main__":
     
     with app.app_context():
         db.create_all()  # Create database tables if they don't exist
+        
         print("✅ Database tables created successfully!")
         print("\n🔍 Registered Flask routes:")
         for rule in app.url_map.iter_rules():

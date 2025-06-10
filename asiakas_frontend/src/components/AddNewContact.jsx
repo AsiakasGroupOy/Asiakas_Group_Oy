@@ -27,6 +27,7 @@ export default function AddContactForm({addNewContact}) {
       job_title: "",
       note: "",
       organization_name: "",
+      website: "",
       calling_list_name: ""
     });
   };
@@ -41,7 +42,8 @@ export default function AddContactForm({addNewContact}) {
     phone: "",
     job_title: "",
     note: "",
-    organization_name: "",
+    organization_name: "", // <-- User can type a new or existing list name
+    website: "",  
     calling_list_name: "", // <-- User can type a new or existing list name
   });
 // Fetch organizations and CallLists on mount
@@ -57,6 +59,7 @@ useEffect(() => {
       setCallingListNames([]);
     });
 }, []);
+
   const handleChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
   };
@@ -65,7 +68,7 @@ useEffect(() => {
         e.preventDefault();
         addNewContact(contact);
         handleClose();
-        console.log("Contact saved:", contact);
+        
     }
   return (
     <React.Fragment>
@@ -123,7 +126,6 @@ useEffect(() => {
           />
           <TextField
             autoFocus
-            required
             margin="dense"
             label="Email Address"
             name="email" value={contact.email} onChange={handleChange}
@@ -141,6 +143,7 @@ useEffect(() => {
           />
           <Autocomplete
             freeSolo
+            required
             size='small'
             options={organizationList} // array of organization names
             value={contact.organization_name}
@@ -151,8 +154,18 @@ useEffect(() => {
                 <TextField {...params} label="Organization" variant="standard" required />
             )}
             />
+
+           <TextField
+            autoFocus
+            margin="dense"
+            label="Website if organization is new"
+            name="note" value={contact.website} onChange={handleChange} 
+            fullWidth
+            variant="standard"
+          />
           <Autocomplete
             freeSolo
+            required
             size='small'
             options={callingListNames} // array of Calling lists names
             value={contact.calling_list_name}
