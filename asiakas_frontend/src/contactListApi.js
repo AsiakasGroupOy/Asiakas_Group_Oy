@@ -1,24 +1,34 @@
-export const getContactList = () => {
-  return fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contacts/all`).then(
-    (response) => {
-      if (!response.ok)
-        throw new Error("error in fetch: " + response.statusText);
 
-      return response.json();
-    }
-  );
-};
 
-export const addContact = (newContact) => {
-  return fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contacts/`, {
+export const fetchByFirstFromConCallingList = async()=>{
+  const response = await fetch ( `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/first` );
+  if (!response.ok) throw new Error("Failed to fetch data based on first contact in the List");
+  return await response.json(); 
+}
+
+export const fetchByNavIdFromConCallingList = async (concallIdFromNav)=>{
+  const response = await fetch ( `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/${concallIdFromNav}/navid` );
+  if (!response.ok) throw new Error("Failed to fetch data based on navId in the List");
+  return await response.json();   
+}
+
+export const fetchByCallingListName = async (callingListName) => {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/concalllist/${callingListName}/calllistname` )
+  if (!response.ok) throw new Error("Failed to fetch data based on calling list name");
+  return await response.json();
+}
+
+export const addContact = async (newContact) => {
+  const response = fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contacts/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(newContact),
-  }).then((response) => {
-    if (!response.ok) throw new Error("error in fetch: " + response.statusText);
-
-    return response.json();
   });
+
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Failed to add contact");
+    return data;
 };
 
 export const fetchOrganizations = async () => {
@@ -26,7 +36,7 @@ export const fetchOrganizations = async () => {
     `${import.meta.env.VITE_BACKEND_URL}/api/organizations/all`
   );
   if (!response.ok) throw new Error("Failed to fetch organizations");
-  return response.json();
+  return await response.json();
 };
 
 export const fetchCallLists = async () => {
@@ -34,7 +44,7 @@ export const fetchCallLists = async () => {
     `${import.meta.env.VITE_BACKEND_URL}/api/callinglist/all`
   );
   if (!response.ok) throw new Error("Failed to fetch Calling Lists");
-  return response.json();
+  return await response.json();
 };
 
 export const fullContactsCallLists = async () => {
@@ -42,7 +52,7 @@ export const fullContactsCallLists = async () => {
     `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/all`
   );
   if (!response.ok) throw new Error("Failed to fetch contacts from Call Lists");  
-  return response.json();
+  return await response.json();
 };
 
 export const removeContactsCallLists = async (contactIds) => {
@@ -53,5 +63,17 @@ export const removeContactsCallLists = async (contactIds) => {
     });
 
   if (!response.ok) throw new Error("Failed to remove Contacts and Call Lists assosiations");  
-  return response.json();
+  return await response.json();
 };
+
+export const addNote = async (ccl_id, noteValue) => {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/concalllist/${ccl_id}/note`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({note:noteValue}),
+  });
+
+  if (!response.ok) throw new Error("Failed to add note");
+  return await response.json();
+
+}

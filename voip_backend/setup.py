@@ -11,6 +11,18 @@ import os
 # Load environment variables
 load_dotenv()
 
+# Step 0: Drop existing database if needed
+def drop_database():
+    connection = pymysql.connect(
+        host=Config.DB_HOST,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD
+    )
+    with connection.cursor() as cursor:
+        cursor.execute(f"DROP DATABASE IF EXISTS {Config.DB_NAME}")
+    connection.close()
+    print(f"🗑️  Database `{Config.DB_NAME}` dropped.")
+
 # Step 1: Create database if it doesn't exist
 def create_database():
     connection = pymysql.connect(
@@ -33,8 +45,13 @@ def create_tables():
         db.create_all()
         print("✅ All tables created successfully.")
 
+      
+
 if __name__ == '__main__':
     print("🚀 Running backend setup...")
+    drop_database()
     create_database()
     create_tables()
+  
     print("🎉 Setup complete. You can now run the Flask app using `python app.py`.")
+   

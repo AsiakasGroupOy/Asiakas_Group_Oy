@@ -1,9 +1,11 @@
 from extensions import ma
-from marshmallow import Schema, fields, validate
+from marshmallow import fields
+
+
 
 class CallLogSchema(ma.Schema):
-    id = fields.Int(dump_only=True)
-    contact_id = fields.Int(required=True)
-    status_id = fields.Int(required=True)
-    call_time = fields.DateTime()
-    notes = fields.Str(validate=validate.Length(max=500))
+    call_id = fields.Int(dump_only=True)
+    status = fields.Str(required=True)
+    concal_id = fields.Int(required=True)
+    call_timestamp = fields.DateTime(dump_only=True)
+   
