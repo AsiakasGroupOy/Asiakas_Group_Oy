@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -9,17 +9,19 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import PersonIcon from "@mui/icons-material/Person";
-import {useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import theme from "../theme";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   addNote,
+  addStatus,
   fetchByFirstFromConCallingList,
   fetchByNavIdFromConCallingList,
   fetchByCallingListName,
   fetchCallLists,
 } from "../contactListApi";
+import StatusesCallView from "./StatusesCallView";
 
 export default function CallView() {
   const [currentOrgIndex, setCurrentOrgIndex] = useState(0);
@@ -32,10 +34,11 @@ export default function CallView() {
   const [callListSearch, setCallListSearch] = useState("");
 
   const location = useLocation();
- 
-  const [currentConcalId, setCurrentConcalId] = useState(location.state?.id || null);
-  
- 
+
+  const [currentConcalId, setCurrentConcalId] = useState(
+    location.state?.id || null
+  );
+
   useEffect(() => {
     const filteredFromConCallingList = async () => {
       try {
@@ -75,17 +78,12 @@ export default function CallView() {
     // Find the current contact by id
     let currentContact;
     if (currentConcalId) {
-      console.log("Current Concal ID:", currentConcalId);
       currentContact = filteredContacts.find(
         (c) => String(c.concal.concal_id) === String(currentConcalId)
       );
-      console.log("Current Contact:", currentContact);
-      setCurrentConcalId("")
-    }
-    
-    else {
+      setCurrentConcalId("");
+    } else {
       currentContact = filteredContacts[0]; // Default to the first contact if no id is provided
-      console.log("No currentConcalId provided, using first contact:", currentContact);
     }
 
     const filteredByCompany = filteredContacts.filter(
@@ -115,8 +113,6 @@ export default function CallView() {
     // Filter contacts by current contact's organization name
   }, [filteredContacts]);
 
-
-
   const handleCallListChange = async (callListName) => {
     try {
       const data = await fetchByCallingListName(callListName);
@@ -131,14 +127,12 @@ export default function CallView() {
     try {
       await addNote(ccl_id, newNote);
       setCurrentConcalId(ccl_id);
-      const data= await fetchByNavIdFromConCallingList(ccl_id);
+      const data = await fetchByNavIdFromConCallingList(ccl_id);
       setFilteredContacts(data);
       setNoteValue(newNote);
-      console.log("note coontact id:", currentConcalId);
     } catch (error) {
       console.error("Failed to save note:", error);
     }
-   
   };
 
   // Filtering logic
@@ -165,14 +159,6 @@ export default function CallView() {
       const companySearch = filteredOrgNames[idx] || "";
       setCompanySearch(companySearch);
       setCurrentIndex(0);
-      console.log(
-        "Company names:",
-        filteredOrgNames,
-        "Current Org Index:",
-        idx,
-        "filtered:",
-        filteredContacts
-      );
     }
   };
 
@@ -182,6 +168,18 @@ export default function CallView() {
     }
   }, [contact]);
 
+  const addNewStatus = async (status) => {
+    const ccl_id = contact.concal.concal_id;
+    const newStatus = status;
+    try {
+      await addStatus(ccl_id, newStatus);
+      setCurrentConcalId(ccl_id);
+      const data = await fetchByNavIdFromConCallingList(ccl_id);
+      setFilteredContacts(data);
+    } catch (error) {
+      console.error("Failed to add status:", error);
+    }
+  };
   return (
     <>
       <Box
@@ -268,132 +266,7 @@ export default function CallView() {
         </Paper>
       </Box>
       {activeContacts.length > 0 && companySearch ? (
-      <>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          m: 2,
-          width: "49%",
-        }}
-      >
-        <ThemeProvider theme={theme}>
-          <Button
-            variant="contained"
-            color="dustblue"
-            onClick={() => goToOrganization(currentOrgIndex - 1)}
-            disabled={currentOrgIndex <= 0}
-          >
-            Previous
-          </Button>
-          <Typography
-            variant="subtitle"
-            sx={{ color: "#08205e", alignSelf: "center" }}
-          >
-            {filteredOrgNames.length > 1 &&
-              `Company ${currentOrgIndex + 1} of ${filteredOrgNames.length}`}
-          </Typography>
-          <Button
-            variant="contained"
-            color="dustblue"
-            onClick={() => goToOrganization(currentOrgIndex + 1)}
-            disabled={currentOrgIndex >= filteredOrgNames.length - 1}
-          >
-            Next
-          </Button>
-        </ThemeProvider>
-      </Box>
-
-      
-        <Box sx={{ minWidth: 800, overflow: "auto" }}>
-          <Paper sx={{ display: "flex", p: 2, gap: 3, m: 2 }}>
-            <Stack spacing={{ xs: 1, sm: 2, md: 4 }} width={"100%"}>
-              <Stack
-                spacing={{ xs: 1, sm: 2, md: 1 }}
-                sx={{ borderBottom: "1px solid #08205e", width: "50%" }}
-                direction={"row"}
-                alignItems={"center"}
-              >
-                <PersonIcon sx={{ color: "#08205e", fontSize: 27 }} />
-                <Typography variant="h6">
-                  {contact.contact.first_name + " " + contact.contact.last_name}
-                </Typography>
-              </Stack>
-              <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
-                <Stack spacing={{ xs: 1, sm: 2, md: 2 }} width={"100%"}>
-                  <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
-                    <TextField
-                      label="Name"
-                      value={contact.contact.first_name}
-                      size="small"
-                      sx={{ width: "50%" }}
-                    />
-                    <TextField
-                      label="Surename"
-                      value={contact.contact.last_name}
-                      size="small"
-                      sx={{ width: "50%" }}
-                    />
-                  </Stack>
-                  <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
-                    <TextField
-                      label="Job Title"
-                      value={contact.contact.job_title}
-                      size="small"
-                      sx={{ width: "50%" }}
-                    />
-                    <TextField
-                      label="Phone"
-                      value={contact.contact.phone}
-                      size="small"
-                      sx={{ width: "50%" }}
-                    />
-                  </Stack>
-                  <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
-                    <TextField
-                      label="Email"
-                      value={contact.contact.email}
-                      size="small"
-                      sx={{ width: "100%" }}
-                    />
-                    <TextField
-                      label="Website"
-                      value={contact.contact.website}
-                      size="small"
-                      sx={{ width: "100%" }}
-                    />
-                  </Stack>
-                </Stack>
-
-                <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
-                  <TextField
-                    id="outlined-multiline-static"
-                    label="Notes"
-                    multiline
-                    rows={9}
-                    value={noteValue}
-                    onChange={(e) => setNoteValue(e.target.value)}
-                    onBlur={() => {
-                      if ((contact?.concal?.note || "") !== noteValue) {
-                        saveNoteToDB(noteValue);
-                      }
-                    }} // Save on blur
-                    size="small"
-                  />
-                </Stack>
-              </Stack>
-            </Stack>
-          </Paper>
-          <Paper sx={{ display: "flex", p: 2, gap: 3, m: 2, width: "49%" }}>
-            <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
-              <TextField
-                label="Call statuses"
-                size="small"
-                sx={{ width: "100%" }}
-              />
-            </Stack>
-          </Paper>
-
+        <>
           <Box
             sx={{
               display: "flex",
@@ -406,8 +279,8 @@ export default function CallView() {
               <Button
                 variant="contained"
                 color="dustblue"
-                onClick={() => goToContact(currentIndex - 1)}
-                disabled={currentIndex <= 0}
+                onClick={() => goToOrganization(currentOrgIndex - 1)}
+                disabled={currentOrgIndex <= 0}
               >
                 Previous
               </Button>
@@ -415,21 +288,146 @@ export default function CallView() {
                 variant="subtitle"
                 sx={{ color: "#08205e", alignSelf: "center" }}
               >
-                {activeContacts.length > 1 &&
-                  `Contact ${currentIndex + 1} of ${activeContacts.length}`}
+                {filteredOrgNames.length > 1 &&
+                  `Company ${currentOrgIndex + 1} of ${
+                    filteredOrgNames.length
+                  }`}
               </Typography>
               <Button
                 variant="contained"
                 color="dustblue"
-                onClick={() => goToContact(currentIndex + 1)}
-                disabled={currentIndex >= activeContacts.length - 1}
+                onClick={() => goToOrganization(currentOrgIndex + 1)}
+                disabled={currentOrgIndex >= filteredOrgNames.length - 1}
               >
                 Next
               </Button>
             </ThemeProvider>
           </Box>
-        </Box>
-      </>
+
+          <Box sx={{ minWidth: 800, overflow: "auto" }}>
+            <Paper sx={{ display: "flex", p: 2, gap: 3, m: 2 }}>
+              <Stack spacing={{ xs: 1, sm: 2, md: 4 }} width={"100%"}>
+                <Stack
+                  spacing={{ xs: 1, sm: 2, md: 1 }}
+                  sx={{ borderBottom: "1px solid #08205e", width: "50%" }}
+                  direction={"row"}
+                  alignItems={"center"}
+                >
+                  <PersonIcon sx={{ color: "#08205e", fontSize: 27 }} />
+                  <Typography variant="h6">
+                    {contact.contact.first_name +
+                      " " +
+                      contact.contact.last_name}
+                  </Typography>
+                </Stack>
+                <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
+                  <Stack spacing={{ xs: 1, sm: 2, md: 2 }} width={"100%"}>
+                    <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
+                      <TextField
+                        label="Name"
+                        value={contact.contact.first_name}
+                        size="small"
+                        sx={{ width: "50%" }}
+                      />
+                      <TextField
+                        label="Surename"
+                        value={contact.contact.last_name}
+                        size="small"
+                        sx={{ width: "50%" }}
+                      />
+                    </Stack>
+                    <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
+                      <TextField
+                        label="Job Title"
+                        value={contact.contact.job_title}
+                        size="small"
+                        sx={{ width: "50%" }}
+                      />
+                      <TextField
+                        label="Phone"
+                        value={contact.contact.phone}
+                        size="small"
+                        sx={{ width: "50%" }}
+                      />
+                    </Stack>
+                    <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
+                      <TextField
+                        label="Email"
+                        value={contact.contact.email}
+                        size="small"
+                        sx={{ width: "100%" }}
+                      />
+                      <TextField
+                        label="Website"
+                        value={contact.contact.website}
+                        size="small"
+                        sx={{ width: "100%" }}
+                      />
+                    </Stack>
+                  </Stack>
+
+                  <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
+                    <TextField
+                      id="outlined-multiline-static"
+                      label="Notes"
+                      multiline
+                      rows={9}
+                      value={noteValue}
+                      onChange={(e) => setNoteValue(e.target.value)}
+                      onBlur={() => {
+                        if ((contact?.concal?.note || "") !== noteValue) {
+                          saveNoteToDB(noteValue);
+                        }
+                      }} // Save on blur
+                      size="small"
+                    />
+                  </Stack>
+                </Stack>
+              </Stack>
+            </Paper>
+            <Paper sx={{ display: "flex", p: 2, gap: 3, m: 2, width: "49%" }}>
+              <StatusesCallView
+                addNewStatus={addNewStatus}
+                statusList={contact.call_log}
+              />
+            </Paper>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                m: 2,
+                width: "49%",
+              }}
+            >
+              <ThemeProvider theme={theme}>
+                <Button
+                  variant="contained"
+                  color="dustblue"
+                  onClick={() => goToContact(currentIndex - 1)}
+                  disabled={currentIndex <= 0}
+                >
+                  Previous
+                </Button>
+                <Typography
+                  variant="subtitle"
+                  sx={{ color: "#08205e", alignSelf: "center" }}
+                >
+                  {activeContacts.length > 1 &&
+                    `Contact ${currentIndex + 1} of ${activeContacts.length}`}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="dustblue"
+                  onClick={() => goToContact(currentIndex + 1)}
+                  disabled={currentIndex >= activeContacts.length - 1}
+                >
+                  Next
+                </Button>
+              </ThemeProvider>
+            </Box>
+          </Box>
+        </>
       ) : (
         <Typography sx={{ p: 4 }}>No contact found.</Typography>
       )}

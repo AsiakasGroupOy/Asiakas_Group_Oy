@@ -1,18 +1,17 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import {faUserPlus} from "@fortawesome/free-solid-svg-icons";
+import * as React from "react";
+import { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Autocomplete from '@mui/material/Autocomplete';
-import { fetchOrganizations, fetchCallLists } from '../contactListApi';
+import Autocomplete from "@mui/material/Autocomplete";
+import { fetchOrganizations, fetchCallLists } from "../contactListApi";
 
-
-export default function AddContactForm({addNewContact}) {
+export default function AddContactForm({ addNewContact }) {
   const [open, setOpen] = React.useState(false);
   const [organizationList, setOrganizationList] = useState([]); // State to hold organization names
   const [callingListNames, setCallingListNames] = useState([]); // State to hold calling list names
@@ -28,14 +27,14 @@ export default function AddContactForm({addNewContact}) {
       note: "",
       organization_name: "",
       website: "",
-      calling_list_name: ""
+      calling_list_name: "",
     });
   };
 
   const handleClose = () => {
     setOpen(false);
   };
- const [contact, setContact] = useState({
+  const [contact, setContact] = useState({
     first_name: "",
     last_name: "",
     email: "",
@@ -43,58 +42,56 @@ export default function AddContactForm({addNewContact}) {
     job_title: "",
     note: "",
     organization_name: "", // <-- User can type a new or existing list name
-    website: "",  
+    website: "",
     calling_list_name: "", // <-- User can type a new or existing list name
   });
-// Fetch organizations and CallLists on mount
+  // Fetch organizations and CallLists on mount
 
-useEffect(() => {
-  Promise.all([fetchOrganizations(), fetchCallLists()])
-    .then(([organizations, callLists]) => {
-      setOrganizationList(organizations.map(org => org.organization_name));
-      setCallingListNames(callLists.map(list => list.calling_list_name));
-    })
-    .catch(() => {
-      setOrganizationList([]);
-      setCallingListNames([]);
-    });
-}, []);
+  useEffect(() => {
+    Promise.all([fetchOrganizations(), fetchCallLists()])
+      .then(([organizations, callLists]) => {
+        setOrganizationList(organizations.map((org) => org.organization_name));
+        setCallingListNames(callLists.map((list) => list.calling_list_name));
+      })
+      .catch(() => {
+        setOrganizationList([]);
+        setCallingListNames([]);
+      });
+  }, []);
 
   const handleChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
   };
 
-    const handleSave = (e) => {
-        e.preventDefault();
-        addNewContact(contact);
-        handleClose();
-        
-    }
+  const handleSave = (e) => {
+    e.preventDefault();
+    addNewContact(contact);
+    handleClose();
+  };
   return (
     <React.Fragment>
-               <Button
-            variant="contained"
-            color="dustblue"
-            startIcon={<FontAwesomeIcon icon={faUserPlus} />}
-            onClick={handleClickOpen}
-          >
-            Add New Contact
-          </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
+      <Button
+        variant="contained"
+        color="dustblue"
+        startIcon={<FontAwesomeIcon icon={faUserPlus} />}
+        onClick={handleClickOpen}
       >
-        <DialogTitle color='dustblue'>
+        Add New Contact
+      </Button>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle color="dustblue">
           <FontAwesomeIcon icon={faUserPlus} style={{ marginRight: 8 }} />
           Add New Contact
         </DialogTitle>
         <DialogContent>
-         <TextField
+          <TextField
             autoFocus
             required
             margin="dense"
             label="First Name"
-            name="first_name" value={contact.first_name} onChange={handleChange}
+            name="first_name"
+            value={contact.first_name}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
@@ -103,7 +100,9 @@ useEffect(() => {
             required
             margin="dense"
             label="Last Name"
-            name="last_name" value={contact.last_name} onChange={handleChange}
+            name="last_name"
+            value={contact.last_name}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
@@ -111,7 +110,9 @@ useEffect(() => {
             autoFocus
             margin="dense"
             label="Job Title"
-           name="job_title" value={contact.job_title} onChange={handleChange}
+            name="job_title"
+            value={contact.job_title}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
@@ -120,7 +121,9 @@ useEffect(() => {
             required
             margin="dense"
             label="Phone"
-            name="phone" value={contact.phone} onChange={handleChange}
+            name="phone"
+            value={contact.phone}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
@@ -128,64 +131,78 @@ useEffect(() => {
             autoFocus
             margin="dense"
             label="Email Address"
-            name="email" value={contact.email} onChange={handleChange}
+            name="email"
+            value={contact.email}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
-          
+
           <TextField
             autoFocus
             margin="dense"
             label="Note"
-            name="note" value={contact.note} onChange={handleChange} 
+            name="note"
+            value={contact.note}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
           <Autocomplete
             freeSolo
             required
-            size='small'
+            size="small"
             options={organizationList} // array of organization names
             value={contact.organization_name}
             onInputChange={(event, newValue) => {
-                setContact({ ...contact, organization_name: newValue });
+              setContact({ ...contact, organization_name: newValue });
             }}
             renderInput={(params) => (
-                <TextField {...params} label="Organization" variant="standard" required />
+              <TextField
+                {...params}
+                label="Organization"
+                variant="standard"
+                required
+              />
             )}
-            />
+          />
 
-           <TextField
+          <TextField
             autoFocus
             margin="dense"
             label="Website if organization is new"
-            name="note" value={contact.website} onChange={handleChange} 
+            name="note"
+            value={contact.website}
+            onChange={handleChange}
             fullWidth
             variant="standard"
           />
           <Autocomplete
             freeSolo
             required
-            size='small'
+            size="small"
             options={callingListNames} // array of Calling lists names
             value={contact.calling_list_name}
             onInputChange={(event, newValue) => {
-                setContact({ ...contact, calling_list_name: newValue });
+              setContact({ ...contact, calling_list_name: newValue });
             }}
             renderInput={(params) => (
-                <TextField {...params} label="Calling List" variant="standard" required />
+              <TextField
+                {...params}
+                label="Calling List"
+                variant="standard"
+                required
+              />
             )}
-            />
+          />
         </DialogContent>
         <DialogActions>
-          <Button 
-            variant="contained"
-            color="dustblue"
-            onClick={handleClose}>Cancel</Button>
-          <Button 
-            variant="contained"
-            color="dustblue"
-            onClick={handleSave}>Save contact</Button>
+          <Button variant="contained" color="dustblue" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="dustblue" onClick={handleSave}>
+            Save contact
+          </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
