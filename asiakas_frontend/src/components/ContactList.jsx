@@ -16,7 +16,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Typography from "@mui/material/Typography";
 import { faTrashCan, faFileExport } from "@fortawesome/free-solid-svg-icons";
-import { fullContactsCallLists, addContact, removeContactsCallLists } from "../contactListApi";
+import {
+  fullContactsCallLists,
+  addContact,
+  removeContactsCallLists,
+} from "../contactListApi";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AddNewContact from "./AddNewContact";
@@ -51,13 +55,29 @@ export default function ContactList() {
         headerName: "Last Activity",
         field: "latest_call_log.call_timestamp",
         filter: true,
+        valueGetter: (params) => {
+          const value = params.data.latest_call_log.call_timestamp;
+          if (!value) return "";
+          const date = new Date(value);
+          const pad = (n) => n.toString().padStart(2, "0");
+          return (
+            pad(date.getDate()) +
+            "-" +
+            pad(date.getMonth() + 1) +
+            "-" +
+            date.getFullYear() +
+            " " +
+            pad(date.getHours()) +
+            ":" +
+            pad(date.getMinutes())
+          );
+        },
       },
       {
         headerName: "Number of Calls",
         field: "latest_call_log.call_count",
         filter: true,
       },
-     
     ],
     []
   );
@@ -92,7 +112,7 @@ export default function ContactList() {
 
   const handleSelectedRows = () => {
     const handleSelected = gridRef.current.getSelectedRows();
-console.log("Selected rows:", handleSelected);
+    console.log("Selected rows:", handleSelected);
     setSelectedRows(handleSelected);
   };
 
@@ -161,29 +181,27 @@ console.log("Selected rows:", handleSelected);
     }
   };
 
-const handleDelete = async () => {
-  if (selectedRows.length === 0) {
-    alert("Please select at least one row to delete.");
-    return;
-  }
+  const handleDelete = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select at least one row to delete.");
+      return;
+    }
 
-  const contactIds = selectedRows.map((row) => ({
-    contact_id: row.contact.contact_id,
-    calling_list_id: row.calling_list.calling_list_id,
-    concal_id: row.concal_id})
-     );
-  
-  try {
-    const response = await removeContactsCallLists(contactIds);
-    alert(response.message);
-    fetchContactList(); // Refresh contact list after deletion
-  } catch (error) {
-    console.error("Error deleting contacts:", error);
-    alert("Failed to delete contacts: " + (error.message || "Unknown error"));
-  } 
+    const contactIds = selectedRows.map((row) => ({
+      contact_id: row.contact.contact_id,
+      calling_list_id: row.calling_list.calling_list_id,
+      concal_id: row.concal_id,
+    }));
 
-};
-
+    try {
+      const response = await removeContactsCallLists(contactIds);
+      alert(response.message);
+      fetchContactList(); // Refresh contact list after deletion
+    } catch (error) {
+      console.error("Error deleting contacts:", error);
+      alert("Failed to delete contacts: " + (error.message || "Unknown error"));
+    }
+  };
 
   return (
     <>
@@ -310,7 +328,10 @@ const handleDelete = async () => {
             width: "100%",
           }}
         >
-          <div className="ag-theme-material" style={{ height: "100%" }}>
+          <div
+            className="ag-theme-material"
+            style={{ height: "100%", width: "100%" }}
+          >
             <AgGridReact
               rowData={contactList}
               columnDefs={columnDefs}
@@ -323,7 +344,7 @@ const handleDelete = async () => {
               defaultColDef={{
                 resizable: true,
                 flex: 1,
-                minWidth: 100,
+                minWidth: 35,
               }}
               rowHeight={36}
               headerHeight={40}

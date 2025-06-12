@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
-from models.models import CallLog, ContactList
+from models.models import CallLog, ContactCallingList, CallStatus
 from schemas.call_log_schemas import CallLogSchema
 from marshmallow import ValidationError
 from datetime import datetime
@@ -12,18 +12,23 @@ calllogs_schema = CallLogSchema(many=True)
 
 
 # CREATE a new call log
-@calllog_bp.route('/', methods=['POST'])
-def create_call_log():
-    try:
-        data = calllog_schema.load(request.json)
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+@calllog_bp.route('/<int:concal_id>/status', methods=['POST'])
+def create_call_log(concal_id):
+    
+    data = request.get_json()
+    status = data.get('status')
 
-    contact = ContactList.query.get(data['contact_id'])
-    if not contact:
-        return jsonify({"error": "Contact not found"}), 404
+    if status:
+         status = CallStatus(status)
+        
+    concal = ContactCallingList.query.get(concal_id) #Return row if exists, else None
+    if not concal:
+        return jsonify({"error": "Contact information is not found"}), 404
 
-    new_log = CallLog(**data)
+    new_log = CallLog (
+        concal_id=concal_id,
+        status=status,
+    )
     db.session.add(new_log)
     db.session.commit()
 

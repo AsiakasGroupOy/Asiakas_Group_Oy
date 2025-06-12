@@ -81,10 +81,12 @@ def get_contact_calling_list_By_firstCCLId():
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status,
+                "status": row.status.value,
                 "call_timestamp": row.call_timestamp.isoformat()
             })
-            
+    for item in data:
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
+
     return jsonify(data), 200
 
 # ✅ GET data for CallView from Contact Calling List(s) where Calling List is filtered by concal_id from selected row in ContactList passed by location.state
@@ -161,10 +163,11 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status,
+                "status": row.status.value,
                 "call_timestamp": row.call_timestamp.isoformat()
             })
-    print(data)
+    for item in data:
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
     return jsonify(data), 200
 
 
@@ -239,10 +242,11 @@ def get_contact_calling_list_By_CallingListName(name):
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status,
+                "status": row.status.value,
                 "call_timestamp": row.call_timestamp.isoformat()
             })
-    print(data)
+    for item in data:
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
     return jsonify(data), 200
 
 
@@ -322,12 +326,12 @@ def get_contact_calling_list_full():
                 "calling_list_name": row.calling_list_name,
             },
             "latest_call_log": {
-                "status": row.latest_status if row.latest_status else None,
+                "status": row.latest_status.value if row.latest_status else None,
                 "call_timestamp": row.latest_call_timestamp.isoformat() if row.latest_call_timestamp else None,
                 "call_count": row.call_count if row.call_count else None
             }
         })
-
+    
     return jsonify(data), 200
 
 # ✅ DELETE Contact(s) from Calling List(s) or Calling List(s) from Contact(s)

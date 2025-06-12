@@ -92,7 +92,7 @@ class CallLog(db.Model):
     call_id = db.Column(db.Integer, primary_key=True)
     concal_id = db.Column(db.Integer, db.ForeignKey('contact_calling_list.concal_id', ondelete="CASCADE"), nullable=False)
     status = db.Column(db.Enum(CallStatus), nullable=False)
-    call_timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    call_timestamp = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     # Relationships
     contact_calling_list = db.relationship('ContactCallingList', back_populates='call_logs',  passive_deletes=True)
