@@ -1,7 +1,7 @@
-from flask import Blueprint, request, jsonify
+"""from flask import Blueprint, request, jsonify
 from src.voip_backend.extensions import db
 from src.voip_backend.models.models import CallingList
-from src.voip_backend.schemas.calling_list_schemas import CallingListSchema  # ✅ Correct import
+from src.voip_backend.schemas.calling_list_schema import CallingListSchema  # ✅ Correct import
 
 callinglist_bp = Blueprint('callinglist_bp', __name__)
 calling_list_schema = CallingListSchema()
@@ -85,3 +85,4 @@ def bulk_delete_calling_lists():
 
     except Exception as e:
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+"""

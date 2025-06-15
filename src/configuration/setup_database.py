@@ -1,14 +1,11 @@
-# src/configuration/setup_database.py
-
+import os, sys
 from flask import Flask
 from dotenv import load_dotenv
-import os
 
 from src.configuration.config import Config
 from src.voip_backend.extensions import db
 from src.voip_backend.models.models import *  # Includes Status
 from src.voip_backend.scripts.preload_statuses import preload_statuses
-
 
 load_dotenv()
 
@@ -18,11 +15,18 @@ def create_tables():
     db.init_app(app)
 
     with app.app_context():
+        db.drop_all()
+        print("🗑️  All tables deleted.")
         db.create_all()
         print("✅ All tables created successfully.")
         preload_statuses()
         print("🎉 Predefined statuses inserted.")
 
-if __name__ == '__main__':
+# ✅ Add this so manage.py can run it
+def main():
     print("🚀 Setting up database tables...")
     create_tables()
+
+# Optional: still runnable directly
+if __name__ == '__main__':
+    main()

@@ -1,12 +1,12 @@
-from flask import Blueprint, request, jsonify
+"""from flask import Blueprint, request, jsonify
 from src.voip_backend.extensions import db
-from src.voip_backend.models.models import ContactList, Organization, CallingList
-from src.voip_backend.schemas.contact_schemas import ContactSchema
+from src.voip_backend.models.models import ContactList, Company, CallingList
+from src.voip_backend.schemas.contact_schema import ContactListSchema
 import re
 
 contact_bp = Blueprint('contact_bp', __name__)
-contact_schema = ContactSchema()
-contacts_schema = ContactSchema(many=True)
+contact_schema = ContactListSchema()
+contacts_schema = ContactListSchema(many=True)
 
 # 📌 Helper: Validate email format
 def is_valid_email(email):
@@ -116,9 +116,9 @@ def update_contact(contact_id):
     # Organization
     organization_name = data.get('organization_name')
     if organization_name:
-        organization = Organization.query.filter_by(organization_name=organization_name).first()
+        organization = company.query.filter_by(organization_name=organization_name).first()
         if not organization:
-            organization = Organization(organization_name=organization_name)
+            organization = company(organization_name=organization_name)
             db.session.add(organization)
             db.session.commit()
         contact.organization_id = organization.organization_id
@@ -179,3 +179,4 @@ def bulk_delete_contacts():
     except Exception as e:
         return jsonify({"error": f"Internal error: {str(e)}"}), 500
 
+"""

@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify
+"""from flask import Blueprint, jsonify
 from src.voip_backend.models.models import Status
-from src.voip_backend.schemas.status_schemas import StatusSchema  # ✅ Import schema
+from src.voip_backend.schemas.status_schema import StatusSchema  # ✅ Import schema
 
 status_bp = Blueprint('status_bp', __name__)
 
@@ -26,3 +26,4 @@ def get_status(status_id):
     if status:
         return jsonify(status_schema.dump(status)), 200
     return jsonify({"error": "Status not found"}), 404
+"""

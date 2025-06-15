@@ -1,7 +1,7 @@
-from flask import Blueprint, request, jsonify
+"""from flask import Blueprint, request, jsonify
 from src.voip_backend.extensions import db
 from src.voip_backend.models.models import CallLog, ContactList, Status
-from src.voip_backend.schemas.call_log_schemas import CallLogSchema
+from src.voip_backend.schemas.call_log_schema import CallLogSchema
 from marshmallow import ValidationError
 from datetime import datetime
 
@@ -118,3 +118,4 @@ def bulk_delete_call_logs():
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 
+"""

@@ -1,5 +1,6 @@
-from .contact_schemas import ContactSchema
-from .organization_schemas import OrganizationSchema
-from .status_schemas import StatusSchema
-from .calling_list_schemas import CallingListSchema
-from .call_log_schemas import CallLogSchema
+from src.voip_backend.schemas.contact_schema import ContactListSchema
+from src.voip_backend.schemas.company_schema import CompanySchema
+from src.voip_backend.schemas.status_schema import StatusSchema
+from src.voip_backend.schemas.calling_list_schema import CallingListSchema
+from src.voip_backend.schemas.call_log_schema import CallLogSchema
+

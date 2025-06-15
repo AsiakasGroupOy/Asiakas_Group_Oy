@@ -1,11 +1,11 @@
-import os
+"""import os
 print("🔥 LOADING:", os.path.abspath(__file__))
 
 
 from flask import Blueprint, request, jsonify
 from src.voip_backend.extensions import db
 from src.voip_backend.models.models import Organization
-from src.voip_backend.schemas.organization_schemas import OrganizationSchema  # ✅ Schema import
+from src.voip_backend.schemas.company_schema import OrganizationSchema  # ✅ Schema import
 
 organization_bp = Blueprint('organization_bp', __name__)
 
@@ -93,3 +93,4 @@ def delete_organization(organization_id):
     db.session.commit()
 
     return jsonify({"message": f"Organization with ID {organization_id} deleted successfully."}), 200
+"""

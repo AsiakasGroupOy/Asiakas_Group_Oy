@@ -1,4 +1,4 @@
-
+"""
 print("✅ twilio_routes.py loaded")
 
 from flask import Blueprint, request, jsonify
@@ -36,3 +36,4 @@ def mock_twilio_call():
         "message": f"Mock call logged for contact {contact_id}",
         "call_id": call_log.call_id
     }), 200
+"""
