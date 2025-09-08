@@ -4,6 +4,7 @@ import NavigationTabs from './components/NavigationTabs';
 import { Outlet } from 'react-router-dom';
 
 
+
 /*''*/
 
 function App() {
@@ -32,8 +33,9 @@ function App() {
           }}
           /> 
       </AppBar>
-    
     </Container>
+     <Toolbar />
+     
     <Outlet />
    </>
   );

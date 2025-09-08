@@ -8,6 +8,7 @@ const NavigationTabs = () => {
   const getTabValue = () => {
     if (path === "/") return "/";
     if (path === "/callview") return "/callview";
+    if (path === "/import") return "/import";
     return false;
   };
 
@@ -30,12 +31,8 @@ const NavigationTabs = () => {
       }}
     >
       <Tab label="Contact list" value="/" component={Link} to="/" />
-      <Tab
-        label="Call view"
-        value="/callview"
-        component={Link}
-        to="/callview"
-      />
+      <Tab label="Call view" value="/callview" component={Link} to="/callview"/>
+      <Tab label="Import contacts" value="/import" component={Link} to="/import" />
     </Tabs>
   );
 };

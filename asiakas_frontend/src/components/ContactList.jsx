@@ -20,7 +20,7 @@ import {
   fullContactsCallLists,
   addContact,
   removeContactsCallLists,
-} from "../contactListApi";
+} from "./contactListApi";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AddNewContact from "./AddNewContact";
@@ -45,7 +45,7 @@ export default function ContactList() {
         headerName: "Contact",
         field: "contact_name",
         valueGetter: (params) =>
-          `${params.data.contact.first_name} ${params.data.contact.last_name}`,
+          `${params.data.contact.first_name || ""} ${params.data.contact.last_name || ""}`,
         filter: true,
       },
       { headerName: "Phone Number", field: "contact.phone" },
@@ -208,11 +208,9 @@ export default function ContactList() {
       <div
         style={{
           position: "sticky",
-          top: 82,
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
-          marginTop: 50,
           gap: 10,
         }}
       >
@@ -226,7 +224,6 @@ export default function ContactList() {
         style={{
           display: "flex",
           position: "sticky",
-          top: 125,
           flexDirection: "row",
           justifyContent: "end",
           gap: 10,
@@ -257,7 +254,6 @@ export default function ContactList() {
       <div
         style={{
           position: "sticky",
-          top: 160,
           justifyItems: "end",
         }}
       >

@@ -20,7 +20,7 @@ import {
   fetchByNavIdFromConCallingList,
   fetchByCallingListName,
   fetchCallLists,
-} from "../contactListApi";
+} from "./contactListApi";
 import StatusesCallView from "./StatusesCallView";
 
 export default function CallView() {
@@ -40,6 +40,7 @@ export default function CallView() {
   );
 
   useEffect(() => {
+    
     const filteredFromConCallingList = async () => {
       try {
         let data;
@@ -81,7 +82,7 @@ export default function CallView() {
       currentContact = filteredContacts.find(
         (c) => String(c.concal.concal_id) === String(currentConcalId)
       );
-      setCurrentConcalId("");
+      
     } else {
       currentContact = filteredContacts[0]; // Default to the first contact if no id is provided
     }
@@ -110,10 +111,12 @@ export default function CallView() {
     setCurrentIndex(startIdx >= 0 ? startIdx : 0);
     setCallListSearch(currentContact.calling_list.calling_list_name);
     setCompanySearch(currentContact.contact.organization_name);
+   
     // Filter contacts by current contact's organization name
   }, [filteredContacts]);
 
   const handleCallListChange = async (callListName) => {
+    setCurrentConcalId("");
     try {
       const data = await fetchByCallingListName(callListName);
       setFilteredContacts(data);
@@ -134,7 +137,7 @@ export default function CallView() {
       console.error("Failed to save note:", error);
     }
   };
-
+ 
   // Filtering logic
   let companyMatch = filteredContacts.filter((c) =>
     c.contact.organization_name
@@ -185,7 +188,6 @@ export default function CallView() {
       <Box
         sx={{
           display: "flex",
-          marginTop: 6,
           alignItems: "center",
           justifyContent: "left",
           left: 0,
@@ -315,9 +317,9 @@ export default function CallView() {
                 >
                   <PersonIcon sx={{ color: "#08205e", fontSize: 27 }} />
                   <Typography variant="h6">
-                    {contact.contact.first_name +
+                    {(contact.contact.first_name || "") +
                       " " +
-                      contact.contact.last_name}
+                      (contact.contact.last_name || "")}
                   </Typography>
                 </Stack>
                 <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
@@ -325,13 +327,13 @@ export default function CallView() {
                     <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                       <TextField
                         label="Name"
-                        value={contact.contact.first_name}
+                        value={contact.contact.first_name || ""}
                         size="small"
                         sx={{ width: "50%" }}
                       />
                       <TextField
-                        label="Surename"
-                        value={contact.contact.last_name}
+                        label="Surname"
+                        value={contact.contact.last_name || ""}
                         size="small"
                         sx={{ width: "50%" }}
                       />
@@ -339,7 +341,7 @@ export default function CallView() {
                     <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                       <TextField
                         label="Job Title"
-                        value={contact.contact.job_title}
+                        value={contact.contact.job_title || ""}
                         size="small"
                         sx={{ width: "50%" }}
                       />
@@ -353,13 +355,13 @@ export default function CallView() {
                     <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
                       <TextField
                         label="Email"
-                        value={contact.contact.email}
+                        value={contact.contact.email || ""}
                         size="small"
                         sx={{ width: "100%" }}
                       />
                       <TextField
                         label="Website"
-                        value={contact.contact.website}
+                        value={contact.contact.website || ""}
                         size="small"
                         sx={{ width: "100%" }}
                       />

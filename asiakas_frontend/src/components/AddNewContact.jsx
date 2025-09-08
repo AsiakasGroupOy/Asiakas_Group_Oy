@@ -9,12 +9,42 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Autocomplete from "@mui/material/Autocomplete";
-import { fetchOrganizations, fetchCallLists } from "../contactListApi";
+import { fetchOrganizations, fetchCallLists } from "./contactListApi";
 
 export default function AddContactForm({ addNewContact }) {
   const [open, setOpen] = React.useState(false);
   const [organizationList, setOrganizationList] = useState([]); // State to hold organization names
   const [callingListNames, setCallingListNames] = useState([]); // State to hold calling list names
+  const [contact, setContact] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    job_title: "",
+    note: "",
+    organization_name: "", // <-- User can type a new or existing list name
+    website: "",
+    calling_list_name: "", // <-- User can type a new or existing list name
+  });
+  // Fetch organizations and CallLists on mount
+
+  const fetchOrganizationAndCallLists= async () => {
+    try {
+
+      const[organizations, callLists] = await Promise.all([fetchOrganizations(), fetchCallLists()]);
+      setOrganizationList(organizations.map((org) => org.organization_name));
+      setCallingListNames(callLists.map((list) => list.calling_list_name));
+    
+    } catch {
+      setOrganizationList([]);
+      setCallingListNames([]);
+    }
+  };
+
+useEffect(() => {
+    fetchOrganizationAndCallLists();
+  }, []);
+
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -29,35 +59,13 @@ export default function AddContactForm({ addNewContact }) {
       website: "",
       calling_list_name: "",
     });
+    fetchOrganizationAndCallLists();
   };
 
+ 
   const handleClose = () => {
     setOpen(false);
   };
-  const [contact, setContact] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    phone: "",
-    job_title: "",
-    note: "",
-    organization_name: "", // <-- User can type a new or existing list name
-    website: "",
-    calling_list_name: "", // <-- User can type a new or existing list name
-  });
-  // Fetch organizations and CallLists on mount
-
-  useEffect(() => {
-    Promise.all([fetchOrganizations(), fetchCallLists()])
-      .then(([organizations, callLists]) => {
-        setOrganizationList(organizations.map((org) => org.organization_name));
-        setCallingListNames(callLists.map((list) => list.calling_list_name));
-      })
-      .catch(() => {
-        setOrganizationList([]);
-        setCallingListNames([]);
-      });
-  }, []);
 
   const handleChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
