@@ -13,6 +13,12 @@ const theme = createTheme({
         dark: "#333f61",
         contrastText: "#fff",
       },
+      grey: {
+        main: "#e3e3e3ff",
+        light: "#eceff1", 
+        dark: "#78909c",
+        contrastText: "#360202ff",
+      },
     },
     components: {
       MuiButton: {
@@ -38,6 +44,51 @@ const theme = createTheme({
               paddingTop: 0,  // Adjusting padding
               paddingBottom: 0,  // Adjusting padding
                minHeight: "initial", 
+          },
+        },
+      },
+      MuiStepIcon: {
+        styleOverrides: {
+          root: {
+            "&.Mui-active": {
+              color: "#374c86", 
+              fontSize: "22px" // active step icon color
+            },
+            "&.Mui-completed": {
+              color: "#374c86", 
+              fontSize: "22px" // active step icon color
+            },
+          },
+          text: {
+            fontSize: "15px", // step number font size
+            fontWeight: "bold", // make the step number bold
+            fill: "#fff", // white color for the step number
+          },
+        },
+      },
+
+      MuiInputBase: {
+        styleOverrides: {
+          input: {
+            fontSize: "15px", // 12px
+          },
+          
+        },
+      },
+      
+      MuiStepConnector: {
+        styleOverrides: {
+          root: {
+            "&.Mui-active": {
+              borderColor: "#a6b8e0", // active step connector color  
+            },
+          },
+        },  
+      },
+      MuiStepLabel: {
+        styleOverrides: {
+          label: {
+            fontSize: "0.875rem", // 14px
           },
         },
       },

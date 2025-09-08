@@ -1,13 +1,11 @@
 import { useState } from "react";
 import Stack from "@mui/material/Stack";
-import {
-  Divider,
+import {  
   MenuItem,
   Menu,
   IconButton,
   List,
-  ListItem,
-  ListItemText,
+  ListItem,  
   ListItemIcon,
   Icon,
 } from "@mui/material";
@@ -40,7 +38,9 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
         justifyContent={"space-between"}
         alignItems="center"
       >
-        <Typography variant="h10">Call Activity: {totalStatuses}</Typography>
+        <Typography variant="h10">
+          Call Activity{totalStatuses > 0 ? `: ${totalStatuses}` : ""}
+        </Typography>
 
         <IconButton
           id="basic-button"
@@ -92,12 +92,12 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
           </MenuItem>
         </Menu>
       </Stack>
+
       <List width="100%" sx={{ overflowY: "auto", maxHeight: 300 }}>
         {statuses.map((status, index) => (
           <ListItem
             sx={{ py: 0, paddingRight: 4, width: "100%" }}
             key={index}
-            alignItems="flex-start"
             secondaryAction={
               <IconButton edge="end" aria-label="delete"></IconButton>
             }
@@ -115,33 +115,48 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
                 ) : null}
               </Icon>
             </ListItemIcon>
-            <ListItemText
-              sx={{ width: "100%" }}
-              primary={
-                <Stack
-                  sx={{ width: "100%" }}
-                  direction="row"
-                  justifyContent="space-between"
-                >
-                  <Typography>{status.status}</Typography>
-                  <Typography>
-                    {new Date(status.call_timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
-                  </Typography>
-                </Stack>
-              }
-              secondary={
-                <Stack sx={{ width: "100%" }} alignItems="end">
-                  <Divider sx={{ width: "100%", borderColor: "#08205e" }} />
-                  <Typography>
-                    {new Date(status.call_timestamp).toLocaleDateString()}
-                  </Typography>
-                </Stack>
-              }
-            />
+            <Stack
+              sx={{
+                width: "100%",
+                flexDirection: "column",
+                               
+              }}
+            >
+              {/* Primary row */}
+              <Stack
+                sx={{ width: "100%",
+                    border: "2px solid #08205e",
+                    borderLeft: "none",
+                    borderRight: "none",
+                    borderTop: "none",
+                  }}
+                direction="row"
+                justifyContent="space-between"
+              >
+                <Typography>{status.status}</Typography>
+                <Typography>
+                  {new Date(status.call_timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                </Typography>
+              </Stack>
+
+              {/* Secondary row */}
+              <Stack sx={{ width: "100%"}}
+                direction="row"
+                justifyContent="flex-end">
+                <Typography>
+                  {new Date(status.call_timestamp).toLocaleDateString([], {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    weekday: "long",
+                  })}
+                </Typography>
+              </Stack>
+            </Stack>
           </ListItem>
         ))}
       </List>

@@ -8,7 +8,6 @@ export const fetchByFirstFromConCallingList = async () => {
   return await response.json();
 };
 
-
 //Fetching data from the backend API for CallView activated by selected row in the Contact List view, contact with the coresponding contact_calling_list id will be shown.
 export const fetchByNavIdFromConCallingList = async (concallIdFromNav) => {
   const response = await fetch(
@@ -20,7 +19,6 @@ export const fetchByNavIdFromConCallingList = async (concallIdFromNav) => {
     throw new Error("Failed to fetch data based on navId in the List");
   return await response.json();
 };
-
 
 //Fetching data from the backend API for CallView by the calling list name, first contact in the coresponding calling list name will be shown.
 export const fetchByCallingListName = async (callingListName) => {
@@ -34,19 +32,47 @@ export const fetchByCallingListName = async (callingListName) => {
   return await response.json();
 };
 
+// Add one contact through the form
 export const addContact = async (newContact) => {
-  const response = fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contacts/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newContact),
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/contacts/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newContact),
+    }
+  );
 
   const data = await response.json();
 
   if (!response.ok) throw new Error(data.error || "Failed to add contact");
+
   return data;
 };
 
+// Upload contacts file with mapping and calling list
+export const uploadContactsFile = async (file, mapping, callingList) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("mapping", JSON.stringify(mapping));
+  formData.append("callingList", callingList);
+
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/contacts/upload_contacts`,
+    { method: "POST", body: formData }
+  );
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    // If backend crashed and sent HTML or empty response
+    return { status: "error", message: "Invalid response from server" };
+  }
+
+  return data;
+};
 
 // Fetching all organizations names for add contact form
 export const fetchOrganizations = async () => {
@@ -57,7 +83,6 @@ export const fetchOrganizations = async () => {
   return await response.json();
 };
 
-
 // Fetching all calling lists names for add contact form
 export const fetchCallLists = async () => {
   const response = await fetch(
@@ -66,7 +91,6 @@ export const fetchCallLists = async () => {
   if (!response.ok) throw new Error("Failed to fetch Calling Lists");
   return await response.json();
 };
-
 
 //Fetching data for Contact list view with the last call status on contact_calling_list id
 export const fullContactsCallLists = async () => {
@@ -77,7 +101,7 @@ export const fullContactsCallLists = async () => {
   return await response.json();
 };
 
-
+// Remove contacts and their associations from call lists
 export const removeContactsCallLists = async (contactIds) => {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/remove`,
@@ -93,7 +117,6 @@ export const removeContactsCallLists = async (contactIds) => {
   return await response.json();
 };
 
-
 export const addNote = async (ccl_id, noteValue) => {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/${ccl_id}/note`,
@@ -108,7 +131,7 @@ export const addNote = async (ccl_id, noteValue) => {
   return await response.json();
 };
 
-
+// Add call status to contact_calling_list entry
 export const addStatus = async (ccl_id, newStatus) => {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/calllogs/${ccl_id}/status`,

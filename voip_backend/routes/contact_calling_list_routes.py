@@ -10,12 +10,15 @@ contact_callinglist_bp = Blueprint('contact_callinglist_bp', __name__)
 # ✅ GET data for CallView from Contact Calling List(s) where Calling List is filtered by first concal_id
 @contact_callinglist_bp.route('/first', methods=['GET'])
 def get_contact_calling_list_By_firstCCLId():
-    first_concal_id = db.session.query(func.min(ContactCallingList.concal_id)).scalar()
-   
-    if not first_concal_id:
+    first_concal = (
+    db.session.query(ContactCallingList)
+    .order_by(ContactCallingList.concal_id.asc())
+    .first()
+    )
+
+    if not first_concal:
         return jsonify({"error": "Contact and Calling List is empty"}), 404
     
-    first_concal = ContactCallingList.query.get(first_concal_id)
     calling_list_id = first_concal.calling_list_id
 
     results= (
@@ -85,7 +88,7 @@ def get_contact_calling_list_By_firstCCLId():
                 "call_timestamp": row.call_timestamp.isoformat()
             })
     for item in data:
-        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
 
     return jsonify(data), 200
 
@@ -167,7 +170,7 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
                 "call_timestamp": row.call_timestamp.isoformat()
             })
     for item in data:
-        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
     return jsonify(data), 200
 
 
@@ -246,7 +249,7 @@ def get_contact_calling_list_By_CallingListName(name):
                 "call_timestamp": row.call_timestamp.isoformat()
             })
     for item in data:
-        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=False)
+        item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
     return jsonify(data), 200
 
 

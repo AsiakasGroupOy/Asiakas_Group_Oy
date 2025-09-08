@@ -1,9 +1,6 @@
-from extensions import ma
-from marshmallow import fields
+from marshmallow import Schema,fields
 
-
-
-class CallLogSchema(ma.Schema):
+class CallLogSchema(Schema):
     call_id = fields.Int(dump_only=True)
     status = fields.Str(required=True)
     concal_id = fields.Int(required=True)

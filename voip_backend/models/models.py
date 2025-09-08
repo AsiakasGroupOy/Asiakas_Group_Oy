@@ -50,12 +50,12 @@ class ContactList(db.Model):
     __tablename__ = "contact_list"
 
     contact_id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
     job_title = db.Column(db.String(100))
-    phone = db.Column(db.String(50))
+    phone = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(255))
-    organization_id = db.Column(db.Integer, db.ForeignKey('organization.organization_id', ondelete="SET NULL"), nullable=True)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organization.organization_id'), nullable=False)
    
     
     # Relationships
@@ -120,7 +120,7 @@ class ContactCallingList(db.Model):
             db.UniqueConstraint('contact_id', 'calling_list_id', name='uq_contact_calling_list'),
         )
     
-    # Optional: relationships for easier access
+     # Relationships
     contact = db.relationship('ContactList', back_populates='contact_calling_lists')
     calling_list = db.relationship('CallingList', back_populates='contact_calling_lists')
     call_logs = db.relationship('CallLog', back_populates='contact_calling_list', cascade="all, delete-orphan", passive_deletes=True)

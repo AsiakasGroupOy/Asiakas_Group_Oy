@@ -1,8 +1,6 @@
-from extensions import ma
-from marshmallow import fields
-from marshmallow import validate
+from marshmallow import Schema, fields, validate
 
-class ContactCallingListSchema(ma.Schema):
+class ContactCallingListSchema(Schema):
     concal_id = fields.Int(dump_only=True)
     contact_id = fields.Int(required=True)
     calling_list_id = fields.Int(required=True)
