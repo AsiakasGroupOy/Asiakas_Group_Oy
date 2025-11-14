@@ -18,3 +18,7 @@ instance/
 .env
 /.sql
 /backup/
+
+# Python virtual environments
+.venv/
+/.venv

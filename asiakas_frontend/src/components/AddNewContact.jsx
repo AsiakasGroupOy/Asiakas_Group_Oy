@@ -9,10 +9,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Autocomplete from "@mui/material/Autocomplete";
-import { fetchOrganizations, fetchCallLists } from "./contactListApi";
+import { fetchOrganizations, fetchCallLists } from "../utils/contactListApi";
 
-export default function AddContactForm({ addNewContact }) {
+export default function AddContactForm({ addNewContact, setAgGridFilter }) {
   const [open, setOpen] = React.useState(false);
+
   const [organizationList, setOrganizationList] = useState([]); // State to hold organization names
   const [callingListNames, setCallingListNames] = useState([]); // State to hold calling list names
   const [contact, setContact] = useState({
@@ -28,26 +29,34 @@ export default function AddContactForm({ addNewContact }) {
   });
   // Fetch organizations and CallLists on mount
 
-  const fetchOrganizationAndCallLists= async () => {
-    try {
+  const fetchOrganizationAndCallLists = async () => {
+    const [organizations, callLists] = await Promise.all([
+      fetchOrganizations(),
+      fetchCallLists(),
+    ]);
 
-      const[organizations, callLists] = await Promise.all([fetchOrganizations(), fetchCallLists()]);
-      setOrganizationList(organizations.map((org) => org.organization_name));
-      setCallingListNames(callLists.map((list) => list.calling_list_name));
-    
-    } catch {
+    if (organizations.status === "success" && organizations.data.length > 0) {
+      setOrganizationList(
+        organizations.data.map((org) => org.organization_name)
+      );
+    } else {
       setOrganizationList([]);
+    }
+
+    if (callLists.status === "success" && callLists.data.length > 0) {
+      setCallingListNames(callLists.data.map((list) => list.calling_list_name));
+    } else {
       setCallingListNames([]);
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     fetchOrganizationAndCallLists();
   }, []);
 
-
   const handleClickOpen = () => {
     setOpen(true);
+    setAgGridFilter(false);
     setContact({
       first_name: "",
       last_name: "",
@@ -62,9 +71,9 @@ useEffect(() => {
     fetchOrganizationAndCallLists();
   };
 
- 
   const handleClose = () => {
     setOpen(false);
+    setAgGridFilter(true);
   };
 
   const handleChange = (e) => {
@@ -77,7 +86,7 @@ useEffect(() => {
     handleClose();
   };
   return (
-    <React.Fragment>
+    <>
       <Button
         variant="contained"
         color="dustblue"
@@ -104,7 +113,6 @@ useEffect(() => {
             variant="standard"
           />
           <TextField
-            autoFocus
             required
             margin="dense"
             label="Last Name"
@@ -115,7 +123,6 @@ useEffect(() => {
             variant="standard"
           />
           <TextField
-            autoFocus
             margin="dense"
             label="Job Title"
             name="job_title"
@@ -125,7 +132,6 @@ useEffect(() => {
             variant="standard"
           />
           <TextField
-            autoFocus
             required
             margin="dense"
             label="Phone"
@@ -136,7 +142,6 @@ useEffect(() => {
             variant="standard"
           />
           <TextField
-            autoFocus
             margin="dense"
             label="Email Address"
             name="email"
@@ -147,7 +152,6 @@ useEffect(() => {
           />
 
           <TextField
-            autoFocus
             margin="dense"
             label="Note"
             name="note"
@@ -168,18 +172,19 @@ useEffect(() => {
             renderInput={(params) => (
               <TextField
                 {...params}
+                autoComplete="off"
                 label="Organization"
                 variant="standard"
                 required
+                onKeyDown={(e) => e.stopPropagation()}
               />
             )}
           />
 
           <TextField
-            autoFocus
             margin="dense"
             label="Website if organization is new"
-            name="note"
+            name="website"
             value={contact.website}
             onChange={handleChange}
             fullWidth
@@ -200,6 +205,7 @@ useEffect(() => {
                 label="Calling List"
                 variant="standard"
                 required
+                onKeyDown={(e) => e.stopPropagation()}
               />
             )}
           />
@@ -213,6 +219,6 @@ useEffect(() => {
           </Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }

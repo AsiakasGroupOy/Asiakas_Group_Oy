@@ -1,17 +1,24 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from extensions import db
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import over
 from sqlalchemy import asc, func
 from models.models import ContactList, CallingList, ContactCallingList, Organization, CallLog   
+from helpers.helpers import auth_required
+import logging
+
 
 contact_callinglist_bp = Blueprint('contact_callinglist_bp', __name__)
 
+logger = logging.getLogger(__name__)
+security_logger = logging.getLogger("security")
+
 # ✅ GET data for CallView from Contact Calling List(s) where Calling List is filtered by first concal_id
 @contact_callinglist_bp.route('/first', methods=['GET'])
+@auth_required
 def get_contact_calling_list_By_firstCCLId():
     first_concal = (
-    db.session.query(ContactCallingList)
+    db.session.query(ContactCallingList).filter_by(customer_id = g.customer_id)
     .order_by(ContactCallingList.concal_id.asc())
     .first()
     )
@@ -94,6 +101,7 @@ def get_contact_calling_list_By_firstCCLId():
 
 # ✅ GET data for CallView from Contact Calling List(s) where Calling List is filtered by concal_id from selected row in ContactList passed by location.state
 @contact_callinglist_bp.route('/<int:concal_id>/navid', methods=['GET'])
+@auth_required
 def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id from the request arguments
     
     if not concal_id:
@@ -176,9 +184,10 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
 
 # ✅ GET data for CallView from Contact Calling list By Calling List Name
 @contact_callinglist_bp.route('/<string:name>/calllistname', methods=['GET'])
+@auth_required
 def get_contact_calling_list_By_CallingListName(name): 
-      
-    calling_list = CallingList.query.filter_by(calling_list_name=name).first()  # Get the calling_list_id from the request arguments
+
+    calling_list = CallingList.query.filter_by(calling_list_name=name, customer_id=g.customer_id).first()  # Get the calling_list_id from the request arguments
     calling_list_id = calling_list.calling_list_id
 
     # Query to get all Contact Calling List entries for the given concal_id
@@ -255,6 +264,7 @@ def get_contact_calling_list_By_CallingListName(name):
 
 # ✅ GET data for a Contact List view 
 @contact_callinglist_bp.route('/all', methods=['GET'])
+@auth_required
 def get_contact_calling_list_full():
 
     # Subquery to get the latest call log for each concal_id
@@ -298,7 +308,7 @@ def get_contact_calling_list_full():
             LatestLog.c.call_timestamp.label('latest_call_timestamp'),
             call_count_subq.c.call_count.label("call_count")
         )
-        .select_from(ContactCallingList)
+        .select_from(ContactCallingList).filter(ContactCallingList.customer_id == g.customer_id)
         .join(ContactList, ContactCallingList.contact_id == ContactList.contact_id)
         .join(CallingList, ContactCallingList.calling_list_id == CallingList.calling_list_id)
         .join(Organization, ContactList.organization_id == Organization.organization_id)
@@ -339,7 +349,11 @@ def get_contact_calling_list_full():
 
 # ✅ DELETE Contact(s) from Calling List(s) or Calling List(s) from Contact(s)
 @contact_callinglist_bp.route('/remove', methods=['POST'])
+@auth_required
 def remove():
+    if g.role not in ["Admin Access" , "Manager"]:
+        security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+        return jsonify({"error": "Forbidden"}), 403
     data = request.get_json()
     deleted_count = 0
     contact_ids_to_check = set()
@@ -415,6 +429,7 @@ def remove():
 
 # ✅ Edit note in Contact Calling List
 @contact_callinglist_bp.route('/<int:concal_id>/note', methods=['PUT'])
+@auth_required
 def update_note(concal_id):
     data = request.get_json()
     note = data.get('note')

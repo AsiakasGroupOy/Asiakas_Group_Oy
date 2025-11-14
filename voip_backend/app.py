@@ -1,11 +1,11 @@
 # app.py
 
 from flask import Flask
-from extensions import db , ma
+from extensions import db , ma, mail
 from flask_cors import CORS
 from routes import register_routes  # Register all blueprints here
 from models.models import *  # Ensure all models are loaded
-
+from logging_config import setup_logging
 from dotenv import load_dotenv
 import os
 
@@ -14,18 +14,25 @@ load_dotenv()
 
 # Create Flask app
 app = Flask(__name__)
-CORS(app)
+
 
 # Load configuration from config.py
-app.config.from_object('config.Config')
+env = os.getenv("FLASK_ENV", "development")
+
+if env == "production":
+    app.config.from_object("config.ProductionConfig")
+else:
+    app.config.from_object('config.Config')
 
 # Initialize database
 db.init_app(app)
 ma.init_app(app)
-
+mail.init_app(app)
 # Register all routes via central router
 register_routes(app)
+CORS(app,supports_credentials=True, origins=["http://localhost:5173"])
 
+security_logger = setup_logging()
 # Health check route
 @app.route('/')
 def home():
@@ -43,4 +50,4 @@ if __name__ == "__main__":
         for rule in app.url_map.iter_rules():
             print(f"{rule.methods} -> {rule.rule}")
 
-    app.run(debug=True)
+    app.run(host="localhost", port=5000, debug=True)

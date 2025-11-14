@@ -12,6 +12,7 @@ import {
   MenuItem,
   Checkbox,
   Divider,
+  Autocomplete,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Typography from "@mui/material/Typography";
@@ -20,15 +21,18 @@ import {
   fullContactsCallLists,
   addContact,
   removeContactsCallLists,
-} from "./contactListApi";
+} from "../utils/contactListApi.js";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AddNewContact from "./AddNewContact";
+import { useAuth } from "./users_components/AuthContext.jsx";
+import AlertMessage from "./AlertMessage";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ContactList() {
   const [contactList, setContactList] = useState();
+  const { role } = useAuth();
   const columnDefs = useMemo(
     () => [
       {
@@ -45,7 +49,9 @@ export default function ContactList() {
         headerName: "Contact",
         field: "contact_name",
         valueGetter: (params) =>
-          `${params.data.contact.first_name || ""} ${params.data.contact.last_name || ""}`,
+          `${params.data.contact.first_name || ""} ${
+            params.data.contact.last_name || ""
+          }`,
         filter: true,
       },
       { headerName: "Phone Number", field: "contact.phone" },
@@ -82,7 +88,9 @@ export default function ContactList() {
     []
   );
 
-  const [columnStateVersion, setColumnStateVersion] = useState(0);
+  const [setColumnStateVersion] = useState(0);
+  const [agGridFilter, setAgGridFilter] = useState(true);
+  const [alert, setAlert] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -101,12 +109,16 @@ export default function ContactList() {
   }, []);
 
   const fetchContactList = async () => {
-    try {
-      const data = await fullContactsCallLists();
-      console.log("Fetched contact list:", data);
-      setContactList(data);
-    } catch (error) {
-      console.error("Failed to load contacts: ", error);
+    const response = await fullContactsCallLists();
+
+    if (response.status === "success") {
+      setContactList(response.data);
+    } else {
+      setContactList([]);
+      setAlert({
+        status: response.status,
+        message: response.message,
+      });
     }
   };
 
@@ -172,18 +184,28 @@ export default function ContactList() {
   };
 
   const addNewContact = async (newContact) => {
-    try {
-      await addContact(newContact);
+    const response = await addContact(newContact);
+
+    if (response.status === "success") {
       fetchContactList(); // Refresh contact list after adding
-      alert("Contact added!");
-    } catch (err) {
-      alert(err.message);
+      setAlert({
+        status: response.status,
+        message: response.data.message,
+      });
+    } else {
+      setAlert({
+        status: response.status,
+        message: response.message,
+      });
     }
   };
 
   const handleDelete = async () => {
     if (selectedRows.length === 0) {
-      alert("Please select at least one row to delete.");
+      setAlert({
+        status: "warning",
+        message: "Please select at least one row to delete.",
+      });
       return;
     }
 
@@ -193,13 +215,20 @@ export default function ContactList() {
       concal_id: row.concal_id,
     }));
 
-    try {
-      const response = await removeContactsCallLists(contactIds);
-      alert(response.message);
+    const response = await removeContactsCallLists(contactIds);
+
+    if (response.status === "success") {
+      setAlert({
+        status: response.status,
+        message: response.data.message,
+      });
       fetchContactList(); // Refresh contact list after deletion
-    } catch (error) {
-      console.error("Error deleting contacts:", error);
-      alert("Failed to delete contacts: " + (error.message || "Unknown error"));
+    } else {
+      setAlert({
+        status: response.status,
+        message:
+          "Failed to delete contacts: " + (response.message || "Unknown error"),
+      });
     }
   };
 
@@ -220,37 +249,42 @@ export default function ContactList() {
         </Typography>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          position: "sticky",
-          flexDirection: "row",
-          justifyContent: "end",
-          gap: 10,
-        }}
-      >
-        <ThemeProvider theme={theme}>
-          <AddNewContact addNewContact={addNewContact} />
+      {role !== "User" && (
+        <div
+          style={{
+            display: "flex",
+            position: "sticky",
+            flexDirection: "row",
+            justifyContent: "end",
+            gap: 10,
+          }}
+        >
+          <ThemeProvider theme={theme}>
+            <AddNewContact
+              addNewContact={addNewContact}
+              setAgGridFilter={setAgGridFilter}
+            />
 
-          <Button
-            variant="contained"
-            color="dustblue"
-            startIcon={<FontAwesomeIcon icon={faTrashCan} />}
-            onClick={handleDelete}
-          >
-            Delete
-          </Button>
-          <Button
-            variant="contained"
-            color="dustblue"
-            startIcon={<FontAwesomeIcon icon={faFileExport} />}
-            onClick={exportToCsv}
-          >
-            Export to Excel
-          </Button>
-        </ThemeProvider>
-      </div>
-
+            <Button
+              variant="contained"
+              color="dustblue"
+              startIcon={<FontAwesomeIcon icon={faTrashCan} />}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+            <Button
+              variant="contained"
+              color="dustblue"
+              startIcon={<FontAwesomeIcon icon={faFileExport} />}
+              onClick={exportToCsv}
+            >
+              Export to Excel
+            </Button>
+          </ThemeProvider>
+        </div>
+      )}
+      {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
       <div
         style={{
           position: "sticky",
@@ -332,16 +366,20 @@ export default function ContactList() {
               rowData={contactList}
               columnDefs={columnDefs}
               pagination={true}
-              rowSelection={{
-                mode: "multiRow",
-                selectAll: "filtered",
-              }}
+              {...(role !== "User" && {
+                rowSelection: {
+                  mode: "multiRow",
+                  selectAll: "filtered",
+                },
+              })}
               onSelectionChanged={handleSelectedRows}
               defaultColDef={{
                 resizable: true,
+                floatingFilter: agGridFilter,
                 flex: 1,
                 minWidth: 35,
               }}
+              domLayout="autoHeight"
               rowHeight={36}
               headerHeight={40}
               suppressMovableColumns={true}
