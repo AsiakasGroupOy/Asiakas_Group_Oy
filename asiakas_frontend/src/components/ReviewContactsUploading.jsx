@@ -14,7 +14,7 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
-import { filePreview } from "./importFileApi"; // Import the file preview function
+import { filePreview } from "../utils/importFileApi"; // Import the file preview function
 
 export default function ReviewContactsUploading({
   openPreview,
@@ -40,20 +40,19 @@ export default function ReviewContactsUploading({
         throw new Error("No file download to preview");
       }
 
-      const data = await filePreview(fileToPreview);
-      if (!data) {
-        throw new Error("No preview data available");
+      const dataPreview = await filePreview(fileToPreview);
+
+      if (dataPreview.status === "error") {
+        throw new Error(dataPreview.message || "Error fetching preview data");
       }
 
-      setPreviewRows(data.rows);
-      setMappingOptions(data.mappingOptions);
-      setHeaders(data.headers);
+      setPreviewRows(dataPreview.data.rows);
+      setMappingOptions(dataPreview.data.mappingOptions);
+      setHeaders(dataPreview.data.headers);
 
       return true; // Indicate success
-    } 
-      catch (error) {
-      alert("Error fetching preview data or incorect data format in file.");
-      console.error("Error fetching preview data:", error);
+    } catch (error) {
+      setWarning(error.message);
 
       return false;
     }
@@ -73,14 +72,12 @@ export default function ReviewContactsUploading({
           handleBack();
           setOpenPreview(false); // Close the preview dialog if no data is available
         }
-      }
-    else {  
+      } else {
         setPreviewRows([]);
         setMappingOptions([]);
         setHeaders([]);
-      console.log("Selected preview:", openPreview);
-      } 
-
+        console.log("Selected preview:", openPreview);
+      }
     };
     fetchPreview();
   }, [openPreview]); // Re-run when openPreview changes
@@ -100,7 +97,6 @@ export default function ReviewContactsUploading({
   };
 
   const handleOpenNextCallListDialog = () => {
-   
     if (!mapping || !Object.values(mapping).includes("Phone (required)")) {
       setWarning(
         "Please include a 'phone' field in the mapping before proceeding."
@@ -114,12 +110,14 @@ export default function ReviewContactsUploading({
       return;
     }
 
-    if (Object.keys(mapping).length !== headers.length ||
-        Object.values(mapping).includes("")) {
+    if (
+      Object.keys(mapping).length !== headers.length ||
+      Object.values(mapping).includes("")
+    ) {
       setWarning("Please map all columns before proceeding.");
-    return;
+      return;
     }
-    
+
     setWarning(""); // Clear any previous warnings
     handleOpenCallListDialog();
     setOpen(false); // Close the preview dialog but save all changes
@@ -167,7 +165,10 @@ export default function ReviewContactsUploading({
                       displayEmpty
                       sx={{
                         "& .MuiInputBase-input": {
-                          color:  mapping[col] && mapping[col] !== "" ? "#08205eff" : "#6a1a1aff", // only for this component
+                          color:
+                            mapping[col] && mapping[col] !== ""
+                              ? "#08205eff"
+                              : "#6a1a1aff", // only for this component
                           fontSize: "15px",
                         },
                       }}
@@ -179,12 +180,14 @@ export default function ReviewContactsUploading({
                         -- Map field --
                       </MenuItem>
                       {mappingOptions.map((option) => (
-                        <MenuItem 
-                          key={option} 
+                        <MenuItem
+                          key={option}
                           value={option}
                           disabled={
-                            option !== "Do not import" && 
-                            Object.values(mapping).includes(option)}>
+                            option !== "Do not import" &&
+                            Object.values(mapping).includes(option)
+                          }
+                        >
                           {option}
                         </MenuItem>
                       ))}

@@ -1,0 +1,11 @@
+{
+  "editor.dropIntoEditor.preferences": [],
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.formatOnSave": true,
+  "editor.quickSuggestions": {
+    "comments": "on",
+    "strings": "on",
+    "other": "on"
+  },
+  "python.languageServer": "Pylance"
+}

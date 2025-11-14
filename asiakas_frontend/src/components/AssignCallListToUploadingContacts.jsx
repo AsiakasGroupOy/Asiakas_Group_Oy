@@ -8,44 +8,41 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import { fetchCallLists } from "./contactListApi"; // Import the function to fetch call lists
+import { fetchCallLists } from "../utils/contactListApi"; // Import the function to fetch call lists
+
 export default function AssignCallListToUploading({
   selectedCallList,
   setSelectedCallList,
   openCallListDialog,
   handleCloseCallListDialog,
-  handleSubmitDialogWindowOpen
+  handleSubmitDialogWindowOpen,
 }) {
-  const [callListOptions, setCallListOptions] = useState("");
+  const [callListOptions, setCallListOptions] = useState([]);
 
   const handleCloseDialog = () => {
     handleCloseCallListDialog();
-    
   };
- const handleSubmitDialog = () => {
-    if (selectedCallList === "") {
+  const handleSubmitDialog = () => {
+    if (!selectedCallList) {
       alert("Please select a call list before proceeding.");
       return;
     }
     handleSubmitDialogWindowOpen();
-   
   };
   useEffect(() => {
     const fetchAllCallLists = async () => {
-      try {
-        const data = await fetchCallLists();
-       
-        setCallListOptions(data.map((cl)=> cl.calling_list_name));
-      
-      } catch (error) {
-        console.error("Error fetching call lists:", error);
-        alert("Failed to fetch call lists. Please try again later.");
+      const response = await fetchCallLists();
+      if (response.status === "success" && response.data.length > 0) {
+        setCallListOptions(response.data.map((cl) => cl.calling_list_name));
+      } else {
+        setCallListOptions([]);
+        window.alert("Call lists could be empty or not available.");
       }
     };
 
     fetchAllCallLists();
   }, []);
-  
+
   return (
     <>
       <Dialog
@@ -57,15 +54,18 @@ export default function AssignCallListToUploading({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle  sx={{ fontSize: "20px", fontWeight: "bold", color: "#08205eff"
-                   }}>Assign Call List</DialogTitle>
+        <DialogTitle
+          sx={{ fontSize: "20px", fontWeight: "bold", color: "#08205eff" }}
+        >
+          Assign Call List
+        </DialogTitle>
         <DialogContent>
           <Autocomplete
             freeSolo
             required
             size="small"
             options={callListOptions} // array of Calling lists names
-            value={selectedCallList}
+            value={selectedCallList || ""}
             onInputChange={(_, newValue) => {
               setSelectedCallList(newValue);
             }}
@@ -83,23 +83,25 @@ export default function AssignCallListToUploading({
             )}
           />
         </DialogContent>
-         <DialogActions sx={{ justifyContent: "space-between", marginLeft: 10, marginRight: 10 }}>
-                      <Button
-                        variant="contained"
-                        color="grey"
-                        onClick={handleCloseDialog}
-                      >
-                        Back
-                      </Button>
-                       <Button
-                        variant="contained"
-                        color="dustblue"
-                        onClick={handleSubmitDialog}
-                        autoFocus
-                      >
-                        Next
-                    </Button>
-                    </DialogActions>
+        <DialogActions
+          sx={{
+            justifyContent: "space-between",
+            marginLeft: 10,
+            marginRight: 10,
+          }}
+        >
+          <Button variant="contained" color="grey" onClick={handleCloseDialog}>
+            Back
+          </Button>
+          <Button
+            variant="contained"
+            color="dustblue"
+            onClick={handleSubmitDialog}
+            autoFocus
+          >
+            Next
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

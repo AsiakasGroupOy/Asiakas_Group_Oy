@@ -1,9 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,g
 from extensions import db
 from models.models import CallLog, ContactCallingList, CallStatus
 from schemas.call_log_schemas import CallLogSchema
-from marshmallow import ValidationError
-from datetime import datetime
+from helpers.helpers import auth_required
 
 calllog_bp = Blueprint('calllog_bp', __name__, url_prefix='/api/calllogs')
 
@@ -13,6 +12,7 @@ calllogs_schema = CallLogSchema(many=True)
 
 # CREATE a new call log
 @calllog_bp.route('/<int:concal_id>/status', methods=['POST'])
+
 def create_call_log(concal_id):
     
     data = request.get_json()
@@ -37,6 +37,7 @@ def create_call_log(concal_id):
 
 # DELETE a single call log
 @calllog_bp.route('/<int:call_id>', methods=['DELETE'])
+@auth_required
 def delete_call_log(call_id):
     call_log = CallLog.query.get(call_id)
     if not call_log:

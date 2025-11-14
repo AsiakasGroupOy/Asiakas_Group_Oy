@@ -10,7 +10,7 @@ import {
   Button,
   Alert,
   AlertTitle,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -20,7 +20,7 @@ import ReviewContactsUploading from "./ReviewContactsUploading";
 import { ThemeProvider } from "@mui/material/styles";
 import AssignCallListToUploading from "./AssignCallListToUploadingContacts";
 import SubmitFileUploading from "./SubmitFileUploading";
-import { uploadContactsFile } from "./contactListApi";
+import { uploadContactsFile } from "../utils/contactListApi";
 
 export default function ImportContacts() {
   const [activeStep, setActiveStep] = useState(-1);
@@ -104,50 +104,53 @@ export default function ImportContacts() {
   const handleSubmitDialogWindowOpen = () => {
     setOpenCallListDialog(false);
     setSubmittingDialogOpen(true);
-    
   };
 
   const handleSubmitFileUpload = async () => {
-    console.log(selectedCallList,mapping, fileToPreview)
+    console.log(selectedCallList, mapping, fileToPreview);
     try {
       setLoadingStarts(true);
       setSubmittingDialogOpen(false);
       setOpen(false); // Close the preview dialog
-      const uploading = await (uploadContactsFile(fileToPreview, mapping, selectedCallList))
+      const uploading = await uploadContactsFile(
+        fileToPreview,
+        mapping,
+        selectedCallList
+      );
 
       setLoadingStarts(false);
+      if (uploading.status === "success") {
+        const { inserted_contacts, warnings } = uploading.data;
+        setNumberUploadedRows(inserted_contacts);
 
-      if (uploading.inserted_contacts > 0) {
-        // Successfully uploaded at least one row
-        setActiveStep(3);
-        setNumberUploadedRows(uploading.inserted_contacts);
-        setCompleteAlert(true);
+        if (inserted_contacts > 0) {
+          // Successfully uploaded at least one row
+          setActiveStep(3);
+          setCompleteAlert(true);
 
-        if (uploading.warnings.length) {
-          setUploadErrorMessage(uploading.warnings.join("\n"));
+          if (warnings?.length) {
+            setUploadErrorMessage(warnings.join("\n"));
+          }
+          console.log("Uploading result:", uploading);
+        } else if (warnings?.length) {
+          // Uploaded 0 rows and warnings
+          setUploadErrorMessage(warnings.join("\n"));
+          setUploadFailedAlert(true);
         }
-        console.log("Uploading result:", uploading);
-
-      } else if (uploading.warnings.length) {
-        // Uploaded 0 rows and warnings
-        setUploadErrorMessage(uploading.warnings.join("\n"));
-        setUploadFailedAlert(true);
-        setNumberUploadedRows(uploading.inserted_contacts);
-
-      } else if (uploading.message) {
-        // Uploaded 0 rows and error message from backend
-        setUploadErrorMessage(uploading.message);
+      } else {
+        setUploadErrorMessage(uploading.message || "Upload failed.");
         setUploadFailedAlert(true);
       }
-      
     } catch (err) {
       setLoadingStarts(false);
       // Network or unexpected errors
       console.error(err);
-      setUploadErrorMessage(err.message || "Something went wrong while uploading the file.");
+      setUploadErrorMessage(
+        err.message || "Something went wrong while uploading the file."
+      );
       setUploadFailedAlert(true);
     }
-};
+  };
 
   const handleSubmitFileUploadClosed = () => {
     // Reset all the states to initial
@@ -156,7 +159,7 @@ export default function ImportContacts() {
     setSelectedCallList("");
     handleBack();
   };
-  
+
   return (
     <>
       <Box
@@ -274,16 +277,20 @@ export default function ImportContacts() {
             handleSubmitFileUpload={handleSubmitFileUpload}
             handleSubmitFileUploadClosed={handleSubmitFileUploadClosed}
           />
-          {loadingStarts ? <CircularProgress sx={{ color: "#08205eff" }} /> : null}
+          {loadingStarts ? (
+            <CircularProgress sx={{ color: "#08205eff" }} />
+          ) : null}
 
           {(uploadFailedAlert || completeAlert) && (
             <Alert
               sx={{ marginTop: 10, fontSize: "13px" }}
               severity={
-                 uploadErrorMessage && numberUploadedRows > 0
-                ? "warning"
-                : completeAlert && numberUploadedRows > 0
-                ? "success": "error"}
+                uploadErrorMessage && numberUploadedRows > 0
+                  ? "warning"
+                  : completeAlert && numberUploadedRows > 0
+                  ? "success"
+                  : "error"
+              }
               onClose={() => {
                 setCompleteAlert(false);
                 setUploadFailedAlert(false);
@@ -293,34 +300,33 @@ export default function ImportContacts() {
                 handleBack();
               }}
             >
-              <AlertTitle sx={{  mt: 2, fontSize: "15px" }}>
-                 {uploadErrorMessage && numberUploadedRows > 0
+              <AlertTitle sx={{ mt: 2, fontSize: "15px" }}>
+                {uploadErrorMessage && numberUploadedRows > 0
                   ? `Upload Completed with Warnings (${numberUploadedRows} row(s) uploaded)`
                   : completeAlert && numberUploadedRows > 0
                   ? `Upload Successful (${numberUploadedRows} row(s))`
                   : "Upload Failed"}
               </AlertTitle>
-              
-                {uploadErrorMessage ? (
-                  <>
+
+              {uploadErrorMessage ? (
+                <>
                   <br />
                   These issues were found:
                   <br />
-                  <br /> 
-                    {uploadErrorMessage.split("\n").map((msg, idx) => (
-                         <Typography key={idx} component="span" display="block">
-                            {msg}
-                         </Typography>
-                     ))}
-                  </>
-                ) : completeAlert && numberUploadedRows > 0 ?  (
-                  "Your file has been uploaded and is ready to use."
-                ) : (
-                  "There was an error uploading your file. Please try again."   
-                ) 
-               }
-            </Alert>
+                  <br />
+                  {uploadErrorMessage.split("\n").map((msg, idx) => (
+                    <Typography key={idx} component="span" display="block">
+                      {msg}
+                    </Typography>
+                  ))}
+                </>
+              ) : completeAlert && numberUploadedRows > 0 ? (
+                "Your file has been uploaded and is ready to use."
+              ) : (
+                "There was an error uploading your file. Please try again."
               )}
+            </Alert>
+          )}
         </ThemeProvider>
       </Box>
     </>

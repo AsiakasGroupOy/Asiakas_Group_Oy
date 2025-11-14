@@ -1,5 +1,6 @@
 #root {
   max-width: 1280px;
+  min-width: 800px;
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
@@ -43,15 +44,19 @@
 
  
 .ag-theme-material .ag-header-cell {
-  background-color: #f0f0f0;
-    padding: 5px !important;
-    font-size: 11px;
+  background-color: #d8e0f2;
+    padding: 7px;
+    font-size: 12px;
     font-weight: bold;
     color: #333;
     
 }
+
 .ag-theme-material .ag-cell
 {
-  padding:  0px 5px  !important;
+  padding:  0px 8px;
   font-size: 11px;
 }
+.ag-theme-material .ag-header-cell-label {
+  padding-left: 5px;
+} 
