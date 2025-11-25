@@ -1,85 +1,84 @@
 import { useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Button, IconButton, Box } from "@mui/material";
-import { FormControl, Select, MenuItem } from "@mui/material";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export default function ActiveUsers({
-  userList,
-  handleUpdatedRole,
-  handleUserRemove,
+export default function ActiveCustomers({
+  customersList,
+  handleUpdateCustomer,
+  handleShowCustomerUsers,
+  handleCustomerRemove,
 }) {
-  const roles = ["Manager", "User", "Admin Access"];
   const [columnDefs] = useState([
     {
-      headerName: "User name",
-      field: "username",
+      headerName: "Company Id",
+      field: "customer_id",
     },
     {
-      headerName: "Email",
-      field: "useremail",
-    },
-    {
-      headerName: "Role",
-      field: "role",
+      headerName: "Company Name",
+      field: "customer_name",
       editable: true,
-      cellRenderer: (params) => (
-        <FormControl size="small">
-          <Select
-            value={roles.includes(params.value) ? params.value : ""}
-            size="small"
-            onChange={(e) => {
-              params.node.setDataValue("role", e.target.value);
-            }}
-            sx={{
-              ".MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              fontSize: 12,
-              height: 40,
-            }}
-          >
-            {roles.map((option) => (
-              <MenuItem key={option} value={option} sx={{ fontSize: 12 }}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      ),
+    },
+    {
+      headerName: "Company Address",
+      field: "customer_address",
+      editable: true,
+    },
+    {
+      headerName: "Twilio phone number",
+      field: "assigned_number",
+      editable: true,
     },
 
     {
       headerName: "Actions",
       sortable: false,
       filter: false,
+      justifyContent: "space-between",
+      width: 220,
+      flex: 0,
       cellRenderer: (params) => (
         <Box
           display="flex"
           alignItems="center"
           justifyContent={"space-between"}
           height={40}
-          width={"90%"}
+          width={"100%"}
         >
           <Button
             variant="outlined"
             color="warning"
             size="small"
             onClick={() => {
-              handleUpdatedRole(params.data);
+              handleUpdateCustomer(params.data);
+            }}
+            sx={{
+              textTransform: "none",
+              minWidth: "80px",
+              flexShrink: 0,
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="warning"
+            size="small"
+            onClick={() => {
+              handleShowCustomerUsers(params.data);
             }}
             sx={{ textTransform: "none", minWidth: "80px", flexShrink: 0 }}
           >
-            Change Role
+            Users
           </Button>
           <IconButton aria-label="delete" size="small">
             <DeleteIcon
               sx={{ color: "#800505ff", padding: "1px" }}
               onClick={() => {
-                handleUserRemove(params.data);
+                handleCustomerRemove(params.data);
               }}
             />
           </IconButton>
@@ -98,12 +97,12 @@ export default function ActiveUsers({
           height: 400,
           width: "90%",
           margin: "0 auto",
-          minWidth: 800,
+          minWidth: 900,
           overflow: "auto",
         }}
       >
         <AgGridReact
-          rowData={userList}
+          rowData={customersList}
           columnDefs={columnDefs}
           ref={gridRef}
           onGridReady={(params) => {

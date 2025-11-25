@@ -8,7 +8,7 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import { fetchCallLists } from "../utils/contactListApi"; // Import the function to fetch call lists
+import { fetchCallLists } from "../services/contactListApi"; // Import the function to fetch call lists
 
 export default function AssignCallListToUploading({
   selectedCallList,

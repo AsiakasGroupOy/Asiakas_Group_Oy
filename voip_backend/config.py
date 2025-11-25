@@ -21,6 +21,10 @@ class Config:
     MAIL_PASSWORD = os.getenv('APP_MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = ('Call Management Application', os.getenv('APP_MAIL_USERNAME'))
 
+    APP_ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL")
+    APP_ADMIN_PASSWORD = os.getenv("APP_ADMIN_PASSWORD")
+    APP_ADMIN_NAME = os.getenv("APP_ADMIN_NAME")
+
     ADMIN_EMAIL= os.getenv("ADEMAIL")
     ADMIN_PASSWORD = os.getenv("ADPASSWORD")
     ADMIN_NAME = os.getenv("ADNAME")

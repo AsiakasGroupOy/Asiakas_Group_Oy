@@ -14,7 +14,8 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
-import { filePreview } from "../utils/importFileApi"; // Import the file preview function
+import { filePreview } from "../services/importFileApi"; // Import the file preview function
+import AlertMessage from "./AlertMessage";
 
 export default function ReviewContactsUploading({
   openPreview,
@@ -33,6 +34,7 @@ export default function ReviewContactsUploading({
   const [mappingOptions, setMappingOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [warning, setWarning] = useState("");
+  const [alert, setAlert] = useState(null);
 
   const initialPreview = async () => {
     try {
@@ -52,7 +54,11 @@ export default function ReviewContactsUploading({
 
       return true; // Indicate success
     } catch (error) {
-      setWarning(error.message);
+      setAlert({
+        status: "error",
+        title: "Error",
+        message: error.message || "Failed to load preview data.",
+      });
 
       return false;
     }
@@ -76,7 +82,6 @@ export default function ReviewContactsUploading({
         setPreviewRows([]);
         setMappingOptions([]);
         setHeaders([]);
-        console.log("Selected preview:", openPreview);
       }
     };
     fetchPreview();
@@ -125,6 +130,7 @@ export default function ReviewContactsUploading({
 
   return (
     <>
+      {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
       {loading ? <CircularProgress sx={{ color: "#08205eff" }} /> : null}
       <Dialog
         open={open}

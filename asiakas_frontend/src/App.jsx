@@ -11,13 +11,11 @@ import "./App.css";
 import NavigationTabs from "./components/NavigationTabs";
 import LoginForm from "./components/users_components/LoginForm";
 import { useAuth } from "./components/users_components/AuthContext.jsx";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 function App() {
   const { isAuthenticated, role, logout } = useAuth();
-
-  if (!isAuthenticated) return <Navigate to="/login" />;
 
   return (
     <>
@@ -31,7 +29,6 @@ function App() {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
             }}
           >
             <Typography
@@ -46,15 +43,25 @@ function App() {
               Soitto.ai
             </Typography>
 
-            {isAuthenticated && <NavigationTabs role={role} />}
+            {isAuthenticated && (
+              <Box
+                sx={{
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <NavigationTabs role={role} sx={{ alignSelf: "flex-end" }} />
 
-            <IconButton onClick={logout}>
-              <LogoutOutlinedIcon
-                sx={{ color: "#fbfbfbff", marginLeft: "25px" }}
-              />
-            </IconButton>
+                <IconButton onClick={logout}>
+                  <LogoutOutlinedIcon
+                    sx={{ color: "#fbfbfbff", marginLeft: "25px" }}
+                  />
+                </IconButton>
+              </Box>
+            )}
           </Toolbar>
-          {!isAuthenticated && <LoginForm />}
+
           <Box
             sx={{
               width: "100%",
@@ -67,8 +74,7 @@ function App() {
         </AppBar>
       </Container>
       <Toolbar />
-
-      <Outlet />
+      {!isAuthenticated ? <LoginForm /> : <Outlet />}
     </>
   );
 }

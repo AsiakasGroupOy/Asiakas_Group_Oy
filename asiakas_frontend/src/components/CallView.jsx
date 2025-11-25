@@ -21,7 +21,7 @@ import {
   fetchByCallingListName,
   fetchCallLists,
   editContact,
-} from "../utils/contactListApi.js";
+} from "../services/contactListApi.js";
 import StatusesCallView from "./StatusesCallView";
 import EditContact from "./EditContact.jsx";
 import { useAuth } from "./users_components/AuthContext.jsx";
@@ -35,7 +35,7 @@ export default function CallView() {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [callListOptions, setCallListOptions] = useState([]);
   const [filteredOrgNames, setFilteredOrgNames] = useState([]);
-  const [callListSearch, setCallListSearch] = useState("");
+  const [callListSearch, setCallListSearch] = useState(null);
   const [alert, setAlert] = useState(null);
   const location = useLocation();
 
@@ -290,11 +290,15 @@ export default function CallView() {
                   <Select
                     labelId="calllist-label"
                     label="Search Call List"
-                    value={callListSearch}
+                    value={
+                      callListOptions.includes(callListSearch)
+                        ? callListSearch
+                        : ""
+                    }
                     onChange={(e) => handleCallListChange(e.target.value)}
                     size="small"
                     displayEmpty
-                    renderValue={(selected) => selected}
+                    renderValue={(selected) => selected || "Empty list"}
                   >
                     {callListOptions.map((option) => (
                       <MenuItem key={option} value={option}>

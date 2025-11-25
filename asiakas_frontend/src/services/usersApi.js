@@ -61,7 +61,7 @@ export const newInvitation = async (invData) => {
   );
 };
 
-//!!!!!!!!!!!!!!!! Registration form
+//Registration form
 export const regProcess = async (regData) => {
   return await apiFetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,

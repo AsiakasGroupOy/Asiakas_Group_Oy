@@ -5,24 +5,23 @@ export default function AlertMessage({ alert, setAlert }) {
     <Box
       display="flex"
       position="fixed"
-      left="10%"
-      top="20"
-      alignItems={"center"}
+      top={0}
+      left={0}
+      width="100vw"
+      height="100vh"
+      alignItems={"flex-start"}
       justifyContent={"center"}
-      height="50%"
-      width="80%"
-      zIndex="1300"
-      bgcolor="rgba(188, 188, 188, 0.6)"
+      zIndex="1000"
+      bgcolor="rgba(255, 255, 255, 0.83)"
     >
       <Alert
         sx={{
-          margin: 10,
+          marginTop: 30,
           fontSize: "13px",
-          width: 500,
+          width: "100%",
+          maxWidth: 500,
           height: 150,
-          "&.MuiAlert-standardError": {
-            marginTop: 2,
-          },
+          boxShadow: 3,
         }}
         severity={alert.status}
         onClose={() => setAlert(null)}

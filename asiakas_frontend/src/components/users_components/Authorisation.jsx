@@ -3,8 +3,8 @@ import {
   getCurrentUser,
   logInProcess,
   logOutProcess,
-} from "../../utils/apiFetch.js";
-import { registerGlobalLogout } from "../../utils/globalLogout.js";
+} from "../../services/apiFetch.js";
+import { registerGlobalLogout } from "../../services/globalLogout.js";
 
 import { AuthContext } from "./AuthContext.jsx";
 
@@ -16,9 +16,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const response = await getCurrentUser();
         if (response.status === "success") {
-          // current returned user object
           setCurrentUser(response.data);
-          console.log(response.data);
         } else {
           setCurrentUser(null);
         }
@@ -54,6 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!currentUser;
   const role = currentUser?.role;
+  console.log("Current user role in AuthProvider:", role);
   const current_customer_id = currentUser?.customer_id;
 
   return (

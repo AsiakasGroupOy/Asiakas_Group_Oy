@@ -10,7 +10,6 @@ import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import IconButton from "@mui/material/IconButton";
-import Autocomplete from "@mui/material/Autocomplete";
 
 export default function EditContact({ editContact, saveEditContact }) {
   const [open, setOpen] = React.useState(false);

@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   if (!isAuthenticated) return <Navigate to="/login" />;
 
   if (allowedRoles && !allowedRoles.includes(role)) {
-    return null;
+    return <Navigate to="/not-authorized" />;
   }
 
   return children;

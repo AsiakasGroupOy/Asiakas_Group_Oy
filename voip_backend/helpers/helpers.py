@@ -2,12 +2,10 @@ from flask import Flask, request, jsonify, current_app, g
 from functools import wraps
 from datetime import datetime, timedelta
 import logging
+import jwt
 
 logging.basicConfig(level=logging.INFO)
 security_logger = logging.getLogger("security")
-
-import re
-import jwt
 
 # Decorator to protect routes by validating JWTs from cookies.
 # Extracts the access token from cookies, decodes and verifies it,
@@ -64,36 +62,3 @@ def create_refresh_token(current_user):
     return jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm="HS256")
 
 
-# Email address validation
-EMAIL_RE = re.compile(
-    r'^(?=.{9,254}$)(?!.*\.\.)'              
-    r'[A-Za-z0-9_+%+-]+(?:\.[A-Za-z0-9_+%+-]+)*'  
-    r'@'
-    r'(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+'  # domen part
-    r'[A-Za-z]{1,63}$'                       # TLD
-)
-
-def is_valid_email(email: str) -> bool:
-    return bool(EMAIL_RE.match(email))
-
- # Password validation
-
-def is_valid_password(password: str) -> tuple[bool, list[str]]:
-    
-    errors = []
-
-    if len(password) < 8:
-        errors.append("Password must be at least 8 characters long.")
-    if len(password) > 128:
-        errors.append("Password must not exceed 128 characters.")
-
-    if not re.search(r"[A-Z]", password):
-        errors.append("Password must include at least one uppercase letter.")
-    if not re.search(r"[a-z]", password):
-        errors.append("Password must include at least one lowercase letter.")
-    if not re.search(r"\d", password):
-        errors.append("Password must include at least one digit.")
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=]", password):
-        errors.append("Password must include at least one special character.")
-
-    return (len(errors) == 0, errors)
