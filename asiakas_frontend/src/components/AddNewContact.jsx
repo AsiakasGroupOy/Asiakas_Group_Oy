@@ -9,7 +9,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Autocomplete from "@mui/material/Autocomplete";
-import { fetchOrganizations, fetchCallLists } from "../utils/contactListApi";
+import { fetchOrganizations, fetchCallLists } from "../services/contactListApi";
 
 export default function AddContactForm({ addNewContact, setAgGridFilter }) {
   const [open, setOpen] = React.useState(false);

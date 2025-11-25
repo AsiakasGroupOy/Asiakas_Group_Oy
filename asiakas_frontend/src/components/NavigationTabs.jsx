@@ -48,7 +48,7 @@ const NavigationTabs = ({ role }) => {
         component={Link}
         to="/callview"
       />
-      {["Manager", "Admin Access"].includes(role) && (
+      {["Manager", "Admin Access", "App Admin"].includes(role) && (
         <Tab
           label="Import contacts"
           value="/import"
@@ -56,12 +56,20 @@ const NavigationTabs = ({ role }) => {
           to="/import"
         />
       )}
-      {["Admin Access"].includes(role) && (
+      {["Admin Access", "App Admin"].includes(role) && (
         <Tab
           label="Settings"
           value="/settings"
           component={Link}
           to="/settings"
+        />
+      )}
+      {["App Admin"].includes(role) && (
+        <Tab
+          label="Customer Management"
+          value="/customers-management"
+          component={Link}
+          to="/customers-management"
         />
       )}
     </Tabs>

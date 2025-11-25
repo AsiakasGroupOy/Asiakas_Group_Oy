@@ -51,33 +51,49 @@ def create_tables():
 # Step 3: create an first customer if not exists
 def create_first_customer():
    
-    
+
+            default_customer= Customer(
+                 customer_name= "Application administrator",
+                 customer_address= "Default Address")
             first_customer = Customer(
                 customer_name="First Customer",
-                customer_email="tanjaljubavskaja@gmail.com")
+                customer_address="123 First St")
             second_customer = Customer(
                 customer_name="Second Customer",
-                customer_email="tatiana.ljubavskaja.profit@gmail.com")
+                customer_address="456 Second St")
             
+            db.session.add(default_customer)
             db.session.add(first_customer)  
             db.session.add(second_customer)
             db.session.commit()
-
+            
+            print(f"👤 Default customer `{default_customer.customer_name}` created.")
             print(f"👤 First customer `{first_customer.customer_name}` created.")
             print(f"👤 Second customer `{second_customer.customer_name}` created.")
 
 # Step 4: create an first user if not exists
 def create_first_users():
     users = [
-        {"username": Config.ADMIN_NAME, "useremail":Config.ADMIN_EMAIL,"password": Config.ADMIN_PASSWORD, "role": UserRoles.APP_ADMIN},
+        {"username": Config.ADMIN_NAME, "useremail":Config.ADMIN_EMAIL,"password": Config.ADMIN_PASSWORD, "role": UserRoles.CALL_ADMIN},
         {"username": Config.MANAGER_NAME, "useremail":Config.MANAGER_EMAIL,"password": Config.MANAGER_PASSWORD, "role": UserRoles.CALL_MANAGER},
         {"username": Config.USER_NAME,"useremail": Config.USER_EMAIL,"password": Config.USER_PASSWORD, "role": UserRoles.CALL_USER}
     ] 
     users_second = [
-        {"username": Config.ADMIN_NAME2, "useremail":Config.ADMIN_EMAIL2,"password": Config.ADMIN_PASSWORD2, "role": UserRoles.APP_ADMIN},
+        {"username": Config.ADMIN_NAME2, "useremail":Config.ADMIN_EMAIL2,"password": Config.ADMIN_PASSWORD2, "role": UserRoles.CALL_ADMIN},
         {"username": Config.MANAGER_NAME2, "useremail":Config.MANAGER_EMAIL2,"password": Config.MANAGER_PASSWORD2, "role": UserRoles.CALL_MANAGER},
         {"username": Config.USER_NAME2,"useremail": Config.USER_EMAIL2,"password": Config.USER_PASSWORD2, "role": UserRoles.CALL_USER}
     ] 
+
+    app_admin= User(
+        username=Config.APP_ADMIN_NAME,
+        useremail=Config.APP_ADMIN_EMAIL,
+        role= UserRoles.APP_ADMIN,
+        customer_id=Customer.query.filter_by(customer_name = "Application administrator").first().customer_id
+    )
+    app_admin.set_password(Config.APP_ADMIN_PASSWORD)
+    db.session.add(app_admin)
+    print(f"👤 App Admin `{app_admin.useremail}` created.")
+
 
     for data in users: 
         if not User.query.filter_by(useremail=data["useremail"]).first():

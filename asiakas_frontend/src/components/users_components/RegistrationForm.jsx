@@ -12,7 +12,7 @@ import {
 import { ThemeProvider } from "@mui/material";
 import theme from "../../theme";
 import AlertMessage from "../AlertMessage";
-import { regProcess } from "../../utils/usersApi";
+import { regProcess } from "../../services/usersApi";
 import { useNavigate } from "react-router-dom";
 
 export default function RegistrationForm() {
@@ -61,6 +61,7 @@ export default function RegistrationForm() {
     }
 
     const response = await regProcess({ token, ...regData });
+    console.log("Registration response:", response);
     if (response.status === "success") {
       setLogInButton(true);
     } else {

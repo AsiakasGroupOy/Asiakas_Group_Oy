@@ -8,10 +8,10 @@ import {
   newInvitation,
   deleteUser,
   deleteInvitation,
-} from "../../utils/usersApi.js";
-import ActiveUsers from "./ActiveUsers";
-import InviteUsers from "./InviteUsers";
-import AlertMessage from "../AlertMessage";
+} from "../services/usersApi";
+import ActiveUsers from "../components/users_components/ActiveUsers";
+import InviteUsers from "../components/users_components/InviteUsers";
+import AlertMessage from "../components/AlertMessage";
 
 export default function RolesManagement() {
   const [userList, setUserList] = useState([]);

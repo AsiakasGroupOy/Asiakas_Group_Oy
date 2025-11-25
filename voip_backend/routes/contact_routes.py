@@ -7,6 +7,7 @@ import pandas as pd
 import re
 import logging
 from helpers.helpers import auth_required
+from helpers.validations import validate_phone
 
 contact_bp = Blueprint('contact_bp', __name__)
 contact_schema = ContactSchema()
@@ -19,7 +20,7 @@ security_logger = logging.getLogger("security")
 @contact_bp.route('/add_one', methods=['POST'])
 @auth_required
 def create_contact():
-    if g.role not in ["Admin Access" , "Manager"]:
+    if g.role not in ["Admin Access" , "Manager", "App Admin"]:
         security_logger.error("Unauthorized access attempt: user_id=%s, customer_id=%s", g.get("user_id"), g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     
@@ -31,7 +32,8 @@ def create_contact():
       return jsonify({"error": "First name and Last name are required"}), 400
     
     phone=data.get('phone', '').strip()
-    if not validate_phone(phone):
+    phone = validate_phone(phone)
+    if not phone:
         return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
 
   
@@ -128,20 +130,10 @@ SYSTEM_FIELDS = {
     "Do not import": None
 }
 
-def validate_phone(phone):
-    # basic phone validation: digits and +, -, spaces
-    if not phone:
-        return False
-    cleaned = re.sub(r"[^\d\+]", "", phone) # Remove all but digits and +
-
-    if re.match(r"^\+?\d{6,15}$", cleaned): # Length between 6 and 15 digits
-        return cleaned
-    return False
-
 @contact_bp.route('/upload_contacts', methods=['POST'])
 @auth_required
 def upload_contacts():
-    if g.role not in ["Admin Access" , "Manager"]:
+    if g.role not in ["Admin Access" , "Manager", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user to upload contacts: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     
@@ -223,8 +215,8 @@ def upload_contacts():
             if not phone or not organization_name:
                 warnings.append(f"Row {idx+2}: Missing required field(s) phone or organization name")
                 continue
-
-            if not validate_phone(phone):
+            phone = validate_phone(phone)
+            if not phone:
                 warnings.append(f"Row {idx+2}: Invalid phone format")
                 continue
 
@@ -318,15 +310,16 @@ def update_contact():
     if not contact:
         return jsonify({"error": "Contact not found"}), 404
 
-    phone=data.get('phone', '').strip()
-    if not validate_phone(phone):
+    phone = data.get('phone', '').strip()
+    phone = validate_phone(phone)
+    if not phone:
         return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
 
     contact.first_name = data.get('first_name', '').strip()
     contact.last_name = data.get('last_name', '').strip()
     contact.job_title=data.get('job_title', '').strip(),
     contact.email = data.get('email', '').strip(),
-
+    contact.phone=phone
 
     db.session.commit()
 

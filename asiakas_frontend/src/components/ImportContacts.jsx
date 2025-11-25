@@ -20,7 +20,7 @@ import ReviewContactsUploading from "./ReviewContactsUploading";
 import { ThemeProvider } from "@mui/material/styles";
 import AssignCallListToUploading from "./AssignCallListToUploadingContacts";
 import SubmitFileUploading from "./SubmitFileUploading";
-import { uploadContactsFile } from "../utils/contactListApi";
+import { uploadContactsFile } from "../services/contactListApi";
 
 export default function ImportContacts() {
   const [activeStep, setActiveStep] = useState(-1);

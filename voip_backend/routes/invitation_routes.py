@@ -3,7 +3,8 @@ from flask_mail import Message
 from extensions import db, mail
 from models.models import Invitation, User, UserRoles
 from schemas.invitation_schemas import InvitationSchema 
-from helpers.helpers import auth_required, is_valid_email 
+from helpers.helpers import auth_required
+from helpers.validations import is_valid_email
 import uuid, hashlib, os
 import logging
 from datetime import datetime, timedelta
@@ -19,7 +20,7 @@ security_logger = logging.getLogger("security")
 @invitation_bp.route('/', methods=['GET'])
 @auth_required
 def get_all_invitations():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access" , "App Admin"]:
         security_logger.error("Unauthorized access attempt by user to get list of invitations: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     invitation = Invitation.query.filter_by(customer_id = g.customer_id).all()
@@ -37,7 +38,7 @@ def get_all_invitations():
 @invitation_bp.route('/invite', methods=['POST'])
 @auth_required
 def invite_user():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access" , "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     
@@ -107,7 +108,7 @@ def invite_user():
 @invitation_bp.route('/remove', methods=['POST'])
 @auth_required
 def delete_invitation():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
 

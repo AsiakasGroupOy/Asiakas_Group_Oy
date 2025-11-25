@@ -7,11 +7,12 @@ import ContactList from "./components/ContactList.jsx";
 import CallView from "./components/CallView.jsx";
 import ImportContacts from "./components/ImportContacts.jsx";
 import LoginForm from "./components/users_components/LoginForm.jsx";
-import RolesManagement from "./components/users_components/RolesManagement.jsx";
+import RolesManagement from "./pages/RolesManagement.jsx";
 import RegistrationForm from "./components/users_components/RegistrationForm.jsx";
 import { AuthProvider } from "./components/users_components/Authorisation.jsx";
 import NotAuthorized from "./components/users_components/NotAuthorized.jsx";
 import ProtectedRoute from "./components/users_components/ProtectedRoute.jsx";
+import CustomersManagement from "./pages/CustomersManagement.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
     path: "/not-authorized",
     element: <NotAuthorized />,
   },
+
   {
     path: "/",
     element: <App />,
@@ -33,7 +35,9 @@ const router = createBrowserRouter([
       {
         path: "contactlist",
         element: (
-          <ProtectedRoute allowedRoles={["Manager", "User", "Admin Access"]}>
+          <ProtectedRoute
+            allowedRoles={["Manager", "User", "Admin Access", "App Admin"]}
+          >
             <ContactList />
           </ProtectedRoute>
         ),
@@ -41,7 +45,9 @@ const router = createBrowserRouter([
       {
         path: "callview",
         element: (
-          <ProtectedRoute allowedRoles={["Manager", "User", "Admin Access"]}>
+          <ProtectedRoute
+            allowedRoles={["Manager", "User", "Admin Access", "App Admin"]}
+          >
             <CallView />
           </ProtectedRoute>
         ),
@@ -49,7 +55,9 @@ const router = createBrowserRouter([
       {
         path: "import",
         element: (
-          <ProtectedRoute allowedRoles={["Manager", "Admin Access"]}>
+          <ProtectedRoute
+            allowedRoles={["Manager", "Admin Access", "App Admin"]}
+          >
             <ImportContacts />
           </ProtectedRoute>
         ),
@@ -57,8 +65,16 @@ const router = createBrowserRouter([
       {
         path: "settings",
         element: (
-          <ProtectedRoute allowedRoles={["Admin Access"]}>
-            <RolesManagement />{" "}
+          <ProtectedRoute allowedRoles={["Admin Access", "App Admin"]}>
+            <RolesManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/customers-management",
+        element: (
+          <ProtectedRoute allowedRoles={["App Admin"]}>
+            <CustomersManagement />
           </ProtectedRoute>
         ),
       },

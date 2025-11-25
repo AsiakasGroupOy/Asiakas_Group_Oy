@@ -117,7 +117,8 @@ class ContactCallingList(db.Model):
 class UserRoles(enum.Enum):
    CALL_MANAGER = "Manager"
    CALL_USER = "User"
-   APP_ADMIN = "Admin Access"
+   CALL_ADMIN = "Admin Access"
+   APP_ADMIN = "App Admin"
 
 # -----------------------------------------
 # USER MODEL
@@ -163,8 +164,10 @@ class Customer(db.Model):
 
     customer_id = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(255), nullable=False)
-    customer_email = db.Column(db.String(100), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    customer_address = db.Column(db.String(100), unique=True, nullable=False)
+    assigned_number = db.Column(db.String(20), unique=True, nullable=True, default=None)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(), onupdate=datetime.now, nullable=False)
 
     # Relationships 
     users = db.relationship('User', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
@@ -190,3 +193,7 @@ class Invitation(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
     used = db.Column(db.Boolean, default=False, nullable=False)
+
+# -----------------------------------------
+# TWILIO NUMBERS MODEL
+# -----------------------------------------  

@@ -351,7 +351,7 @@ def get_contact_calling_list_full():
 @contact_callinglist_bp.route('/remove', methods=['POST'])
 @auth_required
 def remove():
-    if g.role not in ["Admin Access" , "Manager"]:
+    if g.role not in ["Admin Access" , "Manager", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     data = request.get_json()

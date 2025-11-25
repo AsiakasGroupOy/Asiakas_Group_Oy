@@ -21,7 +21,7 @@ import {
   fullContactsCallLists,
   addContact,
   removeContactsCallLists,
-} from "../utils/contactListApi.js";
+} from "../services/contactListApi.js";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 import AddNewContact from "./AddNewContact";
@@ -312,7 +312,7 @@ export default function ContactList() {
                 disableRipple
                 sx={{ fontWeight: "bold" }}
               >
-                {areAllColumnsVisible() ? "Deselect All" : "Select All"}
+                {areAllColumnsVisible ? "Deselect All" : "Select All"}
               </MenuItem>
               <Divider />
               {columnDefs.map((col) => (

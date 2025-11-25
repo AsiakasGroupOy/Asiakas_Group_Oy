@@ -56,37 +56,7 @@ export default function LoginForm() {
   return (
     <>
       {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
-      <Container maxWidth="xl">
-        <CssBaseline />
-        <AppBar
-          position="fixed"
-          sx={{ backgroundColor: "#08205e", overflowX: "auto" }}
-        >
-          <Toolbar sx={{ alignItems: "center" }}>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{
-                flexGrow: 1,
-                marginTop: 1,
-                display: { xs: "none", sm: "block", md: "flex" },
-              }}
-            >
-              Soitto.ai
-            </Typography>
-          </Toolbar>
-          <Box
-            sx={{
-              width: "100%",
-              height: "1px",
-              backgroundColor: "white",
-              opacity: 0.7,
-              marginBottom: 1,
-            }}
-          />
-        </AppBar>
-      </Container>
+
       <Toolbar />
       <Paper
         elevation={3}

@@ -6,6 +6,7 @@ import jwt, hashlib
 from helpers.helpers import auth_required, create_access_token, create_refresh_token
 from datetime import datetime
 import logging
+from helpers.validations import is_valid_password
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -13,7 +14,6 @@ user_logIn_schema = UserLogInSchema()
 user_reg_schema = UserRegisterSchema()
 user_roles_schema = UserRoleSchema(many=True)
 
-logger = logging.getLogger(__name__)
 security_logger = logging.getLogger("security")
 
 # ✅ User List
@@ -21,7 +21,7 @@ security_logger = logging.getLogger("security")
 @user_bp.route('/all', methods=['GET'])
 @auth_required
 def get_all_users():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     
@@ -36,11 +36,16 @@ def register():
     data = request.get_json()
     token = data.get("token")
     username = data.get("username")
-    password = data.get("password")
+    password = data.get("password", "").strip()
+    
 
     if not token or not username or not password:
         return jsonify({"error": "Token, username, and password are required."}), 400
 
+    password_valid= is_valid_password(password)
+    if not password_valid["valid"]:
+        return jsonify({"error": "\n".join(password_valid["errors"])}), 400
+    
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     invitation = Invitation.query.filter_by(token_hash=token_hash, used=False, revoked=False).first()
 
@@ -66,7 +71,7 @@ def register():
 @user_bp.route('/role', methods=['PUT'])
 @auth_required
 def assign_user_role():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
     
@@ -93,7 +98,7 @@ def assign_user_role():
 @user_bp.route('/remove', methods=['POST'])
 @auth_required
 def delete_user():
-    if g.role != "Admin Access":
+    if g.role not in ["Admin Access", "App Admin"]:
         security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
         return jsonify({"error": "Forbidden"}), 403
 
