@@ -93,19 +93,18 @@ export default function RolesManagement() {
         title: "Success",
         message: invitation.data.message,
       });
-      fetchUserInvitations();
     } else if (invitation.status === "error") {
       setAlert({
         status: invitation.status,
         title: "Error",
         message: invitation.message,
       });
-      fetchUserInvitations();
     }
+    fetchUserInvitations();
   };
 
-  const handleUserRemove = async (userID) => {
-    const response = await deleteUser(userID);
+  const handleUserRemove = async (data) => {
+    const response = await deleteUser(data.user_id);
 
     if (response.status === "success") {
       setAlert({

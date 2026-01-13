@@ -8,6 +8,8 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material";
 import theme from "../../theme";
@@ -76,6 +78,30 @@ export default function RegistrationForm() {
 
   return (
     <>
+      <AppBar
+        position="fixed"
+        sx={{ backgroundColor: "#08205e", overflowX: "auto" }}
+      >
+        <Toolbar
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              marginTop: "10px",
+              display: { xs: "none", sm: "block", md: "flex" },
+            }}
+          >
+            Soitto.ai
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Toolbar />
       <Stack direction="row" justifyContent="center">
         <Typography variant="h6" sx={{ color: "#08205e", marginTop: "10px" }}>
           Registration Form

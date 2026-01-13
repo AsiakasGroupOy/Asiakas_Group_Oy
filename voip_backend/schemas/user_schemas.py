@@ -10,6 +10,8 @@ class UserRoleSchema(Schema):
     username = fields.Str(required=True, validate=validate.Length(min=3, max=30))
     useremail = fields.Email(required=True, validate=validate.Length(max=100))
     role = fields.Method("get_role_value") # Custom method to get enum value
+    customer_id = fields.Int(required=True)
+    created_at = fields.DateTime(dump_only=True)
 
     def get_role_value(self, obj):
         return obj.role.value

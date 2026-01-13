@@ -7,6 +7,16 @@ export const fetchCustomers = async () => {
   );
 };
 
+// Fetching customers list for dropdowns
+export const fetchCustomersList = async () => {
+  return await secureApiFetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/customers/options`,
+    {
+      method: "GET",
+    }
+  );
+};
+
 // Fetching users for a specific customer
 export const fetchCustomerUsers = async (customer_id) => {
   return await secureApiFetch(
@@ -27,11 +37,39 @@ export const updateCustomer = async (customer_id, customerData) => {
 
 export const deleteCustomer = async (customer_id) => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/delete`,
+    `${import.meta.env.VITE_BACKEND_URL}/api/customers/remove`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(customer_id),
+      body: JSON.stringify({ customer_id: customer_id }),
+    }
+  );
+};
+export const fetchCustomersInvitations = async () => {
+  return await secureApiFetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/customers`
+  );
+};
+
+export const newCustomerInvitation = async (invitationData) => {
+  return await secureApiFetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/customers/invite`,
+
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(invitationData),
+    }
+  );
+};
+
+export const deleteCustomerInvitation = async (invitation_id) => {
+  return await secureApiFetch(
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/customers/remove`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ invitation_id: invitation_id }),
     }
   );
 };

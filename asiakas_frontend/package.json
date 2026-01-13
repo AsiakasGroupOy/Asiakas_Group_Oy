@@ -19,6 +19,7 @@
     "@twilio/voice-sdk": "^2.16.0",
     "ag-grid-community": "^33.2.4",
     "ag-grid-react": "^33.2.4",
+    "dayjs": "^1.11.19",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0"

@@ -28,6 +28,15 @@ export default function ActiveCustomers({
       editable: true,
     },
     {
+      headerName: "Created at",
+      field: "created_at",
+      cellRenderer: (params) => {
+        if (!params.value) return "";
+        const date = new Date(params.value);
+        return date.toLocaleDateString("fi-FI");
+      },
+    },
+    {
       headerName: "Twilio phone number",
       field: "assigned_number",
       editable: true,
@@ -37,7 +46,6 @@ export default function ActiveCustomers({
       headerName: "Actions",
       sortable: false,
       filter: false,
-      justifyContent: "space-between",
       width: 220,
       flex: 0,
       cellRenderer: (params) => (

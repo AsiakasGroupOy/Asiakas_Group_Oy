@@ -3,12 +3,14 @@ from extensions import db
 from models.models import CallLog, ContactCallingList, CallStatus
 from schemas.call_log_schemas import CallLogSchema
 from helpers.helpers import auth_required
+import logging
 
 calllog_bp = Blueprint('calllog_bp', __name__, url_prefix='/api/calllogs')
 
 calllog_schema = CallLogSchema()
 calllogs_schema = CallLogSchema(many=True)
-
+audit_logger = logging.getLogger("audit")
+app_logger = logging.getLogger("app")
 
 # CREATE a new call log
 @calllog_bp.route('/<int:concal_id>/status', methods=['POST'])
@@ -23,6 +25,10 @@ def create_call_log(concal_id):
         
     concal = ContactCallingList.query.get(concal_id) #Return row if exists, else None
     if not concal:
+        app_logger.warning(
+        "Attempt to create call log for non-existent ContactCallingList: concal_id=%s method=%s path=%s ip=%s",
+        concal_id, request.method, request.path, request.remote_addr
+    )
         return jsonify({"error": "Contact information is not found"}), 404
 
     new_log = CallLog (
@@ -31,6 +37,8 @@ def create_call_log(concal_id):
     )
     db.session.add(new_log)
     db.session.commit()
+
+    audit_logger.info("Call log CREATED: concal_id=%s", new_log.concal_id)
 
     return calllog_schema.dump(new_log), 201
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRef, useState, useMemo, useEffect } from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
+import dayjs from "dayjs";
 import Groups2RoundedIcon from "@mui/icons-material/Groups2Rounded";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import {
@@ -64,19 +65,10 @@ export default function ContactList() {
         valueGetter: (params) => {
           const value = params.data.latest_call_log.call_timestamp;
           if (!value) return "";
-          const date = new Date(value);
-          const pad = (n) => n.toString().padStart(2, "0");
-          return (
-            pad(date.getDate()) +
-            "-" +
-            pad(date.getMonth() + 1) +
-            "-" +
-            date.getFullYear() +
-            " " +
-            pad(date.getHours()) +
-            ":" +
-            pad(date.getMinutes())
+          const date = dayjs(params.data.latest_call_log.call_timestamp).format(
+            "DD.MM.YYYY HH:mm"
           );
+          return date;
         },
       },
       {

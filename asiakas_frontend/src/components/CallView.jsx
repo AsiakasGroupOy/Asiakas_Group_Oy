@@ -24,8 +24,8 @@ import {
 } from "../services/contactListApi.js";
 import StatusesCallView from "./StatusesCallView";
 import EditContact from "./EditContact.jsx";
-import { useAuth } from "./users_components/AuthContext.jsx";
 import AlertMessage from "./AlertMessage.jsx";
+import OutboundCallButton from "./twilio_components/OutboundCallButton.jsx";
 
 export default function CallView() {
   const [currentOrgIndex, setCurrentOrgIndex] = useState(0);
@@ -56,7 +56,6 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
-        window.alert(data.message); // Alert for empty or error
       }
     };
     filteredFromConCallingList();
@@ -124,7 +123,6 @@ export default function CallView() {
       setFilteredContacts(data.data);
     } else {
       setFilteredContacts([]);
-      window.alert(data.message); // Alert for empty or error
     }
   };
 
@@ -139,7 +137,6 @@ export default function CallView() {
         setNoteValue(newNote);
       } else {
         setFilteredContacts([]);
-        window.alert(data.message); // Alert for empty or error
       }
     } else {
       setAlert({
@@ -157,9 +154,20 @@ export default function CallView() {
   );
 
   // If no matches, use the currentContact as the only result (if it exists)
-  const activeContacts = companyMatch;
-  console.log("Active Contacts:", activeContacts);
-  const contact = activeContacts[currentIndex] || activeContacts[0];
+  const activeContacts = companyMatch.length > 0 ? companyMatch : [];
+
+  const contact = activeContacts[currentIndex] || activeContacts[0] || null;
+
+  const twilioCall = contact
+    ? {
+        to_number: contact.contact.phone || "",
+        calling_list_name: contact.calling_list?.calling_list_name || "",
+        contact_name: `${contact.contact.first_name || ""} ${
+          contact.contact.last_name || ""
+        }`.trim(),
+        organization_name: contact.contact.organization_name || "",
+      }
+    : null;
 
   const goToContact = (idx) => {
     if (activeContacts[idx]) {
@@ -193,7 +201,6 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
-        window.alert(data.message); // Alert for empty or error
       }
     } else {
       setAlert({
@@ -213,7 +220,6 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
-        window.alert(data.message); // Alert for empty or error
       }
     } else {
       setAlert({
@@ -222,6 +228,7 @@ export default function CallView() {
       });
     }
   };
+
   return (
     <>
       <ThemeProvider theme={theme}>
@@ -236,7 +243,7 @@ export default function CallView() {
           <LocalPhoneIcon
             sx={{ color: "#08205e", fontSize: 22, marginRight: 1 }}
           />
-          <Typography variant="h6" sx={{ color: "#08205e" }}>
+          <Typography sx={{ color: "#08205e", fontSize: 20, fontWeight: 400 }}>
             Call View
           </Typography>
         </Box>
@@ -312,7 +319,7 @@ export default function CallView() {
           </Paper>
         </Box>
         {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
-        {activeContacts.length > 0 && companySearch ? (
+        {contact ? (
           <>
             <Box
               sx={{
@@ -352,24 +359,35 @@ export default function CallView() {
             <Box sx={{ minWidth: 800, overflow: "auto" }}>
               <Paper sx={{ display: "flex", p: 2, gap: 3, m: 2 }}>
                 <Stack spacing={{ xs: 1, sm: 2, md: 4 }} width={"100%"}>
-                  <Stack
-                    sx={{ borderBottom: "1px solid #08205e", width: "50%" }}
-                    direction="row"
-                    alignItems="center"
-                  >
-                    <PersonIcon
-                      sx={{ color: "#08205e", fontSize: 27, marginRight: 1 }}
-                    />
-                    <Typography variant="h6">
-                      {(contact.contact.first_name || "") +
-                        " " +
-                        (contact.contact.last_name || "")}
-                    </Typography>
-                    <EditContact
-                      sx={{ ml: "auto" }}
-                      editContact={contact.contact}
-                      saveEditContact={saveEditContact}
-                    />
+                  <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
+                    <Stack
+                      sx={{ borderBottom: "1px solid #08205e", width: "50%" }}
+                      direction="row"
+                      alignItems="center"
+                    >
+                      <PersonIcon
+                        sx={{ color: "#08205e", fontSize: 27, marginRight: 1 }}
+                      />
+                      <Typography variant="h6">
+                        {(contact.contact.first_name || "") +
+                          " " +
+                          (contact.contact.last_name || "")}
+                      </Typography>
+                      <EditContact
+                        sx={{ ml: "auto" }}
+                        editContact={contact.contact}
+                        saveEditContact={saveEditContact}
+                      />
+                    </Stack>
+                    <Box
+                      sx={{
+                        width: "50%",
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <OutboundCallButton callData={twilioCall} />
+                    </Box>
                   </Stack>
                   <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                     <Stack spacing={{ xs: 1, sm: 2, md: 2 }} width={"100%"}>

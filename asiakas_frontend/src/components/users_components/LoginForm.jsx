@@ -57,7 +57,6 @@ export default function LoginForm() {
     <>
       {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
 
-      <Toolbar />
       <Paper
         elevation={3}
         style={{

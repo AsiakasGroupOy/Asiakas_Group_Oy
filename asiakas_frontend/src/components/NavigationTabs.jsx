@@ -10,6 +10,8 @@ const NavigationTabs = ({ role }) => {
     if (path === "/callview") return "/callview";
     if (path === "/import") return "/import";
     if (path === "/settings") return "/settings"; //Roles Management
+    if (path === "/customers-management") return "/customers-management";
+    if (path === "/calls-history") return "/calls-history";
 
     return false;
   };
@@ -70,6 +72,14 @@ const NavigationTabs = ({ role }) => {
           value="/customers-management"
           component={Link}
           to="/customers-management"
+        />
+      )}
+      {["Manager", "Admin Access", "App Admin"].includes(role) && (
+        <Tab
+          label="Calls History"
+          value="/calls-history"
+          component={Link}
+          to="/calls-history"
         />
       )}
     </Tabs>

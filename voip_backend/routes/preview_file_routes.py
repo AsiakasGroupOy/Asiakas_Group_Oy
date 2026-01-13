@@ -15,6 +15,8 @@ preview_file_schema = PreviewFileSchema()
 
 logger = logging.getLogger(__name__)
 security_logger = logging.getLogger("security")
+audit_logger = logging.getLogger("audit")
+app_logger = logging.getLogger("app")
 
 MAX_FILE_SIZE = 5 * 1024 * 1024 # 5 MB
 
@@ -23,15 +25,17 @@ MAX_FILE_SIZE = 5 * 1024 * 1024 # 5 MB
 @auth_required
 def preview_file():
     if g.role not in ["Admin Access" , "Manager", "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user to upload file: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+        security_logger.error("Unauthorized attempt to upload file: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
     
     if 'file' not in request.files:
+        app_logger.warning("No file part in the request: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "No file provided"}), 400
     
     file = request.files['file']
 
     if request.content_length and request.content_length > MAX_FILE_SIZE:
+        app_logger.warning("Uploaded file is too large: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "File is too large"}), 400
     
     file_name = file.filename
@@ -42,6 +46,7 @@ def preview_file():
         else:
             df = pd.read_excel(file)
     except Exception as e:
+        app_logger.warning("Error reading uploaded file: user_id=%s, customer_id=%s method=%s path=%s ip=%s error=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr, str(e)) 
         return jsonify({"error": f"Could not read file: {str(e)}"}), 400
     
         
@@ -68,7 +73,9 @@ def preview_file():
         "rows": rows,
         "mappingOptions": mappingOptions
     }
-    
+
+    audit_logger.info("File preview generated: filename=%s by user_id=%s customer_id=%s", file_name, g.user_id, g.customer_id)
+
     return jsonify(preview_file_schema.dump(result)), 200
 
   

@@ -5,3 +5,6 @@ from .call_log_schemas import CallLogSchema
 from .contact_call_list_schemas import ContactCallingListSchema
 from .user_schemas import UserLogInSchema, UserRegisterSchema, UserRoleSchema
 from .invitation_schemas import InvitationSchema
+from .customers_schemas import CustomersSchema
+from .callbacks_schemas import CallBacksSchema
+from .preview_file_schemas import PreviewFileSchema
