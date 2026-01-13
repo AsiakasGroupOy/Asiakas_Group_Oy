@@ -4,6 +4,7 @@ import { invokeGlobalLogout } from "./globalLogout";
 export const apiFetch = async (url, options = {}) => {
   try {
     const response = await fetch(url, { ...options, credentials: "include" });
+
     let data;
 
     try {
@@ -91,7 +92,10 @@ export const refreshToken = async () => {
 export const logInProcess = async (logInData) => {
   return await apiFetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
     body: JSON.stringify(logInData),
   });
 };
@@ -107,11 +111,15 @@ export const getCurrentUser = async () => {
 };
 
 // LogOut process
-export const logOutProcess = async () => {
+export const logOutProcess = async (current_user_id) => {
   return await apiFetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/users/logout`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: current_user_id }),
     }
   );
 };

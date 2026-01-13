@@ -4,7 +4,6 @@ from models.models import ContactList, Organization, CallingList, ContactCalling
 from schemas.contact_schemas import ContactSchema
 from sqlalchemy.exc import IntegrityError, DataError, SQLAlchemyError
 import pandas as pd
-import re
 import logging
 from helpers.helpers import auth_required
 from helpers.validations import validate_phone
@@ -13,15 +12,16 @@ contact_bp = Blueprint('contact_bp', __name__)
 contact_schema = ContactSchema()
 contacts_schema = ContactSchema(many=True)
 
-logger = logging.getLogger(__name__)
 security_logger = logging.getLogger("security")
+audit_logger = logging.getLogger("audit")
+app_logger = logging.getLogger("app")
 
 # ✅ CREATE a new contact
 @contact_bp.route('/add_one', methods=['POST'])
 @auth_required
 def create_contact():
     if g.role not in ["Admin Access" , "Manager", "App Admin"]:
-        security_logger.error("Unauthorized access attempt: user_id=%s, customer_id=%s", g.get("user_id"), g.get("customer_id"))
+        security_logger.error("Unauthorized attempt to create contact: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
     
     data = request.get_json()
@@ -29,11 +29,14 @@ def create_contact():
     first_name = data.get('first_name', '').strip()
     last_name = data.get('last_name', '').strip()
     if not first_name or not last_name:
+      app_logger.warning("Validation failed: first_name or last_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
       return jsonify({"error": "First name and Last name are required"}), 400
     
     phone=data.get('phone', '').strip()
+
     phone = validate_phone(phone)
     if not phone:
+        app_logger.warning("Validation failed: invalid phone format: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
 
   
@@ -41,6 +44,7 @@ def create_contact():
     organization = None
     organization_name = data.get('organization_name', '').strip()
     if not organization_name:
+        app_logger.warning("Validation failed: organization_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "Organization name is required"}), 400
     
     try:
@@ -58,6 +62,7 @@ def create_contact():
         calling_list = None
         calling_list_name = data.get('calling_list_name', '').strip()
         if not calling_list_name:
+            app_logger.warning("Validation failed: calling_list_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
             return jsonify({"error": "Calling list name is required"}), 400
         
         if calling_list_name:
@@ -96,19 +101,21 @@ def create_contact():
     
             db.session.commit()
 
+            audit_logger.info("Contact CREATED: contact_id=%s contact_name=%s in calling_list=%s by user_id=%s customer_id=%s", new_contact.contact_id, f"{new_contact.first_name} {new_contact.last_name}", calling_list.calling_list_name, g.user_id, g.customer_id)
+
     except IntegrityError as e:
         db.session.rollback()
-        logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Some rows could not be inserted due to duplicate or missing required values."}), 400
 
     except DataError as e:
         db.session.rollback()
-        logger.error("DataError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Some rows contain invalid or too large values for the database fields."}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Unexpected database error."}), 500
         
     return jsonify({"message": "Contact added successfully"}), 201  
@@ -134,19 +141,22 @@ SYSTEM_FIELDS = {
 @auth_required
 def upload_contacts():
     if g.role not in ["Admin Access" , "Manager", "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user to upload contacts: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+        security_logger.error("Unauthorized access attempt by user to upload contacts: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
     
     calling_list_name = request.form.get('callingList', '').strip()
     if not calling_list_name:
+        app_logger.warning("Calling list name missing in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "Calling list name is required"}), 400
     
     if 'file' not in request.files:
+        app_logger.warning("No file part in the request in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "No file provided"}), 400
     
     file = request.files['file']
 
     if request.content_length and request.content_length > MAX_FILE_SIZE:
+        app_logger.warning("Uploaded file exceeds maximum size in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)  
         return jsonify({"error": "File is too large"}), 400
     
     file_name = file.filename
@@ -157,6 +167,7 @@ def upload_contacts():
         else:
             df = pd.read_excel(file)
     except Exception as e:
+        app_logger.error("Error reading uploaded file in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s, error=%s",g.user_id, g.customer_id, request.method, request.path, str(e))
         return jsonify({"error": f"Could not read file: {str(e)}"}), 400
     
     user_headers = list(df.columns) # preserve original order
@@ -164,13 +175,16 @@ def upload_contacts():
     try:
         mapping_raw = request.form.get('mapping')
         if not mapping_raw:
+            app_logger.warning("No mapping provided in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
             return jsonify({"error": "No mapping provided"}), 400
         
         mapping = json.loads(mapping_raw)
     except Exception:
+        app_logger.error("Error parsing mapping JSON in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "Invalid mapping JSON"}), 400
 
     if not mapping:
+        app_logger.warning("Empty mapping provided in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
         return jsonify({"error": "No mapping provided"}), 400
 
 
@@ -277,21 +291,22 @@ def upload_contacts():
 
                 db.session.commit()
                 inserted_count = len(contacts_to_add) 
-                logger.info(f"Inserted {len(contacts_to_add)} contacts successfully.")
+                audit_logger.info("Contact(s) CREATED: contacts=%s in calling_list=%s by user_id=%s customer_id=%s", len(contacts_to_add), calling_list.calling_list_name, g.user_id, g.customer_id)
+               
 
     except IntegrityError as e:
         db.session.rollback()
-        logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Some rows could not be inserted due to duplicate or missing required values."}), 400
 
     except DataError as e:
         db.session.rollback()
-        logger.error("DataError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Some rows contain invalid or too large values for the database fields."}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"), str(e))
+        app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
         return jsonify({"message": "Unexpected database error."}), 500
     
     return jsonify({
@@ -308,11 +323,13 @@ def update_contact():
     contact = ContactList.query.get(contact_id)
     
     if not contact:
+        app_logger.warning("Attempt to update non-existent contact: contact_id=%s by user_id=%s customer_id=%s method=%s path=%s ip=%s", contact_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Contact not found"}), 404
 
     phone = data.get('phone', '').strip()
     phone = validate_phone(phone)
     if not phone:
+        app_logger.warning("Validation failed: invalid phone format during contact update: contact_id=%s by user_id=%s customer_id=%s method=%s path=%s ip=%s", contact_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
 
     contact.first_name = data.get('first_name', '').strip()
@@ -322,5 +339,7 @@ def update_contact():
     contact.phone=phone
 
     db.session.commit()
+    
+    audit_logger.info("Contact UPDATED: contact_id=%s contact_name=%s by user_id=%s customer_id=%s", contact.contact_id, f"{contact.first_name} {contact.last_name}", g.user_id, g.customer_id)
 
     return jsonify({"message": "Contact updated successfully"}), 200

@@ -1,6 +1,5 @@
 from extensions import db
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 # -----------------------------------------
@@ -15,7 +14,8 @@ class Organization(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
 
     # Relationships
-    contacts = db.relationship('ContactList', backref='organization', lazy=True)
+    contacts = db.relationship('ContactList', back_populates ='organization', lazy=True)
+    customer = db.relationship('Customer', back_populates='organizations')
     
 
 # -----------------------------------------
@@ -30,6 +30,8 @@ class CallingList(db.Model):
 
     # Relationships
     contact_calling_lists = db.relationship('ContactCallingList', back_populates='calling_list')
+    customer = db.relationship('Customer', back_populates='calling_lists')
+    
     
 
 
@@ -49,8 +51,13 @@ class ContactList(db.Model):
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.organization_id'), nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
 
+    __table_args__ = ( db.Index('idx_contacts_customer_id', 'customer_id'),)
+
     # Relationships
     contact_calling_lists = db.relationship('ContactCallingList', back_populates='contact')
+    customer = db.relationship('Customer',back_populates='contacts')
+    organization = db.relationship('Organization', back_populates='contacts')
+      
     
 
 # -----------------------------------------
@@ -62,6 +69,7 @@ class CallStatus(enum.Enum):
     OPEN = "Open"
     NOT_INTERESTED = "Not Interested"
     SCHEDULED_CALL = "Scheduled Call"
+    NO_ANSWER = "No Answer"
 
 # -----------------------------------------
 # CALL LOG MODEL
@@ -74,18 +82,11 @@ class CallLog(db.Model):
     status = db.Column(db.Enum(CallStatus), nullable=False)
     call_timestamp = db.Column(db.DateTime, default=datetime.now, nullable=False)
     
-
+    __table_args__ = (db.Index('idx_timestamp', 'call_timestamp'),)
+    
     # Relationships
     contact_calling_list = db.relationship('ContactCallingList', back_populates='call_logs',  passive_deletes=True)
-    
 
-    def serialize(self):
-        return {
-            'call_id': self.call_id,
-            'concal_id': self.concal_id,
-            'status': self.status.value,
-            'call_timestamp': self.call_timestamp.isoformat() if self.call_timestamp else None,
-        }
 # -----------------------------------------
 # CONTACT CALLING LIST MODEL
 # -----------------------------------------
@@ -101,6 +102,7 @@ class ContactCallingList(db.Model):
 
     __table_args__ = (
             db.UniqueConstraint('contact_id', 'calling_list_id', 'customer_id', name='uq_cust_cont_call_list'),
+            db.Index('idx_concal_customer_calling_list', 'customer_id', 'calling_list_id'),
         )
     
      # Relationships
@@ -108,7 +110,7 @@ class ContactCallingList(db.Model):
     contact = db.relationship('ContactList', back_populates='contact_calling_lists')
     calling_list = db.relationship('CallingList', back_populates='contact_calling_lists')
     call_logs = db.relationship('CallLog', back_populates='contact_calling_list', cascade="all, delete-orphan", passive_deletes=True)
-    
+    customer = db.relationship('Customer',back_populates='contact_calling_lists')
 
 # -----------------------------------------
 # ENUM FOR USER ROLES
@@ -129,32 +131,27 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    useremail = db.Column(db.String(100), unique=True, nullable=False)
+    username = db.Column(db.String(50), nullable=False)
+    useremail = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRoles), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(), nullable=False)
 
     __table_args__ = (
         db.UniqueConstraint("customer_id", "useremail", name="uq_user_email_per_customer"),
+        db.Index('idx_user_customer', 'customer_id'),
     )
+     # Relationships
+    twilio_calls = db.relationship('TwilioCall', back_populates='user', lazy=True)
+    twilio_agent_status = db.relationship('TwilioAgentStatus', back_populates='user', uselist=False)
+    customer = db.relationship('Customer',back_populates='users')
+    created_invitations = db.relationship('Invitation', back_populates='created_by_user', lazy=True)
 
     def set_password(self, userpassword):
         self.password_hash = generate_password_hash(userpassword)
 
     def check_password(self, userpassword):
         return check_password_hash(self.password_hash, userpassword)
-
-    @property
-    def is_admin(self):
-        return self.role == UserRoles.APP_ADMIN.value
-    @property
-    def is_manager(self):
-        return self.role == UserRoles.CALL_MANAGER.value
-    @property
-    def is_user(self):
-        return self.role == UserRoles.CALL_USER.value
-  
-
 
 # -----------------------------------------
 # CUSTOMER MODEL
@@ -166,16 +163,19 @@ class Customer(db.Model):
     customer_name = db.Column(db.String(255), nullable=False)
     customer_address = db.Column(db.String(100), unique=True, nullable=False)
     assigned_number = db.Column(db.String(20), unique=True, nullable=True, default=None)
+    assigned_number_1 = db.Column(db.String(20), unique=True, nullable=True, default=None)
+    assigned_number_2 = db.Column(db.String(20), unique=True, nullable=True, default=None)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(), onupdate=datetime.now, nullable=False)
 
     # Relationships 
-    users = db.relationship('User', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
-    organizations = db.relationship('Organization', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
-    calling_lists = db.relationship('CallingList', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
-    contacts = db.relationship('ContactList', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
-    contact_calling_lists = db.relationship('ContactCallingList', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
-    invitations = db.relationship('Invitation', backref='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    users = db.relationship('User', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    organizations = db.relationship('Organization', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    calling_lists = db.relationship('CallingList', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    contacts = db.relationship('ContactList', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    contact_calling_lists = db.relationship('ContactCallingList', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    invitations = db.relationship('Invitation', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
+    twilio_calls = db.relationship('TwilioCall',back_populates='customer',lazy=True,cascade="all, delete-orphan", passive_deletes=True)
     
 
 # -----------------------------------------
@@ -187,13 +187,64 @@ class Invitation(db.Model):
     invitation_id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
     role = db.Column(db.Enum(UserRoles), nullable=False)
-    invitation_email = db.Column(db.String(100), nullable=False)
+    invitation_email = db.Column(db.String(100), nullable=False,unique=True)
     token_hash = db.Column(db.String(64), nullable=False, unique=True)
     revoked = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
     used = db.Column(db.Boolean, default=False, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+
+    # Relationships
+    created_by_user = db.relationship('User', back_populates='created_invitations')
+    customer = db.relationship('Customer', back_populates='invitations')
 
 # -----------------------------------------
-# TWILIO NUMBERS MODEL
+# TWILIO AGENT
+# -----------------------------------------
+class TwilioAgentStatus(db.Model):
+    __tablename__ = "agent_status"
+    
+    twilio_agent_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete="CASCADE"), unique=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"))
+    status = db.Column(db.String(20), default='offline')  # offline, online, busy
+    available_since = db.Column(db.DateTime(timezone=True), nullable=True)
+    last_updated = db.Column(db.DateTime(timezone=True), default=datetime.now, onupdate=datetime.now)
+
+    __table_args__ = (db.Index('idx_calls_user_status', 'customer_id', 'status'), )
+
+    # Relationship
+    user = db.relationship('User', back_populates='twilio_agent_status', uselist=False)
+# -----------------------------------------
+# TWILIO CALLS MODEL
 # -----------------------------------------  
+class TwilioCall(db.Model):
+    __tablename__ = "twilio_calls"
+
+    twilio_call_id = db.Column(db.Integer, primary_key=True)
+    call_sid = db.Column(db.String(64))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=True)
+    from_number = db.Column(db.String(20))
+    to_number = db.Column(db.String(20))
+    calling_list_name = db.Column(db.String(255), nullable=True)
+    contact_name = db.Column(db.String(255), nullable=True)
+    organization_name = db.Column(db.String(255), nullable=True)
+    direction = db.Column(db.String(10))
+    status = db.Column(db.String(20),default='ringing')  # ringing, completed, failed, busy, no-answer,no-agent-available
+    started_at = db.Column(db.DateTime(timezone=True))
+    ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
+       
+    recording_sid = db.Column(db.String(64), nullable=True)
+    recording_url = db.Column(db.String(500), nullable=True)
+    recording_duration = db.Column(db.Integer, nullable=True)
+   
+    __table_args__ = (
+        db.Index('idx_calls_user_status', 'customer_id', 'to_number'),
+        db.Index('idx_calls_started_direction', 'started_at', 'direction'),
+    )
+
+    # Relationships 
+    user = db.relationship('User', back_populates='twilio_calls', lazy='joined')
+    customer = db.relationship('Customer', back_populates='twilio_calls', lazy='joined')

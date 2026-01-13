@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify, current_app, g
+from flask import request, jsonify, current_app, g
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 import jwt
 
-logging.basicConfig(level=logging.INFO)
 security_logger = logging.getLogger("security")
 
 # Decorator to protect routes by validating JWTs from cookies.
@@ -15,8 +14,7 @@ def auth_required(f):
     def decorated(*args, **kwargs):
         token = request.cookies.get("access_token")
         if not token:
-            security_logger.warning("Access token missing: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
-            return jsonify({"error": "Unauthorized"}), 401
+           return jsonify({"error": "Unauthorized"}), 401
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"], options={"verify_exp": True})
             g.user_id = data["user_id"]                       # To get user_id, customer_id and role from cookies
@@ -25,7 +23,12 @@ def auth_required(f):
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expired"}), 401
         except jwt.InvalidTokenError:
-            security_logger.error("Invalid access token: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+            security_logger.error("Invalid access token: ip=%s method=%s path=%s user_agent=%s",
+                request.remote_addr,
+                request.method,
+                request.path,
+                request.headers.get("User-Agent")
+            )
             return jsonify({"error": "Invalid token"}), 401
         return f(*args, **kwargs)
     return decorated
@@ -60,5 +63,6 @@ def create_refresh_token(current_user):
         "exp": datetime.now() + current_app.config['REFRESH_EXPIRES']  # Refresh token valid for 7 days
     }
     return jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm="HS256")
+
 
 

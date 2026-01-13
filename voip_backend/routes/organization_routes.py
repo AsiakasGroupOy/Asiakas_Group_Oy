@@ -18,24 +18,4 @@ def get_all_organizations():
     return jsonify(organizations_short_schema.dump(organizations)), 200
 
 
-# ✅ CREATE a new organization IS NOT USED!
-@organization_bp.route('/', methods=['POST'])
-@auth_required
-def create_organization():
-    data = request.get_json()
-
-    if not data.get('name'):
-        return jsonify({"error": "Organization name is required."}), 400
-
-    if Organization.query.filter_by(organization_name=data['name']).first():
-        return jsonify({"error": "Organization with this name already exists."}), 400
-
-    new_organization = Organization(
-        organization_name=data['name'],
-        website=data.get('website'),
-    )
-    db.session.add(new_organization)
-    db.session.commit()
-
-    return jsonify(organization_schema.dump(new_organization)), 201
 

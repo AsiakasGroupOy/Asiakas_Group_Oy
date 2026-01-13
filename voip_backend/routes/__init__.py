@@ -7,6 +7,8 @@ from .preview_file_routes import preview_file_bp
 from .user_routes import user_bp
 from .invitation_routes import invitation_bp
 from .customer_routes import customer_bp
+from .twilio_routes import twilio_bp
+from .callbacks_routes import callbacks_bp
 
 def register_routes(app):
     app.register_blueprint(contact_bp, url_prefix='/api/contacts')
@@ -18,4 +20,5 @@ def register_routes(app):
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(invitation_bp, url_prefix='/api/invitations')
     app.register_blueprint(customer_bp, url_prefix='/api/customers')
-
+    app.register_blueprint(twilio_bp, url_prefix='/api/twilio')
+    app.register_blueprint(callbacks_bp, url_prefix='/api/callbacks')

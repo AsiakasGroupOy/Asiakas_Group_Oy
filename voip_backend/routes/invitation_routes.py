@@ -1,127 +1,160 @@
 from flask import Blueprint, jsonify, g,current_app, request
-from flask_mail import Message
-from extensions import db, mail
-from models.models import Invitation, User, UserRoles
-from schemas.invitation_schemas import InvitationSchema 
+from models.models import User, Customer
+from schemas.invitation_schemas import InvitationSchema, InvitationCustomersSchema 
 from helpers.helpers import auth_required
 from helpers.validations import is_valid_email
-import uuid, hashlib, os
 import logging
-from datetime import datetime, timedelta
+from services.invitation_service import InvitationService
 
 invitation_bp = Blueprint('invitation_bp', __name__)
-
 invitation_schema = InvitationSchema(many=True)
+invitation_customers_schema = InvitationCustomersSchema(many=True)
 
-logger = logging.getLogger(__name__)
 security_logger = logging.getLogger("security")
+audit_logger = logging.getLogger("audit")
+app_logger = logging.getLogger("app")
 
-# ✅ Invitation List
-@invitation_bp.route('/', methods=['GET'])
+# ✅ Invitation Customers List
+@invitation_bp.route('/customers', methods=['GET'])
 @auth_required
-def get_all_invitations():
-    if g.role not in ["Admin Access" , "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user to get list of invitations: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
-        return jsonify({"error": "Forbidden"}), 403
-    invitation = Invitation.query.filter_by(customer_id = g.customer_id).all()
-    activeUsers = User.query.filter_by(customer_id = g.customer_id).all()
-    # Delete invitations for emails that are already registered users
-    for inv in invitation:
-                if any(user.useremail == inv.invitation_email for user in activeUsers):                      
-                    db.session.delete(inv)
-                    db.session.commit()
-                    logger.info("Deleted invitation for email %s as user already registered.", inv.invitation_email)
-
-    return jsonify(invitation_schema.dump(invitation)), 200
-
-#✅ Invitation to user
-@invitation_bp.route('/invite', methods=['POST'])
-@auth_required
-def invite_user():
-    if g.role not in ["Admin Access" , "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+def get_customers_invitations():
+    if g.role not in ["App Admin"]:
+        security_logger.error("Unauthorized attempt to get list of invitations: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
     
-    customer_id = g.customer_id               # Get customer_id from cookie token
+    invitations = InvitationService.get_invitations_created_by(g.user_id)
+    return jsonify(invitation_customers_schema.dump(invitations)), 200
 
+#✅ Invitation to create customer and its admin user
+@invitation_bp.route('/customers/invite', methods=['POST'])
+@auth_required
+def invite_new_customer_user():
+    if g.role not in ["App Admin"]:
+        security_logger.error("Unauthorized attempt to invite new customer's user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Forbidden"}), 403
+    
     data = request.get_json()
-    
-    if not data.get("invitation_email") or not data.get("role"):
-        return jsonify({"error": "Role and email are required."}), 400
-    
-    invitation_email = data.get("invitation_email").strip()
-    
-    if not is_valid_email(invitation_email):
-        return jsonify({"error": "Invalid email address."}), 400
-    
-    if User.query.filter_by(useremail=invitation_email, customer_id = g.customer_id).first():
+           
+    invitation_email = data.get("invitation_email", "").strip()
+    if not invitation_email or not is_valid_email(invitation_email):
+        return jsonify({"error": "Valid email is required."}), 400
+    if User.query.filter_by(useremail=invitation_email).first():
+        app_logger.info("Attempt to invite user by existing email: invitation_email=%s, invited_by_user_id=%s", invitation_email, g.user_id)
         return jsonify({"error": "User with this email already exists."}), 400
-
-    # Get email and role from request body
     
-    providedRole = data.get("role")
-    if providedRole :
-        role = UserRoles(providedRole)
+    customer_name = data.get("customer_name")
+    customer_address = data.get("customer_address") 
+    if Customer.query.filter_by(customer_name=customer_name, customer_address=customer_address).first():
+        app_logger.info("Attempt to create customer with existing name: customer_name=%s, invited_by_user_id=%s", customer_name, g.user_id)
+        return jsonify({"error": "Customer with this name already exists."}), 400
     
-    token = str(uuid.uuid4())
-    token_hash = hashlib.sha256(token.encode()).hexdigest()
-    expires_at = datetime.now() + timedelta(days=1)  # Token valid for 1 day
-
-    invitation = Invitation(
-        customer_id = customer_id,
-        invitation_email=invitation_email,
-        token_hash=token_hash,
-        role=role,
-        expires_at=expires_at
-    )
-    db.session.add(invitation)
-    db.session.commit()
+    customer = InvitationService.create_customer(customer_name, customer_address)
+           
+    role = "Admin Access"
+    token,invitation = InvitationService.create_invitation(customer.customer_id, invitation_email, role, g.user_id)
+  
 
     invitation_link = f"{current_app.config['FRONTEND_URL']}/register?token={token}"
-    print(f"[DEBUG] Invitation link: {invitation_link}")
-   
-    subject = "You're invited to join our Call Management Application"
-    body = f"""
-    Hello,
+    InvitationService.send_invitation_email(invitation_email, role, invitation_link)
 
-    You have been invited to join the system with the following details:
-
-    Customer Email: {invitation_email}
-    Role: {providedRole}
-    Invitation link (valid for 24h):
-    {invitation_link}
-
-    Please click the link to complete your registration.
-
-    Best regards,
-    The Support Team
-    """
-    msg = Message(subject=subject, recipients=[invitation_email], body=body)
-    mail.send(msg)
+    audit_logger.info("Invitation sent to new customer admin user: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, customer.customer_id)
 
     return jsonify({"message": f"Invitation sent to '{invitation_email}'"}), 200
 
-    # Here It would send an invitation email with a registration link
-     # return jsonify({"message": f"Invitation sent to {data['useremail']}"}), 200
-
-# ✅ DELETE Invitation
-@invitation_bp.route('/remove', methods=['POST'])
+# ✅ DELETE Invitation for customer and its admin user
+@invitation_bp.route('/customers/remove', methods=['POST'])
 @auth_required
-def delete_invitation():
-    if g.role not in ["Admin Access", "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+def delete_customer_invitation():
+    if g.role not in ["App Admin"]:
+        security_logger.error("Unauthorized attempt to remove customer invitation by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
 
     invId= request.get_json()
     if not invId.get('invitation_id'): 
+        app_logger.warning("No invitation ID provided for deletion by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Invitation data required."}), 400
+    
+    result,status = InvitationService.delete_customer_invitation(invId['invitation_id'])
+    if result["status"] == "error":
+        app_logger.warning("Error deleting invitation ID %s by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", invId['invitation_id'], g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": result["message"]}), status
+    
+    audit_logger.info("Customer invitation DELETED: invitation_email=%s, deleted_by_user_id=%s", result['invitation'], g.user_id)
 
-    invitation = Invitation.query.get(invId['invitation_id'])
-    if not invitation:
-        return jsonify({"error": "Invitation not found."}), 404
+    return jsonify({"message": f"Invitation for user with Email {result['invitation']} deleted successfully"}), 200
 
-    db.session.delete(invitation)
-    db.session.commit()
-    return jsonify({"message": f"Invitation for user with Email {invitation.invitation_email} deleted successfully"}), 200
+
+# ✅ Invitation Users List
+@invitation_bp.route('/users', methods=['GET'])
+@auth_required
+def get_users_invitations():
+    if g.role not in ["Admin Access" , "App Admin"]:
+        security_logger.error("Unauthorized attempt to get list of invitations: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Forbidden"}), 403
+    
+    invitations = InvitationService.get_users_invitations(g.customer_id)
+
+    return jsonify(invitation_schema.dump(invitations)), 200
+
+#✅ Invitation to user
+@invitation_bp.route('/users/invite', methods=['POST'])
+@auth_required
+def invite_user():
+    if g.role not in ["Admin Access" , "App Admin"]:
+        security_logger.error("Unauthorized attempt to invite new customer's user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Forbidden"}), 403
+    
+    data = request.get_json()
+    
+    if not data.get("invitation_email") or not data.get("role"):
+        app_logger.warning("Invitation data incomplete: invited_by_user_id=%s, customer_id=%s", g.user_id, g.customer_id)
+        return jsonify({"error": "Role and email are required."}), 400
+    
+    role = data.get("role")
+  
+    invitation_email = data.get("invitation_email").strip()
+    if not is_valid_email(invitation_email):
+        app_logger.warning("Invalid email address provided for invitation: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, g.customer_id)
+        return jsonify({"error": "Invalid email address."}), 400
+    
+    # Get customer_id from cookie token
+    customer_id = g.customer_id   
+    if User.query.filter_by(useremail=invitation_email).first():
+        app_logger.info("Attempt to invite user by existing email: invitation_email=%s, invited_by_user_id=%s", invitation_email, g.user_id)
+        return jsonify({"error": "User with this email already exists."}), 400
+
+    token,invitation = InvitationService.create_invitation(customer_id, invitation_email, role, g.user_id)
+  
+
+    invitation_link = f"{current_app.config['FRONTEND_URL']}/register?token={token}"
+    InvitationService.send_invitation_email(invitation_email, role, invitation_link)
+
+    audit_logger.info("Invitation sent to user: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, customer_id)
+
+    return jsonify({"message": f"Invitation sent to '{invitation_email}'"}), 200
+
+
+# ✅ DELETE Invitation for user
+@invitation_bp.route('/users/remove', methods=['POST'])
+@auth_required
+def delete_user_invitation():
+    if g.role not in ["Admin Access", "App Admin"]:
+        security_logger.error("Unauthorized attempt to remove user invitation by: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Forbidden"}), 403
+
+    invId= request.get_json()
+    if not invId.get('invitation_id'): 
+        app_logger.warning("No invitation ID provided for deletion by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Invitation data required."}), 400
+    
+    result,status = InvitationService.delete_invitation(invId['invitation_id'])
+    if result["status"] == "error":
+        app_logger.warning("Error deleting invitation ID %s by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", invId['invitation_id'], g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": result["message"]}), status
+
+    audit_logger.info("User invitation DELETED: invitation_email=%s, deleted_by_user_id=%s customer_id=%s", result['invitation'], g.user_id, g.customer_id)
+
+    return jsonify({"message": f"Invitation for user with Email {result['invitation']} deleted successfully"}), 200
+
 
 

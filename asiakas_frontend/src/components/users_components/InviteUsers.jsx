@@ -19,7 +19,7 @@ export default function InviteUsers({
     {
       headerName: "Email",
       field: "invitation_email",
-      editable: true,
+      editable: (params) => params.data.isAddRow === true,
       cellRenderer: (params) => {
         if (params.data.isAddRow) {
           return (
@@ -48,31 +48,36 @@ export default function InviteUsers({
     {
       headerName: "Role",
       field: "role",
-
-      cellRenderer: (params) => (
-        <FormControl size="small">
-          <Select
-            value={params.value || ""}
-            size="small"
-            onChange={(e) => {
-              params.node.setDataValue("role", e.target.value);
-            }}
-            sx={{
-              ".MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              fontSize: 12,
-              height: 40,
-            }}
-          >
-            {roles.map((option) => (
-              <MenuItem key={option} value={option} sx={{ fontSize: 12 }}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      ),
+      editable: (params) => params.data.isAddRow === true,
+      cellRenderer: (params) => {
+        if (params.data && params.data.isAddRow) {
+          return (
+            <FormControl size="small">
+              <Select
+                value={params.value || ""}
+                size="small"
+                onChange={(e) => {
+                  params.node.setDataValue("role", e.target.value);
+                }}
+                sx={{
+                  ".MuiOutlinedInput-notchedOutline": {
+                    border: "none",
+                  },
+                  fontSize: 12,
+                  height: 40,
+                }}
+              >
+                {roles.map((option) => (
+                  <MenuItem key={option} value={option} sx={{ fontSize: 12 }}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        }
+        return params.value;
+      },
     },
     {
       headerName: "Expiration date",

@@ -1,6 +1,10 @@
 import logging
 from logging.handlers import RotatingFileHandler, SMTPHandler
 import os
+from config import Config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create logs directory if it doesn't exist
 LOG_DIR = "logs"
@@ -20,6 +24,26 @@ def setup_logging():
     app_handler.setLevel(logging.INFO)
     app_handler.setFormatter(formatter)
 
+     # --- Audit application log ---
+    audit_handler = RotatingFileHandler(
+        os.path.join(LOG_DIR, "audit.log"),
+        maxBytes=5_000_000,
+        backupCount=3,
+        encoding="utf-8"
+    )
+    audit_handler.setLevel(logging.INFO)
+    audit_handler.setFormatter(formatter)
+
+    # --- Twilio application log ---
+    twilio_handler = RotatingFileHandler(
+        os.path.join(LOG_DIR, "twilio.log"),
+        maxBytes=5_000_000,
+        backupCount=3,
+        encoding="utf-8"
+    )
+    twilio_handler.setLevel(logging.INFO)
+    twilio_handler.setFormatter(formatter)
+
     # --- Security-related warnings/errors log ---
     security_handler = RotatingFileHandler(
         os.path.join(LOG_DIR, "security.log"),
@@ -38,22 +62,37 @@ def setup_logging():
     # --- SMTP handler for critical errors (ERROR+) ---
     # ⚠️ Replace with your actual SMTP server, credentials, and recipients
     mail_handler = SMTPHandler(
-        mailhost=("smtp.example.co", 587),
-        fromaddr="app@example.co",
-        toaddrs=["admin@example.co"],
-        subject="Critical error in Flask app",
-        credentials=("app@example.co", "password"),
+        mailhost=(Config.MAIL_SERVER, Config.MAIL_PORT),
+        fromaddr="Soitto.ai NoReply <{Config.MAIL_USERNAME}>",
+        toaddrs=[Config.APP_ADMIN_EMAIL],
+        subject="Critical error in Soitto.ai app",
+        credentials=(Config.MAIL_USERNAME, Config.MAIL_PASSWORD),
         secure=()  # Use TLS
     )
     mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(formatter)
 
     # --- Root logger configuration ---
-    root_logger = logging.getLogger()
+    root_logger = logging.getLogger("app")
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(app_handler)
     root_logger.addHandler(console_handler)
     root_logger.addHandler(mail_handler)
+
+    # --- Audit logger configuration ---
+    audit_logger = logging.getLogger("audit")
+    audit_logger.setLevel(logging.INFO)
+    audit_logger.addHandler(audit_handler)
+    audit_logger.addHandler(mail_handler)
+    audit_logger.propagate = False  # prevent duplicate logging to root
+
+    # --- Twilio logger configuration ---
+    twilio_logger = logging.getLogger("twilio")
+    twilio_logger.setLevel(logging.INFO)
+    twilio_logger.addHandler(twilio_handler)
+    twilio_logger.addHandler(mail_handler)  # send critical twilio issues to email
+    twilio_logger.propagate = False  # # prevent duplicate logging to root
+    
 
     # --- Security logger configuration ---
     security_logger = logging.getLogger("security")
@@ -62,4 +101,4 @@ def setup_logging():
     security_logger.addHandler(mail_handler)  # send critical security issues to email
     security_logger.propagate = False  # prevent duplicate logging
 
-    return security_logger
+    return security_logger, twilio_logger, audit_logger, root_logger

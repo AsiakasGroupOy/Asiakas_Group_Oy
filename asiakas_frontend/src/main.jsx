@@ -8,17 +8,16 @@ import CallView from "./components/CallView.jsx";
 import ImportContacts from "./components/ImportContacts.jsx";
 import LoginForm from "./components/users_components/LoginForm.jsx";
 import RolesManagement from "./pages/RolesManagement.jsx";
+import CallsHistory from "./pages/CallsHistory.jsx";
 import RegistrationForm from "./components/users_components/RegistrationForm.jsx";
 import { AuthProvider } from "./components/users_components/Authorisation.jsx";
 import NotAuthorized from "./components/users_components/NotAuthorized.jsx";
 import ProtectedRoute from "./components/users_components/ProtectedRoute.jsx";
 import CustomersManagement from "./pages/CustomersManagement.jsx";
+import { TwilioProvider } from "./components/twilio_components/TwilioProvider.jsx";
+import IncomingCallDialog from "./components/twilio_components/IncomingCallDialog.jsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginForm />,
-  },
   {
     path: "/register",
     element: <RegistrationForm />,
@@ -32,6 +31,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
+      {
+        index: true,
+        element: <LoginForm />,
+      },
+      {
+        path: "login", // Optional: handles "/login" explicitly
+        element: <LoginForm />,
+      },
       {
         path: "contactlist",
         element: (
@@ -71,10 +78,20 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/customers-management",
+        path: "customers-management",
         element: (
           <ProtectedRoute allowedRoles={["App Admin"]}>
             <CustomersManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "calls-history",
+        element: (
+          <ProtectedRoute
+            allowedRoles={["Manager", "Admin Access", "App Admin"]}
+          >
+            <CallsHistory />
           </ProtectedRoute>
         ),
       },
@@ -85,7 +102,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <TwilioProvider>
+        <IncomingCallDialog />
+        <RouterProvider router={router} />
+      </TwilioProvider>
     </AuthProvider>
   </StrictMode>
 );

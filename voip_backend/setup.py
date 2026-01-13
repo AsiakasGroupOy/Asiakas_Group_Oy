@@ -6,8 +6,6 @@ from extensions import db
 from config import Config
 from models.models import *  # Ensure all models are imported
 from dotenv import load_dotenv
-import os
-
 
 # Load environment variables
 load_dotenv()
@@ -46,89 +44,48 @@ def create_tables():
         db.create_all()
         print("✅ All tables created successfully.")
         create_first_customer()
-        create_first_users()
+        create_first_user()
 
 # Step 3: create an first customer if not exists
 def create_first_customer():
-   
+    if Customer.query.filter_by(customer_name="Soitto.ai Application").first():
+        print("👤 Default customer already exists.")
+        return
+    
+    default_customer= Customer(
+        customer_name= "Soitto.ai Application",
+        customer_address= "Default Address")
 
-            default_customer= Customer(
-                 customer_name= "Application administrator",
-                 customer_address= "Default Address")
-            first_customer = Customer(
-                customer_name="First Customer",
-                customer_address="123 First St")
-            second_customer = Customer(
-                customer_name="Second Customer",
-                customer_address="456 Second St")
+    db.session.add(default_customer)
+    db.session.commit()
             
-            db.session.add(default_customer)
-            db.session.add(first_customer)  
-            db.session.add(second_customer)
-            db.session.commit()
-            
-            print(f"👤 Default customer `{default_customer.customer_name}` created.")
-            print(f"👤 First customer `{first_customer.customer_name}` created.")
-            print(f"👤 Second customer `{second_customer.customer_name}` created.")
+    print(f"👤 Default customer `{default_customer.customer_name}` created.")
+           
 
 # Step 4: create an first user if not exists
-def create_first_users():
-    users = [
-        {"username": Config.ADMIN_NAME, "useremail":Config.ADMIN_EMAIL,"password": Config.ADMIN_PASSWORD, "role": UserRoles.CALL_ADMIN},
-        {"username": Config.MANAGER_NAME, "useremail":Config.MANAGER_EMAIL,"password": Config.MANAGER_PASSWORD, "role": UserRoles.CALL_MANAGER},
-        {"username": Config.USER_NAME,"useremail": Config.USER_EMAIL,"password": Config.USER_PASSWORD, "role": UserRoles.CALL_USER}
-    ] 
-    users_second = [
-        {"username": Config.ADMIN_NAME2, "useremail":Config.ADMIN_EMAIL2,"password": Config.ADMIN_PASSWORD2, "role": UserRoles.CALL_ADMIN},
-        {"username": Config.MANAGER_NAME2, "useremail":Config.MANAGER_EMAIL2,"password": Config.MANAGER_PASSWORD2, "role": UserRoles.CALL_MANAGER},
-        {"username": Config.USER_NAME2,"useremail": Config.USER_EMAIL2,"password": Config.USER_PASSWORD2, "role": UserRoles.CALL_USER}
-    ] 
+def create_first_user():
+    default_customer = Customer.query.filter_by(
+        customer_name="Soitto.ai Application"
+    ).first()
 
-    app_admin= User(
-        username=Config.APP_ADMIN_NAME,
-        useremail=Config.APP_ADMIN_EMAIL,
-        role= UserRoles.APP_ADMIN,
-        customer_id=Customer.query.filter_by(customer_name = "Application administrator").first().customer_id
-    )
-    app_admin.set_password(Config.APP_ADMIN_PASSWORD)
-    db.session.add(app_admin)
-    print(f"👤 App Admin `{app_admin.useremail}` created.")
-
-
-    for data in users: 
-        if not User.query.filter_by(useremail=data["useremail"]).first():
-            user = User(
-                username=data["username"],
-                useremail=data["useremail"],
-                role=data["role"],
-                customer_id=Customer.query.filter_by(customer_name = "First Customer").first().customer_id
+    if not default_customer:
+        raise RuntimeError("Default customer does not exist")
+    
+    if not User.query.filter_by(
+        useremail=Config.APP_ADMIN_EMAIL
+    ).first():
+        app_admin= User(
+                username=Config.APP_ADMIN_NAME,
+                useremail=Config.APP_ADMIN_EMAIL,
+                role= UserRoles.APP_ADMIN,
+                customer_id=default_customer.customer_id
             )
-            user.set_password(data["password"])
-
-            db.session.add(user)
-            print(f"👤 User `{data["useremail"]}` created.")
-        else:
-            print(f"👤 User `{data["useremail"]}` already exists.")
-
-    for data in users_second: 
-        if not User.query.filter_by(useremail=data["useremail"]).first():
-            user = User(
-                username=data["username"],
-                useremail=data["useremail"],
-                role=data["role"],
-                customer_id=Customer.query.filter_by(customer_name = "Second Customer").first().customer_id
-            )
-            user.set_password(data["password"])
-
-            db.session.add(user)
-            print(f"👤 User `{data["useremail"]}` created.")
-        else:
-            print(f"👤 User `{data["useremail"]}` already exists.")        
-            
-    db.session.commit()
-    print("✅ Default users created successfully")
-
-
+        app_admin.set_password(Config.APP_ADMIN_PASSWORD)
+        db.session.add(app_admin)
+        print(f"👤 App Admin `{app_admin.useremail}` created.")
+    else:
+        print("👤 App Admin already exists.")
+    db.session.commit()    
 
 if __name__ == '__main__':
     print("🚀 Running backend setup...")

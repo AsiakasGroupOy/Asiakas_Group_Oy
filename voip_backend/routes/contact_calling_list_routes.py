@@ -1,17 +1,17 @@
 from flask import Blueprint, request, jsonify, g
 from extensions import db
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import over
-from sqlalchemy import asc, func
+from sqlalchemy import func
 from models.models import ContactList, CallingList, ContactCallingList, Organization, CallLog   
 from helpers.helpers import auth_required
 import logging
-
 
 contact_callinglist_bp = Blueprint('contact_callinglist_bp', __name__)
 
 logger = logging.getLogger(__name__)
 security_logger = logging.getLogger("security")
+audit_logger = logging.getLogger("audit")
+app_logger = logging.getLogger("app")
 
 # ✅ GET data for CallView from Contact Calling List(s) where Calling List is filtered by first concal_id
 @contact_callinglist_bp.route('/first', methods=['GET'])
@@ -24,6 +24,9 @@ def get_contact_calling_list_By_firstCCLId():
     )
 
     if not first_concal:
+        app_logger.warning(
+        "First concal_id is empty when filtered Calling List by first concal_id for user_id=%s customer_id=%s method=%s path=%s ip=%s",
+        g.user_id, g.customer_id, request.method, request.path, request.remote_addr )
         return jsonify({"error": "Contact and Calling List is empty"}), 404
     
     calling_list_id = first_concal.calling_list_id
@@ -105,6 +108,10 @@ def get_contact_calling_list_By_firstCCLId():
 def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id from the request arguments
     
     if not concal_id:
+        app_logger.warning(
+        "Selected row's concal missing when Calling List is filtered by concal_id from selected row: user_id=%s customer_id=%s method=%s path=%s ip=%s",
+        g.user_id, g.customer_id, request.method, request.path, request.remote_addr
+    )
         return jsonify({"error": "Selected contact is required"}), 400
     
     navId_concal = ContactCallingList.query.get(concal_id)
@@ -188,6 +195,12 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
 def get_contact_calling_list_By_CallingListName(name): 
 
     calling_list = CallingList.query.filter_by(calling_list_name=name, customer_id=g.customer_id).first()  # Get the calling_list_id from the request arguments
+    if not calling_list:
+        app_logger.warning(
+        "CallingList not found by name: name=%s user_id=%s customer_id=%s method=%s path=%s ip=%s",
+        name, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
+        return jsonify({"error": "Calling List not found"}), 404
+    
     calling_list_id = calling_list.calling_list_id
 
     # Query to get all Contact Calling List entries for the given concal_id
@@ -352,8 +365,9 @@ def get_contact_calling_list_full():
 @auth_required
 def remove():
     if g.role not in ["Admin Access" , "Manager", "App Admin"]:
-        security_logger.error("Unauthorized access attempt by user: user_id=%s, customer_id=%s", g.get("user_id"),  g.get("customer_id"))
+        security_logger.error("Unauthorized attempt to remove Contacts or Calling List by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Forbidden"}), 403
+    
     data = request.get_json()
     deleted_count = 0
     contact_ids_to_check = set()
@@ -420,6 +434,8 @@ def remove():
     # 5. Single commit
     db.session.commit()
 
+    audit_logger.info("Contact(s) of Calling List(s)%s REMOVED: contacts by user_id=%s customer_id=%s",deleted_count, g.user_id, g.customer_id)
+
     return jsonify({
         "message": f"Removed {deleted_count} row(s).",
         "removed_contacts": list(contact_ids_to_check),
@@ -436,9 +452,13 @@ def update_note(concal_id):
 
     concal = ContactCallingList.query.get(concal_id)
     if not concal:
+        app_logger.warning("Attempt to update note for non-existent ContactCallingList: concal_id=%s user_id=%s customer_id=%s method=%s path=%s ip=%s",
+            concal_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
         return jsonify({"error": "Contact Calling List not found"}), 404
 
     concal.note = note
     db.session.commit()
+    
+    audit_logger.info("Note UPDATED for concal_id=%s by user_id=%s", concal_id, g.user_id)
 
     return jsonify({"message": "Note updated successfully"}), 200

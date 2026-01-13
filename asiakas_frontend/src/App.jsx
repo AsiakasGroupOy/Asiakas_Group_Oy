@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import "./App.css";
 import NavigationTabs from "./components/NavigationTabs";
-import LoginForm from "./components/users_components/LoginForm";
 import { useAuth } from "./components/users_components/AuthContext.jsx";
 import { Outlet } from "react-router-dom";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
@@ -74,7 +73,7 @@ function App() {
         </AppBar>
       </Container>
       <Toolbar />
-      {!isAuthenticated ? <LoginForm /> : <Outlet />}
+      <Outlet />
     </>
   );
 }

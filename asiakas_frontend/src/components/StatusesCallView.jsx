@@ -1,20 +1,22 @@
 import { useState } from "react";
 import Stack from "@mui/material/Stack";
-import {  
+import {
   MenuItem,
   Menu,
   IconButton,
   List,
-  ListItem,  
+  ListItem,
   ListItemIcon,
   Icon,
 } from "@mui/material";
+import dayjs from "dayjs";
 import Typography from "@mui/material/Typography";
 import AddIcon from "@mui/icons-material/Add";
 import EventRepeatOutlinedIcon from "@mui/icons-material/EventRepeatOutlined";
 import EventBusyOutlinedIcon from "@mui/icons-material/EventBusyOutlined";
 import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import PhoneDisabledIcon from "@mui/icons-material/PhoneDisabled";
 
 export default function StatusesCallView({ addNewStatus, statusList }) {
   const statuses = statusList || []; // Ensure statusList is an array
@@ -90,6 +92,12 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
             />
             Not Interested
           </MenuItem>
+          <MenuItem onClick={() => handleAddStatus("No Answer")}>
+            <PhoneDisabledIcon
+              sx={{ color: "#867537ff", fontSize: 20, marginRight: 1 }}
+            />
+            No Answer
+          </MenuItem>
         </Menu>
       </Stack>
 
@@ -112,6 +120,8 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
                   <EventOutlinedIcon sx={{ color: "#08205e" }} />
                 ) : status.status === "Not Interested" ? (
                   <EventBusyOutlinedIcon sx={{ color: "#863737" }} />
+                ) : status.status === "No Answer" ? (
+                  <PhoneDisabledIcon sx={{ color: "#867537ff" }} />
                 ) : null}
               </Icon>
             </ListItemIcon>
@@ -119,41 +129,35 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
               sx={{
                 width: "100%",
                 flexDirection: "column",
-                               
               }}
             >
               {/* Primary row */}
               <Stack
-                sx={{ width: "100%",
-                    border: "2px solid #08205e",
-                    borderLeft: "none",
-                    borderRight: "none",
-                    borderTop: "none",
-                  }}
+                sx={{
+                  width: "100%",
+                  border: "2px solid #08205e",
+                  borderLeft: "none",
+                  borderRight: "none",
+                  borderTop: "none",
+                  paddingTop: 0.9,
+                }}
                 direction="row"
                 justifyContent="space-between"
               >
                 <Typography>{status.status}</Typography>
                 <Typography>
-                  {new Date(status.call_timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}
+                  {dayjs(status.call_timestamp).format("HH:mm")}
                 </Typography>
               </Stack>
 
               {/* Secondary row */}
-              <Stack sx={{ width: "100%"}}
+              <Stack
+                sx={{ width: "100%" }}
                 direction="row"
-                justifyContent="flex-end">
+                justifyContent="flex-end"
+              >
                 <Typography>
-                  {new Date(status.call_timestamp).toLocaleDateString([], {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    weekday: "long",
-                  })}
+                  {dayjs(status.call_timestamp).format("dddd DD.MM.YYYY")}{" "}
                 </Typography>
               </Stack>
             </Stack>

@@ -10,7 +10,7 @@ export const fetchUsers = async () => {
 // Fetching invitations for setting form
 export const fetchInvitations = async () => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/invitations`
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/users`
   );
 };
 
@@ -33,14 +33,14 @@ export const deleteUser = async (userID) => {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userID),
+      body: JSON.stringify({ user_id: userID }),
     }
   );
 };
 
 export const deleteInvitation = async (userID) => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/remove`,
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/users/remove`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,7 +52,7 @@ export const deleteInvitation = async (userID) => {
 // Send Invitation to a new user
 export const newInvitation = async (invData) => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/invite`,
+    `${import.meta.env.VITE_BACKEND_URL}/api/invitations/users/invite`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

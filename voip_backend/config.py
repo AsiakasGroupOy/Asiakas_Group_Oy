@@ -19,41 +19,24 @@ class Config:
     MAIL_USE_SSL = False
     MAIL_USERNAME = os.getenv('APP_MAIL_USERNAME') 
     MAIL_PASSWORD = os.getenv('APP_MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = ('Call Management Application', os.getenv('APP_MAIL_USERNAME'))
+    MAIL_DEFAULT_SENDER = ('Soitto.ai', os.getenv('APP_MAIL_USERNAME'))
 
     APP_ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL")
     APP_ADMIN_PASSWORD = os.getenv("APP_ADMIN_PASSWORD")
     APP_ADMIN_NAME = os.getenv("APP_ADMIN_NAME")
 
-    ADMIN_EMAIL= os.getenv("ADEMAIL")
-    ADMIN_PASSWORD = os.getenv("ADPASSWORD")
-    ADMIN_NAME = os.getenv("ADNAME")
-
-    MANAGER_EMAIL= os.getenv("MEMAIL")
-    MANAGER_PASSWORD = os.getenv("MPASSWORD")
-    MANAGER_NAME = os.getenv("MNAME")
-
-    USER_EMAIL= os.getenv("UEMAIL")
-    USER_PASSWORD = os.getenv("UPASSWORD")
-    USER_NAME = os.getenv("UNAME")
-
-    ADMIN_EMAIL2= os.getenv("ADEMAIL2")
-    ADMIN_PASSWORD2 = os.getenv("ADPASSWORD2")
-    ADMIN_NAME2 = os.getenv("ADNAME2")
-
-    MANAGER_EMAIL2= os.getenv("MEMAIL2")
-    MANAGER_PASSWORD2 = os.getenv("MPASSWORD2")
-    MANAGER_NAME2 = os.getenv("MNAME2")
-
-    USER_EMAIL2= os.getenv("UEMAIL2")
-    USER_PASSWORD2 = os.getenv("UPASSWORD2")
-    USER_NAME2 = os.getenv("UNAME2")
+    TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+    TWILIO_TWIML_APP_SID = os.getenv("TWILIO_TWIML_APP_SID")
+    TWILIO_API_KEY = os.getenv("TWILIO_API_KEY")
+    TWILIO_API_SECRET = os.getenv("TWILIO_API_SECRET")
 
     SECRET_KEY = os.getenv("SECRET_KEY")
     ACCESS_EXPIRES = timedelta(minutes=int(os.getenv("ACCESS_EXPIRES_MIN", 15)))
-    REFRESH_EXPIRES = timedelta(days=int(os.getenv("REFRESH_EXPIRES_DAYS", 7)))
+    REFRESH_EXPIRES = timedelta(days=int(os.getenv("REFRESH_EXPIRES_DAYS", 1)))
 
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    TEMP_TWILIO_HOST = os.getenv("TEMP_TWILIO_HOST")
     
     SQLALCHEMY_DATABASE_URI = (
         f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -66,4 +49,5 @@ class Config:
 class ProductionConfig(Config):
     
     DEBUG = False
-#   SQLALCHEMY_DATABASE_URI = os.getenv("PROD_DB_URI")
+    SQLALCHEMY_DATABASE_URI = os.getenv("PROD_DB_URI")
+    FRONTEND_URL = os.getenv("FRONTEND_URL")
