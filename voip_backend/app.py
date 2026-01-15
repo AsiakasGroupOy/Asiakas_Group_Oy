@@ -19,7 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 
 
-# Load configuration from config.py
+# Load configuration from config.py//Change to env = os.getenv("FLASK_ENV", "production") for production
 env = os.getenv("FLASK_ENV", "development")
 
 if env == "production":
@@ -42,7 +42,15 @@ register_global_error_handler(app)
 
 # Register all routes via central router
 register_routes(app)
-allowed_origins = [app.config.get('FRONTEND_URL'), app.config.get('TEMP_TWILIO_HOST')]
+frontend_url = app.config.get('FRONTEND_URL')
+
+allowed_origins = [
+    frontend_url,
+    "http://localhost",        # For local testing
+    "http://localhost:3000",   # For local testing
+    "https://soitto.ai",       #  PRODUCTION DOMAIN
+    "https://www.soitto.ai"    #  PRODUCTION DOMAIN (with www)
+    ]
 CORS(app,supports_credentials=True, origins=allowed_origins)
 
 # Initialize Flask-Migrate
@@ -58,12 +66,19 @@ def home():
 if __name__ == "__main__":
     
     with app.app_context():
-       # db.create_all()  # Create database tables if they don't exist
+       
         
-        print("✅ Database tables created successfully!")
-        print("\n🔍 Registered Flask routes:")
-        for rule in app.url_map.iter_rules():
-            print(f"{rule.methods} -> {rule.rule}")
-         
+        print(f"✅ Backend starting in {env} mode...")
+        print("✅ Database connection initialized.")
 
-    app.run(host="localhost", port=5000, debug=True)
+        if env != "production":
+            print("\n🔍 Registered Flask routes:")
+            for rule in app.url_map.iter_rules():
+                print(f"{rule.methods} -> {rule.rule}")
+     
+    
+    app.run(
+        host="0.0.0.0",
+        port=5000, 
+        debug=app.config.get("DEBUG", False)
+    )

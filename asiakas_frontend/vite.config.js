@@ -13,7 +13,7 @@ export default defineConfig({
     allowedHosts: ["bradytelic-derek-gloopily.ngrok-free.dev", "localhost"],
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // Backend!
+        target: "http://localhost:5000", //development
         changeOrigin: true,
         secure: false,
       },

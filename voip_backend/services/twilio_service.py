@@ -1,7 +1,8 @@
+import time
 from flask import current_app, request,jsonify
 from extensions import db
-from datetime import datetime
-from models.models import User ,Customer, TwilioCall,TwilioAgentStatus
+from datetime import datetime, timezone
+from models.models import Customer, TwilioCall,TwilioAgentStatus
 from functools import wraps
 
 from twilio.jwt.access_token import AccessToken
@@ -20,7 +21,7 @@ def get_twilio_config():
         "API_KEY": current_app.config["TWILIO_API_KEY"],
         "API_SECRET": current_app.config["TWILIO_API_SECRET"],
         "TWIML_APP_SID": current_app.config["TWILIO_TWIML_APP_SID"],
-        "TEMP_TWILIO_HOST": current_app.config["TEMP_TWILIO_HOST"],
+        "FRONTEND_URL": current_app.config["FRONTEND_URL"],
     }
 
 # Generate Twilio Access Token for WebRTC
@@ -48,7 +49,7 @@ def twilio_webhook(f):
     def decorated(*args, **kwargs):
         cfg = get_twilio_config()
         signature = request.headers.get("X-Twilio-Signature", "") # signature is formed with use of Auth Token 
-        url = f"{cfg['TEMP_TWILIO_HOST']}{request.path}"
+        url = f"{cfg['FRONTEND_URL']}{request.path}"
         params = request.form.to_dict() or {}
         validator = RequestValidator(cfg["AUTH_TOKEN"])
 
@@ -65,7 +66,7 @@ def free_agent(user_id):
     agent = TwilioAgentStatus.query.filter_by(user_id=user_id).first()
     if agent:
         agent.status = 'online'
-        agent.available_since = datetime.now()
+        agent.available_since = datetime.now(timezone.utc)
         db.session.commit()
 
 # Update agent status to 'busy'   

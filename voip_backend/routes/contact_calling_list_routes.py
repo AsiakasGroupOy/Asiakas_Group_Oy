@@ -94,8 +94,8 @@ def get_contact_calling_list_By_firstCCLId():
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status.value,
-                "call_timestamp": row.call_timestamp.isoformat()
+                "status": row.status.value if row.status else None,
+                "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
         item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
@@ -181,8 +181,8 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status.value,
-                "call_timestamp": row.call_timestamp.isoformat()
+                "status": row.status.value if row.status else None,
+                "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
         item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
@@ -267,8 +267,8 @@ def get_contact_calling_list_By_CallingListName(name):
         # Append call_log if exists
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
-                "status": row.status.value,
-                "call_timestamp": row.call_timestamp.isoformat()
+                "status": row.status.value if row.status else None,
+                "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
         item["call_log"].sort(key=lambda log: log["call_timestamp"], reverse=True)
@@ -353,7 +353,7 @@ def get_contact_calling_list_full():
             },
             "latest_call_log": {
                 "status": row.latest_status.value if row.latest_status else None,
-                "call_timestamp": row.latest_call_timestamp.isoformat() if row.latest_call_timestamp else None,
+                "call_timestamp": row.latest_call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_call_timestamp else None,
                 "call_count": row.call_count if row.call_count else None
             }
         })

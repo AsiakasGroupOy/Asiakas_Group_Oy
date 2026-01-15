@@ -4,7 +4,7 @@ from models.models import User, Invitation, UserRoles, TwilioAgentStatus
 from schemas.user_schemas import UserLogInSchema, UserRegisterSchema, UserRoleSchema 
 import jwt, hashlib
 from helpers.helpers import auth_required, create_access_token, create_refresh_token
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from helpers.validations import is_valid_password
 
@@ -54,7 +54,11 @@ def register():
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     invitation = Invitation.query.filter_by(token_hash=token_hash, used=False, revoked=False).first()
 
-    if not invitation or invitation.expires_at < datetime.now():
+    db_time_toCompare= invitation.expires_at
+    if db_time_toCompare.tzinfo is None:
+        db_time_toCompare = db_time_toCompare.replace(tzinfo=timezone.utc)
+
+    if not invitation or db_time_toCompare < datetime.now(timezone.utc):
         app_logger.warning("Invalid or expired registration link attempt: ip=%s path=%s", request.remote_addr, request.path)
         return jsonify({"error": "Invalid or expired link"}), 400
     existing_user = User.query.filter_by(useremail=invitation.invitation_email, username=username).first()
@@ -84,7 +88,7 @@ def register():
     db.session.add(twilio_agent)
     db.session.commit()
 
-    audit_logger.info("New User REGISTERED: user_id=%s", user.user_id)
+    audit_logger.info("New User REGISTERED: user_id=%s customer_id=%s", user.user_id, user.customer_id)
 
     return jsonify({"message": "Registration successful"}), 201
 
@@ -166,7 +170,7 @@ def login():
     twilio_agent = TwilioAgentStatus.query.filter_by(user_id=current_user.user_id).first()
     if twilio_agent:
         twilio_agent.status = 'online'
-        twilio_agent.available_since = datetime.now()
+        twilio_agent.available_since = datetime.now(timezone.utc)
         db.session.commit()
    
     resp = jsonify({
@@ -175,10 +179,10 @@ def login():
             "role": current_user.role.value  
          })
 
-#⚠️ on product secure is True (HTTPS) /  samesite="Strict"
+#⚠️ on product secure is True (HTTPS) /  samesite="Strict" insted of "Lax"
 
-    resp.set_cookie("access_token", access_token, httponly=True, secure=False, samesite="Lax", max_age=int(current_app.config['ACCESS_EXPIRES'].total_seconds()))  # 15 min
-    resp.set_cookie("refresh_token", refresh_token, httponly=True, secure=False, samesite="Lax", max_age=int(current_app.config['REFRESH_EXPIRES'].total_seconds()))  # 1 day
+    resp.set_cookie("access_token", access_token, httponly=True, secure=True, samesite="Strict", max_age=int(current_app.config['ACCESS_EXPIRES'].total_seconds()))  # 15 min
+    resp.set_cookie("refresh_token", refresh_token, httponly=True, secure=True, samesite="Strict", max_age=int(current_app.config['REFRESH_EXPIRES'].total_seconds()))  # 1 day
 
     audit_logger.info("User LOGGED IN: user_id=%s, customer_id=%s", current_user.user_id, current_user.customer_id)
     return resp, 200
@@ -210,8 +214,9 @@ def logout():
 
     resp = jsonify({"message": "Logged out",
                     })
-    resp.set_cookie("access_token", "", expires=0, path="/", httponly=True, secure=False, samesite="Lax")
-    resp.set_cookie("refresh_token", "", expires=0, path="/", httponly=True, secure=False, samesite="Lax")
+    #⚠️ on product secure is True (HTTPS) /  samesite="Strict" insted of "Lax"
+    resp.set_cookie("access_token", "", expires=0, path="/", httponly=True, secure=True, samesite="Strict")
+    resp.set_cookie("refresh_token", "", expires=0, path="/", httponly=True, secure=True, samesite="Strict")
 
     audit_logger.info("User LOGGED OUT: user_id=%s", user_id)
     return resp
@@ -236,10 +241,10 @@ def refresh():
         security_logger.error("Invalid refresh token: ip=%s", request.remote_addr)
         return jsonify({"error": "Invalid refresh token"}), 401
    
-#⚠️ on product secure is True (HTTPS) / samesite="Strict"  
+#⚠️ on product secure is True (HTTPS) /  samesite="Strict" insted of "Lax"
     new_access = create_access_token(payload=data)
     resp = jsonify({"message": "token refreshed"})
-    resp.set_cookie("access_token", new_access, httponly=True, secure=False,
-                    samesite="Lax", max_age=int(current_app.config['ACCESS_EXPIRES'].total_seconds()))
+    resp.set_cookie("access_token", new_access, httponly=True, secure=True,
+                    samesite="Strict", max_age=int(current_app.config['ACCESS_EXPIRES'].total_seconds()))
     
     return resp,200

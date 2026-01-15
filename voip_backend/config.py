@@ -20,6 +20,7 @@ class Config:
     MAIL_USERNAME = os.getenv('APP_MAIL_USERNAME') 
     MAIL_PASSWORD = os.getenv('APP_MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = ('Soitto.ai', os.getenv('APP_MAIL_USERNAME'))
+    MAIL_DEBUG = False
 
     APP_ADMIN_EMAIL = os.getenv("APP_ADMIN_EMAIL")
     APP_ADMIN_PASSWORD = os.getenv("APP_ADMIN_PASSWORD")
@@ -36,12 +37,12 @@ class Config:
     REFRESH_EXPIRES = timedelta(days=int(os.getenv("REFRESH_EXPIRES_DAYS", 1)))
 
     FRONTEND_URL = os.getenv("FRONTEND_URL")
-    TEMP_TWILIO_HOST = os.getenv("TEMP_TWILIO_HOST")
+   
     
     SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     )
-
+  
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = True
 
@@ -49,5 +50,6 @@ class Config:
 class ProductionConfig(Config):
     
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.getenv("PROD_DB_URI")
-    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    MAIL_DEBUG = False
+    
+    
