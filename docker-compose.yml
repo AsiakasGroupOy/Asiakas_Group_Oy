@@ -1,0 +1,51 @@
+services:
+  # --- DATABASE ---
+  db:
+    image: mysql:8.0
+    container_name: soitto_db_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck: # Ensures the DB is ready before backend starts
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # --- BACKEND ---
+  backend:
+    build: ./voip_backend
+    container_name: soitto_backend
+    restart: always
+    env_file:
+      - ./voip_backend/.env
+    environment:
+      - DB_HOST=db  # Tells Flask to look for the 'db' service above regardless of what the .env says
+    
+    volumes:
+      - backend_logs:/app/logs # Persistent logs
+    depends_on:
+      db:
+        condition: service_healthy # Wait for DB to be healthy
+
+  # --- FRONTEND ---
+  frontend:
+    build: ./asiakas_frontend
+    container_name: soitto_frontend
+    restart: always
+    env_file: 
+      - ./asiakas_frontend/.env
+    ports:
+      - "80:80" #
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  backend_logs:

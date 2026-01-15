@@ -1,5 +1,6 @@
+import time
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 # -----------------------------------------
@@ -13,6 +14,9 @@ class Organization(db.Model):
     website = db.Column(db.String(255))
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
 
+    __table_args__ = (
+        db.Index('idx_org_name_customer', 'customer_id', 'organization_name'),
+    )
     # Relationships
     contacts = db.relationship('ContactList', back_populates ='organization', lazy=True)
     customer = db.relationship('Customer', back_populates='organizations')
@@ -80,7 +84,7 @@ class CallLog(db.Model):
     call_id = db.Column(db.Integer, primary_key=True)
     concal_id = db.Column(db.Integer, db.ForeignKey('contact_calling_list.concal_id', ondelete="CASCADE"), nullable=False)
     status = db.Column(db.Enum(CallStatus), nullable=False)
-    call_timestamp = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    call_timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     
     __table_args__ = (db.Index('idx_timestamp', 'call_timestamp'),)
     
@@ -135,7 +139,7 @@ class User(db.Model):
     useremail = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.Enum(UserRoles), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         db.UniqueConstraint("customer_id", "useremail", name="uq_user_email_per_customer"),
@@ -165,8 +169,8 @@ class Customer(db.Model):
     assigned_number = db.Column(db.String(20), unique=True, nullable=True, default=None)
     assigned_number_1 = db.Column(db.String(20), unique=True, nullable=True, default=None)
     assigned_number_2 = db.Column(db.String(20), unique=True, nullable=True, default=None)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(), nullable=False)
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(), onupdate=datetime.now, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships 
     users = db.relationship('User', back_populates='customer', lazy=True, cascade="all, delete-orphan", passive_deletes=True)
@@ -190,8 +194,8 @@ class Invitation(db.Model):
     invitation_email = db.Column(db.String(100), nullable=False,unique=True)
     token_hash = db.Column(db.String(64), nullable=False, unique=True)
     revoked = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     used = db.Column(db.Boolean, default=False, nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
@@ -210,7 +214,7 @@ class TwilioAgentStatus(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"))
     status = db.Column(db.String(20), default='offline')  # offline, online, busy
     available_since = db.Column(db.DateTime(timezone=True), nullable=True)
-    last_updated = db.Column(db.DateTime(timezone=True), default=datetime.now, onupdate=datetime.now)
+    last_updated = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (db.Index('idx_calls_user_status', 'customer_id', 'status'), )
 

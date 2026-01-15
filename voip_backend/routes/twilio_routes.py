@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app, g
 from models.models import TwilioCall
 from extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 from twilio.twiml.voice_response import VoiceResponse, Dial, Client
 from helpers.helpers import auth_required
 from services.twilio_service import free_agent, busy_agent, get_customer_id_by_phone, get_call_record_by_sid, get_preferred_agent,parse_identity, get_company_phone, generate_twilio_token,twilio_webhook, get_twilio_config
@@ -54,7 +54,7 @@ def outbound_call():
         from_number=callerId,
         to_number=to_number,
         direction='outbound',
-        started_at=datetime.now(),
+        started_at=datetime.now(timezone.utc),
         calling_list_name=calling_list_name,
         contact_name=contact_name,
         organization_name=organization_name
@@ -72,7 +72,7 @@ def outbound_call():
         record='record-from-answer-dual') 
       
     dial.number(to_number,
-            statusCallback=f'{get_twilio_config()["TEMP_TWILIO_HOST"]}/api/twilio/call-status',
+            statusCallback=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
             statusCallbackEvent="completed")
     response.append(dial)
 
@@ -105,7 +105,7 @@ def call_status():
     
     # Call ended, update record 
     call_record.status = status
-    call_record.ended_at = datetime.now()
+    call_record.ended_at = datetime.now(timezone.utc)
     if recording_sid:
         call_record.recording_sid = recording_sid
         call_record.recording_url = recording_url
@@ -147,7 +147,7 @@ def call_inbound():
         from_number=from_number,
         to_number=to_number,
         direction='inbound',
-        started_at=datetime.now(),
+        started_at=datetime.now(timezone.utc),
         calling_list_name = calling_list_name,
         contact_name = contact_name,
         organization_name = organization_name
@@ -162,7 +162,7 @@ def call_inbound():
 
         dial = Dial(callerId=from_number, 
                     record='record-from-answer-dual',
-                    action=f'{get_twilio_config()["TEMP_TWILIO_HOST"]}/api/twilio/call-status',
+                    action=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
                     statusCallbackEvent="completed")
         
         client_noun = Client(f"customer_{customer_id}_user_{assigned_userId}")
@@ -174,7 +174,7 @@ def call_inbound():
 
     else:
         call_record.status = 'no-agent-available' 
-        call_record.ended_at = datetime.now()
+        call_record.ended_at = datetime.now(timezone.utc)
         
         resp.say("All operators are busy", language='en-EN')
         resp.hangup()

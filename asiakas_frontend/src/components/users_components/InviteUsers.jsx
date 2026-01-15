@@ -105,10 +105,8 @@ export default function InviteUsers({
         if (!value) return null;
         const expirationDate = new Date(value);
         const now = new Date();
-        const diffInDays = (now - expirationDate) / (1000 * 60 * 60 * 24);
-
         // If the expiration date is more than 1 day *later* than now → red
-        if (diffInDays > 1) {
+        if (expirationDate > now) {
           return { color: "red", fontWeight: "bold" };
         }
         return null;

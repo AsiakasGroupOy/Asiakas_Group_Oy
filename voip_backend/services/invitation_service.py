@@ -2,7 +2,7 @@ from models.models import Invitation, User, UserRoles, Customer
 from sqlalchemy.orm import joinedload
 from extensions import db, mail
 from flask_mail import Message
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 import uuid, hashlib
 import logging
 
@@ -58,7 +58,7 @@ class InvitationService:
     def create_invitation(customer_id, invitation_email, role, created_by):
         token = str(uuid.uuid4())
         token_hash = hashlib.sha256(token.encode()).hexdigest()
-        expires_at = datetime.now() + timedelta(days=1)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=1)
 
         invitation = Invitation(
             customer_id=customer_id,

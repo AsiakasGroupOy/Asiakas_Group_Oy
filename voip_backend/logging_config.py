@@ -63,7 +63,7 @@ def setup_logging():
     # ⚠️ Replace with your actual SMTP server, credentials, and recipients
     mail_handler = SMTPHandler(
         mailhost=(Config.MAIL_SERVER, Config.MAIL_PORT),
-        fromaddr="Soitto.ai NoReply <{Config.MAIL_USERNAME}>",
+        fromaddr=f"Soitto.ai NoReply <{Config.MAIL_USERNAME}>",
         toaddrs=[Config.APP_ADMIN_EMAIL],
         subject="Critical error in Soitto.ai app",
         credentials=(Config.MAIL_USERNAME, Config.MAIL_PASSWORD),
