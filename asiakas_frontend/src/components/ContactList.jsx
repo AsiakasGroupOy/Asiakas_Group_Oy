@@ -66,7 +66,7 @@ export default function ContactList() {
           const value = params.data.latest_call_log.call_timestamp;
           if (!value) return "";
           const date = dayjs(params.data.latest_call_log.call_timestamp).format(
-            "DD.MM.YYYY HH:mm"
+            "DD.MM.YYYY HH:mm",
           );
           return date;
         },
@@ -77,7 +77,7 @@ export default function ContactList() {
         filter: true,
       },
     ],
-    []
+    [],
   );
 
   const [setColumnStateVersion] = useState(0);

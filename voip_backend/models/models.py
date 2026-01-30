@@ -99,7 +99,7 @@ class ContactCallingList(db.Model):
     __tablename__ = "contact_calling_list"
 
     concal_id = db.Column(db.Integer, primary_key=True)
-    note = db.Column(db.String(255))
+    note = db.Column(db.Text)
     contact_id = db.Column(db.Integer, db.ForeignKey('contact_list.contact_id'), nullable=False)
     calling_list_id = db.Column(db.Integer, db.ForeignKey('calling_list.calling_list_id'), nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id', ondelete="CASCADE"), nullable=False)
