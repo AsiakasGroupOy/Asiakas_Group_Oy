@@ -86,7 +86,7 @@ def create_first_user():
     db.session.commit()    
 
 if __name__ == '__main__':
-    print("🚀 Running backend setup in {os.getenv('FLASK_ENV', 'development')} mode...")
+    print(f"🚀 Running backend setup in {os.getenv('FLASK_ENV', 'development')} mode...")
     create_database()
     create_tables()
   

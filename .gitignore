@@ -12,3 +12,6 @@ package-lock.json
 # System files
 .DS_Store
 Thumbs.db
+
+# Ignore Docker override files
+docker-compose.override.yml

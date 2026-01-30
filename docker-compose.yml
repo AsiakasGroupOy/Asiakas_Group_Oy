@@ -42,10 +42,15 @@ services:
     env_file: 
       - ./asiakas_frontend/.env
     ports:
-      - "80:80" #
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./asiakas_frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
 
 volumes:
   mysql_data:
   backend_logs:
+  
