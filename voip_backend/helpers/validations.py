@@ -1,3 +1,4 @@
+from os import replace
 import re
 
 # Email address validation
@@ -19,10 +20,17 @@ def validate_phone(phone):
     if not phone:
         return False
     
-    cleaned = re.sub(r"[^\d]", "", phone) # Remove all but digits
+    # Remove all but digits
+    cleaned = re.sub(r"[^\d]", "", phone) 
 
-    if re.match(r"^\d{6,15}$", cleaned): # Length between 6 and 15 digits
+    # Replace leading 0 with Finland country code
+    if cleaned.startswith("0"):
+        cleaned = "358" + cleaned[1:]
+
+    # Length between 6 and 15 digits
+    if re.match(r"^\d{6,15}$", cleaned): 
         return "+" + cleaned
+    
     return False
 
 
