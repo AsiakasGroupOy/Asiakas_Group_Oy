@@ -12,7 +12,7 @@ class CallBacksSchema(Schema):
     status = fields.Str(required=True)
     started_at = fields.DateTime(allow_none=True,format='%Y-%m-%dT%H:%M:%SZ')
     ended_at = fields.DateTime(allow_none=True,format='%Y-%m-%dT%H:%M:%SZ')
-    recording_duration = fields.Int(allow_none=True)
+    recording_duration = fields.Float(allow_none=True)
     recording_sid = fields.Str(allow_none=True)
     calling_list_name = fields.Str(allow_none=True)
     contact_name = fields.Str(allow_none=True)
