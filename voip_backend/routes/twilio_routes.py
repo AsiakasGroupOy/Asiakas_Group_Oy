@@ -84,15 +84,8 @@ def outbound_call():
 @twilio_bp.route('/call-status', methods=['POST'])
 @twilio_webhook
 def call_status():
-    direction=request.form.get('Direction')
-    
-    if direction == 'outbound-dial':
-       call_sid = request.form.get('ParentCallSid')
-       status = request.form.get('CallStatus')
-    else:
-       call_sid = request.form.get('CallSid')
-       status = request.form.get('DialCallStatus')
-       
+    call_sid = request.form.get('ParentCallSid')
+    status = request.form.get('CallStatus')
     recording_sid = request.form.get('RecordingSid')
     recording_url = request.form.get('RecordingUrl') 
     recording_duration = request.form.get('RecordingDuration')
@@ -101,7 +94,7 @@ def call_status():
     if not call_record:
         twilio_logger.error(
             "Call status callback: record not found call_sid=%s ip=%s path=%s",call_sid, request.remote_addr, request.path)
-        return jsonify ({"error":"Call record not found."})
+        
     
     # Call ended, update record 
     call_record.status = status
@@ -109,8 +102,9 @@ def call_status():
     if recording_sid:
         call_record.recording_sid = recording_sid
         call_record.recording_url = recording_url
-        call_record.recording_duration = int(recording_duration or 0)
-
+        raw_seconds = float(recording_duration or 0)
+        call_record.recording_duration = round(raw_seconds / 60, 2)
+        
     db.session.commit()
 
     free_agent(call_record.user_id)
@@ -162,10 +156,14 @@ def call_inbound():
 
         dial = Dial(callerId=from_number, 
                     record='record-from-answer-dual',
-                    action=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
-                    statusCallbackEvent="completed")
+                    )
         
-        client_noun = Client(f"customer_{customer_id}_user_{assigned_userId}")
+        client_noun = Client(f"customer_{customer_id}_user_{assigned_userId}",
+        status_callback=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
+        status_callback_event="completed",
+        status_callback_method="POST"
+        )
+        
         client_noun.parameter(name="from_number", value=from_number)
         client_noun.parameter(name="organization_name", value=organization_name if organization_name else "Unknown")
 
