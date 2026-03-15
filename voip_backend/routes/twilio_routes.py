@@ -94,7 +94,7 @@ def call_status():
     if not call_record:
         twilio_logger.error(
             "Call status callback: record not found call_sid=%s ip=%s path=%s",call_sid, request.remote_addr, request.path)
-        
+        return '', 204
     
     # Call ended, update record 
     call_record.status = status
@@ -106,7 +106,7 @@ def call_status():
         call_record.recording_duration = round(raw_seconds / 60, 2)
         
     db.session.commit()
-
+    
     free_agent(call_record.user_id)
     
     twilio_logger.info("Call status updated: call_sid=%s status=%s", call_sid, status)
@@ -122,14 +122,14 @@ def call_inbound():
     customer_id, customer_name = get_customer_id_by_phone(to_number)
     if not customer_id:
         resp = VoiceResponse()
-        resp.say("Company is not available", language='fi-FI')
+        resp.say("Company is currently unavailable", language='en-US')
         return str(resp)
     
     # Choose preferred agent based on last outbound call on incoming number "from_number" or availability
     assigned_userId, context_data = get_preferred_agent(customer_id, from_number)
 
-    calling_list_name = context_data.get('calling_list_name') if context_data else None,
-    contact_name = context_data.get('contact_name',"") if context_data else None,
+    calling_list_name = context_data.get('calling_list_name') if context_data else None
+    contact_name = context_data.get('contact_name',"") if context_data else None
     organization_name = context_data.get('organization_name') if context_data else None
 
 
@@ -159,9 +159,9 @@ def call_inbound():
                     )
         
         client_noun = Client(f"customer_{customer_id}_user_{assigned_userId}",
-        status_callback=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
-        status_callback_event="completed",
-        status_callback_method="POST"
+        statusCallback=f'{get_twilio_config()["FRONTEND_URL"]}/api/twilio/call-status',
+        statusCallbackEvent="completed",
+        statusCallbackMethod="POST"
         )
         
         client_noun.parameter(name="from_number", value=from_number)
@@ -174,12 +174,13 @@ def call_inbound():
         call_record.status = 'no-agent-available' 
         call_record.ended_at = datetime.now(timezone.utc)
         
-        resp.say("All operators are busy", language='en-EN')
+        resp.say("All operators are busy. Please call again later.", language='en-US')
         resp.hangup()
 
     db.session.commit()
 
-    twilio_logger.info("Inbound call received for call_sid=%s customer_id=%s assigned_userId=%s method=%s path=%s ip=%s", call_sid, customer_id, assigned_userId, request.method, request.path, request.remote_addr)
+    twilio_logger.info("Inbound call received for call_sid=%s customer_id=%s assigned_userId=%s method=%s path=%s ip=%s", 
+                       call_sid, customer_id, assigned_userId, request.method, request.path, request.remote_addr)
     return str(resp)
 
 
