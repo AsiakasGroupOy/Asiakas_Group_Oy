@@ -61,14 +61,15 @@ export default function ContactList() {
       {
         headerName: "Last Activity",
         field: "latest_call_log.call_timestamp",
-        filter: true,
+        filter: "agDateColumnFilter",
         valueGetter: (params) => {
-          const value = params.data.latest_call_log.call_timestamp;
-          if (!value) return "";
-          const date = dayjs(params.data.latest_call_log.call_timestamp).format(
-            "DD.MM.YYYY HH:mm",
-          );
-          return date;
+          const value = params.data.latest_call_log?.call_timestamp;
+          return value ? new Date(value) : null;
+        },
+        valueFormatter: (params) => {
+          return params.value
+            ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
+            : "";
         },
       },
       {
