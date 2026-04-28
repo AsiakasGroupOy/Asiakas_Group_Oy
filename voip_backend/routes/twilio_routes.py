@@ -102,8 +102,7 @@ def call_status():
     if recording_sid:
         call_record.recording_sid = recording_sid
         call_record.recording_url = recording_url
-        raw_seconds = float(recording_duration or 0)
-        call_record.recording_duration = round(raw_seconds / 60, 2)
+        call_record.recording_duration = int(recording_duration or 0)
         
     db.session.commit()
     

@@ -242,7 +242,7 @@ class TwilioCall(db.Model):
        
     recording_sid = db.Column(db.String(64), nullable=True)
     recording_url = db.Column(db.String(500), nullable=True)
-    recording_duration = db.Column(db.Float, nullable=True)
+    recording_duration = db.Column(db.Integer, nullable=True)
    
     __table_args__ = (
         db.Index('idx_calls_user_status', 'customer_id', 'to_number'),

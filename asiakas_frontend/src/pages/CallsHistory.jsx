@@ -68,24 +68,30 @@ export default function CallsHistory() {
       {
         headerName: "Started At",
         field: "started_at",
-        filter: true,
+        filter: "agDateColumnFilter",
         valueGetter: (params) => {
-          const value = params.data.started_at;
-          if (!value) return "";
-          const date = dayjs(params.data.started_at).format("DD.MM.YYYY HH:mm");
-          return date;
+          const value = params.data?.started_at;
+          return value ? new Date(value) : null;
+        },
+        valueFormatter: (params) => {
+          return params.value
+            ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
+            : "";
         },
       },
 
       {
         headerName: "Ended At",
         field: "ended_at",
-        filter: true,
+        filter: "agDateColumnFilter",
         valueGetter: (params) => {
-          const value = params.data.ended_at;
-          if (!value) return "";
-          const date = dayjs(params.data.ended_at).format("DD.MM.YYYY HH:mm");
-          return date;
+          const value = params.data?.ended_at;
+          return value ? new Date(value) : null;
+        },
+        valueFormatter: (params) => {
+          return params.value
+            ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
+            : "";
         },
       },
 
@@ -101,7 +107,7 @@ export default function CallsHistory() {
         field: "recording_sid",
       },
     ],
-    []
+    [],
   );
 
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function CallsHistory() {
         customersList.data.map((c) => ({
           customer_id: c.customer_id,
           customer_name: c.customer_name,
-        }))
+        })),
       );
     } else {
       setCustomersOptions([]);
@@ -147,7 +153,7 @@ export default function CallsHistory() {
   const getCallsHistoryOnCustomer = async (customer_name) => {
     setSelectedCustomer(customer_name);
     const findCustomerId = customersOptions.find(
-      (c) => c.customer_name === customer_name
+      (c) => c.customer_name === customer_name,
     );
 
     const response = await fetchCallsHistory(findCustomerId.customer_id);
