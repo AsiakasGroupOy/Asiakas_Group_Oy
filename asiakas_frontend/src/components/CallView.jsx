@@ -40,7 +40,7 @@ export default function CallView() {
   const location = useLocation();
 
   const [currentConcalId, setCurrentConcalId] = useState(
-    location.state?.id || null
+    location.state?.id || null,
   );
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function CallView() {
     let currentContact;
     if (currentConcalId) {
       currentContact = filteredContacts.find(
-        (c) => String(c.concal.concal_id) === String(currentConcalId)
+        (c) => String(c.concal.concal_id) === String(currentConcalId),
       );
     } else {
       currentContact = filteredContacts[0]; // Default to the first contact if no id is provided
@@ -90,12 +90,13 @@ export default function CallView() {
 
     const filteredByCompany = filteredContacts.filter(
       (c) =>
-        c.contact.organization_name === currentContact.contact.organization_name
+        c.contact.organization_name ===
+        currentContact.contact.organization_name,
     );
 
     const startIdx = filteredByCompany.findIndex(
       (c) =>
-        String(c.concal.concal_id) === String(currentContact.concal.concal_id)
+        String(c.concal.concal_id) === String(currentContact.concal.concal_id),
     );
 
     const orgNames = [
@@ -105,7 +106,7 @@ export default function CallView() {
     setFilteredOrgNames(orgNames);
 
     const startOrgIdx = orgNames.findIndex(
-      (c) => c === currentContact.contact.organization_name
+      (c) => c === currentContact.contact.organization_name,
     );
 
     setCurrentOrgIndex(startOrgIdx >= 0 ? startOrgIdx : 0);
@@ -150,7 +151,7 @@ export default function CallView() {
   let companyMatch = filteredContacts.filter((c) =>
     c.contact.organization_name
       .toLowerCase()
-      .includes(companySearch.trim().toLowerCase())
+      .includes(companySearch.trim().toLowerCase()),
   );
 
   // If no matches, use the currentContact as the only result (if it exists)
@@ -190,10 +191,12 @@ export default function CallView() {
     }
   }, [contact]);
 
-  const addNewStatus = async (status) => {
+  const addNewStatus = async ({ status, scheduledCall = null }) => {
     const ccl_id = contact.concal.concal_id;
-    const newStatus = status;
-    const dataStatus = await addStatus(ccl_id, newStatus);
+    const dataStatus = await addStatus(ccl_id, {
+      status,
+      scheduledCall,
+    });
     if (dataStatus.status === "success") {
       setCurrentConcalId(ccl_id);
       const data = await fetchByNavIdFromConCallingList(ccl_id);

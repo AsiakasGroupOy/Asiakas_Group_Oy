@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify,g
 from extensions import db
 from models.models import CallLog, ContactCallingList, CallStatus
@@ -19,10 +21,13 @@ def create_call_log(concal_id):
     
     data = request.get_json()
     status = data.get('status')
-
+    raw_scheduled_call = data.get('scheduled_call')
+    
     if status:
          status = CallStatus(status)
-        
+
+    scheduled_call = datetime.fromisoformat(raw_scheduled_call.replace("Z", "+00:00")) if raw_scheduled_call else None  # Convert 'Z' to '+00:00' for UTC timezone
+
     concal = ContactCallingList.query.get(concal_id) #Return row if exists, else None
     if not concal:
         app_logger.warning(
@@ -34,6 +39,7 @@ def create_call_log(concal_id):
     new_log = CallLog (
         concal_id=concal_id,
         status=status,
+        scheduled_call=scheduled_call
     )
     db.session.add(new_log)
     db.session.commit()

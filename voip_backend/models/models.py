@@ -84,6 +84,7 @@ class CallLog(db.Model):
     call_id = db.Column(db.Integer, primary_key=True)
     concal_id = db.Column(db.Integer, db.ForeignKey('contact_calling_list.concal_id', ondelete="CASCADE"), nullable=False)
     status = db.Column(db.Enum(CallStatus), nullable=False)
+    scheduled_call = db.Column(db.DateTime(timezone=True), nullable=True)
     call_timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     
     __table_args__ = (db.Index('idx_timestamp', 'call_timestamp'),)

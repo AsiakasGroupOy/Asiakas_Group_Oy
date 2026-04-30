@@ -16,6 +16,7 @@ import {
 import ListIcon from "@mui/icons-material/List";
 import { useAuth } from "../components/users_components/AuthContext.jsx";
 import { fetchCustomersList } from "../services/customersApi.js";
+import { dateOnlyComparator } from "../services/dateComparator.js";
 
 export default function CallsHistory() {
   const [callsHistory, setCallsHistory] = useState([]);
@@ -78,6 +79,10 @@ export default function CallsHistory() {
             ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
             : "";
         },
+        filterParams: {
+          comparator: dateOnlyComparator,
+          buttons: ["reset"],
+        },
       },
 
       {
@@ -92,6 +97,10 @@ export default function CallsHistory() {
           return params.value
             ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
             : "";
+        },
+        filterParams: {
+          comparator: dateOnlyComparator,
+          buttons: ["reset"],
         },
       },
 

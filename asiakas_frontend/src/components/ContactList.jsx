@@ -28,6 +28,7 @@ import theme from "../theme";
 import AddNewContact from "./AddNewContact";
 import { useAuth } from "./users_components/AuthContext.jsx";
 import AlertMessage from "./AlertMessage";
+import { dateOnlyComparator } from "../services/dateComparator.js";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -64,6 +65,24 @@ export default function ContactList() {
         filter: "agDateColumnFilter",
         valueGetter: (params) => {
           const value = params.data.latest_call_log?.call_timestamp;
+          return value ? new Date(value) : null;
+        },
+        valueFormatter: (params) => {
+          return params.value
+            ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
+            : "";
+        },
+        filterParams: {
+          comparator: dateOnlyComparator,
+          buttons: ["reset"],
+        },
+      },
+      {
+        headerName: "Latest Scheduled Call",
+        field: "latest_call_log.latest_scheduled_call",
+        filter: "agDateColumnFilter",
+        valueGetter: (params) => {
+          const value = params.data.latest_call_log?.latest_scheduled_call;
           return value ? new Date(value) : null;
         },
         valueFormatter: (params) => {
@@ -117,7 +136,7 @@ export default function ContactList() {
 
   const handleSelectedRows = () => {
     const handleSelected = gridRef.current.getSelectedRows();
-    console.log("Selected rows:", handleSelected);
+
     setSelectedRows(handleSelected);
   };
 
