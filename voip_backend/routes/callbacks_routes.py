@@ -31,6 +31,6 @@ def get_calls_history():
     calls = (TwilioCall.query
              .filter_by(customer_id=customer_id)
              .order_by(TwilioCall.started_at.desc())
-             .limit(100)).all()
+             .limit(1000)).all()
     return jsonify(callbacks_schema.dump(calls)), 200
 

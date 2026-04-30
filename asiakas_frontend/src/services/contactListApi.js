@@ -3,7 +3,7 @@ import { apiFetch, secureApiFetch } from "./apiFetch.js";
 //Fetching data from the backend API for CallView activated by Navigation tab, first contact in the contact_calling_list will be shown.
 export const fetchByFirstFromConCallingList = async () => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/first`
+    `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/first`,
   );
 };
 
@@ -12,7 +12,7 @@ export const fetchByNavIdFromConCallingList = async (concallIdFromNav) => {
   return await secureApiFetch(
     `${
       import.meta.env.VITE_BACKEND_URL
-    }/api/concalllist/${concallIdFromNav}/navid`
+    }/api/concalllist/${concallIdFromNav}/navid`,
   );
 };
 
@@ -21,7 +21,7 @@ export const fetchByCallingListName = async (callingListName) => {
   return await secureApiFetch(
     `${
       import.meta.env.VITE_BACKEND_URL
-    }/api/concalllist/${callingListName}/calllistname`
+    }/api/concalllist/${callingListName}/calllistname`,
   );
 };
 
@@ -33,7 +33,7 @@ export const addContact = async (newContact) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newContact),
-    }
+    },
   );
 };
 
@@ -46,28 +46,28 @@ export const uploadContactsFile = async (file, mapping, callingList) => {
 
   return await secureApiFetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/contacts/upload_contacts`,
-    { method: "POST", body: formData }
+    { method: "POST", body: formData },
   );
 };
 
 // Fetching all organizations names for add contact form
 export const fetchOrganizations = async () => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/organizations/all`
+    `${import.meta.env.VITE_BACKEND_URL}/api/organizations/all`,
   );
 };
 
 // Fetching all calling lists names for add contact form
 export const fetchCallLists = async () => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/callinglist/all`
+    `${import.meta.env.VITE_BACKEND_URL}/api/callinglist/all`,
   );
 };
 
 //Fetching data for Contact list view with the last call status on contact_calling_list id
 export const fullContactsCallLists = async () => {
   return await secureApiFetch(
-    `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/all`
+    `${import.meta.env.VITE_BACKEND_URL}/api/concalllist/all`,
   );
 };
 
@@ -79,7 +79,7 @@ export const removeContactsCallLists = async (contactIds) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(contactIds),
-    }
+    },
   );
 };
 
@@ -90,19 +90,21 @@ export const addNote = async (ccl_id, noteValue) => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ note: noteValue }),
-    }
+    },
   );
 };
 
-// Add call status to contact_calling_list entry
-export const addStatus = async (ccl_id, newStatus) => {
+// Add call status to contact_calling_list entry, if scheduledCall is provided, it will be added as a scheduled call status with the provided date and time.
+export const addStatus = async (ccl_id, data) => {
+  const { status, scheduledCall = null } = data;
+
   return await apiFetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/calllogs/${ccl_id}/status`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    }
+      body: JSON.stringify({ status, scheduled_call: scheduledCall }),
+    },
   );
 };
 
@@ -113,6 +115,6 @@ export const editContact = async (toEdit) => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(toEdit),
-    }
+    },
   );
 };

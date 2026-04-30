@@ -17,19 +17,36 @@ import EventBusyOutlinedIcon from "@mui/icons-material/EventBusyOutlined";
 import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import PhoneDisabledIcon from "@mui/icons-material/PhoneDisabled";
+import ScheduledCallCalendar from "./ScheduledCallCalendar.jsx";
 
 export default function StatusesCallView({ addNewStatus, statusList }) {
   const statuses = statusList || []; // Ensure statusList is an array
   const totalStatuses = statuses.length;
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  console.log("StatusesCallView rendered with statuses:", statuses);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleAddStatus = (status) => {
-    addNewStatus(status);
+    addNewStatus({ status: status });
     setAnchorEl(null);
+  };
+
+  const handleCalendarOpen = () => {
+    setCalendarOpen(true);
+    setAnchorEl(null);
+  };
+
+  const handleSaveScheduledCall = async (utcDateTime) => {
+    addNewStatus({
+      status: "Scheduled Call",
+      scheduledCall: utcDateTime,
+    });
+
+    setCalendarOpen(false);
   };
 
   return (
@@ -80,7 +97,7 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
             />
             Open
           </MenuItem>
-          <MenuItem onClick={() => handleAddStatus("Scheduled Call")}>
+          <MenuItem onClick={() => handleCalendarOpen()}>
             <EventOutlinedIcon
               sx={{ color: "#08205e", fontSize: 20, marginRight: 1 }}
             />
@@ -100,7 +117,11 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
           </MenuItem>
         </Menu>
       </Stack>
-
+      <ScheduledCallCalendar
+        open={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+        onSave={handleSaveScheduledCall}
+      />
       <List width="100%" sx={{ overflowY: "auto", maxHeight: 300 }}>
         {statuses.map((status, index) => (
           <ListItem
@@ -144,7 +165,13 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
                 direction="row"
                 justifyContent="space-between"
               >
-                <Typography>{status.status}</Typography>
+                <Typography>
+                  {status.status === "Scheduled Call" && status.scheduled_call
+                    ? `Scheduled Call (${dayjs(status.scheduled_call).format(
+                        "DD.MM.YYYY HH:mm",
+                      )})`
+                    : status.status}
+                </Typography>
                 <Typography>
                   {dayjs(status.call_timestamp).format("HH:mm")}
                 </Typography>

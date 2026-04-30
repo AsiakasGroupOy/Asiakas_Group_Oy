@@ -46,6 +46,7 @@ def get_contact_calling_list_By_firstCCLId():
             CallingList.calling_list_id,
             CallingList.calling_list_name,
             CallLog.status,
+            CallLog.scheduled_call,
             CallLog.call_timestamp
      )
         .select_from(ContactCallingList)
@@ -95,6 +96,7 @@ def get_contact_calling_list_By_firstCCLId():
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
                 "status": row.status.value if row.status else None,
+                "scheduled_call": row.scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.scheduled_call else None,
                 "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
@@ -133,6 +135,7 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
             CallingList.calling_list_id,
             CallingList.calling_list_name,
             CallLog.status,
+            CallLog.scheduled_call,
             CallLog.call_timestamp
         )
         .select_from(ContactCallingList)
@@ -182,6 +185,7 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
                 "status": row.status.value if row.status else None,
+                "scheduled_call": row.scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.scheduled_call else None,
                 "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
@@ -219,6 +223,7 @@ def get_contact_calling_list_By_CallingListName(name):
             CallingList.calling_list_id,
             CallingList.calling_list_name,
             CallLog.status,
+            CallLog.scheduled_call,
             CallLog.call_timestamp
         )
         .select_from(ContactCallingList)
@@ -268,6 +273,7 @@ def get_contact_calling_list_By_CallingListName(name):
         if row.call_timestamp:
             data[seen[concal_id]]["call_log"].append({
                 "status": row.status.value if row.status else None,
+                "scheduled_call": row.scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.scheduled_call else None,
                 "call_timestamp": row.call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
             })
     for item in data:
@@ -304,7 +310,18 @@ def get_contact_calling_list_full():
     )
   
     LatestLog = aliased(log_ranked)
-    
+
+     # Subquery to get the scheduled call value if exists
+    scheduled_call_subq = (
+    db.session.query(
+            CallLog.concal_id,
+            func.max(CallLog.scheduled_call).label('latest_scheduled_call'),
+           )
+    .filter(CallLog.scheduled_call.isnot(None))
+    .group_by(CallLog.concal_id)
+    .subquery()
+    )
+
     # Main query: join all tables and latest call log
     results = (
         db.session.query(
@@ -319,7 +336,8 @@ def get_contact_calling_list_full():
             CallingList.calling_list_name,
             LatestLog.c.status.label('latest_status'),
             LatestLog.c.call_timestamp.label('latest_call_timestamp'),
-            call_count_subq.c.call_count.label("call_count")
+            call_count_subq.c.call_count.label("call_count"),
+            scheduled_call_subq.c.latest_scheduled_call.label('latest_scheduled_call')
         )
         .select_from(ContactCallingList).filter(ContactCallingList.customer_id == g.customer_id)
         .join(ContactList, ContactCallingList.contact_id == ContactList.contact_id)
@@ -327,6 +345,7 @@ def get_contact_calling_list_full():
         .join(Organization, ContactList.organization_id == Organization.organization_id)
         .outerjoin(LatestLog, (ContactCallingList.concal_id == LatestLog.c.concal_id) & (LatestLog.c.rn == 1))
         .outerjoin(call_count_subq, ContactCallingList.concal_id == call_count_subq.c.concal_id)
+        .outerjoin(scheduled_call_subq, ContactCallingList.concal_id == scheduled_call_subq.c.concal_id)
         .order_by(CallingList.calling_list_name.asc(),
                   Organization.organization_name.asc(),)
         .all()
@@ -354,7 +373,8 @@ def get_contact_calling_list_full():
             "latest_call_log": {
                 "status": row.latest_status.value if row.latest_status else None,
                 "call_timestamp": row.latest_call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_call_timestamp else None,
-                "call_count": row.call_count if row.call_count else None
+                "call_count": row.call_count if row.call_count else None,
+                "latest_scheduled_call": row.latest_scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_scheduled_call else None
             }
         })
     

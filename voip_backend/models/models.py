@@ -84,6 +84,7 @@ class CallLog(db.Model):
     call_id = db.Column(db.Integer, primary_key=True)
     concal_id = db.Column(db.Integer, db.ForeignKey('contact_calling_list.concal_id', ondelete="CASCADE"), nullable=False)
     status = db.Column(db.Enum(CallStatus), nullable=False)
+    scheduled_call = db.Column(db.DateTime(timezone=True), nullable=True)
     call_timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     
     __table_args__ = (db.Index('idx_timestamp', 'call_timestamp'),)
@@ -242,7 +243,7 @@ class TwilioCall(db.Model):
        
     recording_sid = db.Column(db.String(64), nullable=True)
     recording_url = db.Column(db.String(500), nullable=True)
-    recording_duration = db.Column(db.Float, nullable=True)
+    recording_duration = db.Column(db.Integer, nullable=True)
    
     __table_args__ = (
         db.Index('idx_calls_user_status', 'customer_id', 'to_number'),
