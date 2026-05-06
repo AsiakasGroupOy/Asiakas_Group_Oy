@@ -5,10 +5,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    hmr: {
+    /*hmr: {
       clientPort: 443,
       port: 5173,
-    },
+    },*/
     host: true,
     allowedHosts: ["bradytelic-derek-gloopily.ngrok-free.dev", "localhost"],
     proxy: {
