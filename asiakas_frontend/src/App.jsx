@@ -6,12 +6,14 @@ import {
   Typography,
   Box,
   IconButton,
+  Button,
 } from "@mui/material";
 import "./App.css";
 import NavigationTabs from "./components/NavigationTabs";
 import { useAuth } from "./components/users_components/AuthContext.jsx";
 import { Outlet } from "react-router-dom";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import LanguageSwitcherButtons from "./components/LanguageSwitcherButtons";
 
 function App() {
   const { isAuthenticated, role, logout } = useAuth();
@@ -51,7 +53,7 @@ function App() {
                 }}
               >
                 <NavigationTabs role={role} sx={{ alignSelf: "flex-end" }} />
-
+                <LanguageSwitcherButtons />
                 <IconButton onClick={logout}>
                   <LogoutOutlinedIcon
                     sx={{ color: "#fbfbfbff", marginLeft: "25px" }}

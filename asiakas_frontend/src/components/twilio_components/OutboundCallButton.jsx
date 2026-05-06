@@ -1,10 +1,11 @@
 import { useTwilio } from "./TwilioContext.jsx";
 import CallIcon from "@mui/icons-material/Call";
 import { Button } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export default function OutboundCallButton({ callData }) {
   const { makeCall, twilioStatus, hangup, activeCall } = useTwilio();
-
+  const { t } = useTranslation();
   if (!callData?.to_number) {
     console.log("No phone number in callData:", callData);
     return <div>NO phone number</div>;
@@ -26,10 +27,10 @@ export default function OutboundCallButton({ callData }) {
   };
 
   const buttonText = activeCall
-    ? `Hang Up ${callData.to_number}`
+    ? `${t("twilioCallButton.hangUp")} ${callData.to_number}`
     : twilioStatus === "ready"
-    ? `Call ${callData.to_number}`
-    : "Device not ready";
+      ? `${t("twilioCallButton.call")} ${callData.to_number}`
+      : t("twilioCallButton.deviceNotReady");
 
   const callIcon = activeCall ? (
     <CallIcon sx={{ color: "red" }} />

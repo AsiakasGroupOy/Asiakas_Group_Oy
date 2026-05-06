@@ -6,11 +6,13 @@ import utc from "dayjs/plugin/utc";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDateTimePicker } from "@mui/x-date-pickers/DesktopDateTimePicker";
 import { Dialog, DialogActions, Button } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 dayjs.extend(utc);
 
 export default function ScheduledCallCalendar({ open, onClose, onSave }) {
   const [scheduledCallValue, setScheduledCallValue] = useState(null);
+  const { t, i18n } = useTranslation();
 
   const handleSave = () => {
     const utcDateTime = scheduledCallValue.toISOString();
@@ -35,7 +37,10 @@ export default function ScheduledCallCalendar({ open, onClose, onSave }) {
           gap: 1,
         }}
       >
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fi">
+        <LocalizationProvider
+          dateAdapter={AdapterDayjs}
+          adapterLocale={i18n.language}
+        >
           <DesktopDateTimePicker
             viewRenderers={{
               hours: null,
@@ -56,7 +61,7 @@ export default function ScheduledCallCalendar({ open, onClose, onSave }) {
           }}
         >
           <Button onClick={onClose} color="warning" variant="contained">
-            Cancel
+            {t("scheduledCallCalendar.cancel")}
           </Button>
 
           <Button
@@ -65,7 +70,7 @@ export default function ScheduledCallCalendar({ open, onClose, onSave }) {
             color="dustblue"
             autoFocus
           >
-            Save
+            {t("scheduledCallCalendar.save")}
           </Button>
         </div>
       </DialogActions>

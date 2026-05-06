@@ -29,11 +29,13 @@ import AddNewContact from "./AddNewContact";
 import { useAuth } from "./users_components/AuthContext.jsx";
 import AlertMessage from "./AlertMessage";
 import { dateOnlyComparator } from "../services/dateComparator.js";
+import { useTranslation } from "react-i18next";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ContactList() {
   const [contactList, setContactList] = useState();
+  const { t } = useTranslation();
   const { role } = useAuth();
   const columnDefs = useMemo(
     () => [
@@ -257,7 +259,7 @@ export default function ContactList() {
       >
         <Groups2RoundedIcon sx={{ color: "#08205e" }} />
         <Typography variant="h6" sx={{ color: "#08205e" }}>
-          Contact list
+          {t("contactList.pageTitle")}
         </Typography>
       </div>
 
@@ -283,7 +285,7 @@ export default function ContactList() {
               startIcon={<FontAwesomeIcon icon={faTrashCan} />}
               onClick={handleDelete}
             >
-              Delete
+              {t("contactList.deleteButton")}
             </Button>
             <Button
               variant="contained"
@@ -291,7 +293,7 @@ export default function ContactList() {
               startIcon={<FontAwesomeIcon icon={faFileExport} />}
               onClick={exportToCsv}
             >
-              Export to Excel
+              {t("contactList.exportButton")}
             </Button>
           </ThemeProvider>
         </div>
@@ -324,7 +326,9 @@ export default function ContactList() {
                 disableRipple
                 sx={{ fontWeight: "bold" }}
               >
-                {areAllColumnsVisible ? "Deselect All" : "Select All"}
+                {areAllColumnsVisible
+                  ? `${t("contactList.columnMenuDeselectAll")}`
+                  : `${t("contactList.columnMenuSelectAll")}`}
               </MenuItem>
               <Divider />
               {columnDefs.map((col) => (

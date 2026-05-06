@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const NavigationTabs = ({ role }) => {
   const location = useLocation();
   const path = location.pathname;
+  const { t } = useTranslation();
 
   const getTabValue = () => {
     if (path === "/contactlist") return "/contactlist";
@@ -39,20 +41,20 @@ const NavigationTabs = ({ role }) => {
       }}
     >
       <Tab
-        label="Contact list"
+        label={t("navigationTabs.contactList")}
         value="/contactlist"
         component={Link}
         to="/contactlist"
       />
       <Tab
-        label="Call view"
+        label={t("navigationTabs.callView")}
         value="/callview"
         component={Link}
         to="/callview"
       />
       {["Manager", "Admin Access", "App Admin"].includes(role) && (
         <Tab
-          label="Import contacts"
+          label={t("navigationTabs.importContacts")}
           value="/import"
           component={Link}
           to="/import"
@@ -60,7 +62,7 @@ const NavigationTabs = ({ role }) => {
       )}
       {["Admin Access", "App Admin"].includes(role) && (
         <Tab
-          label="Settings"
+          label={t("navigationTabs.settings")}
           value="/settings"
           component={Link}
           to="/settings"
@@ -76,7 +78,7 @@ const NavigationTabs = ({ role }) => {
       )}
       {["Manager", "Admin Access", "App Admin"].includes(role) && (
         <Tab
-          label="Calls History"
+          label={t("navigationTabs.callsHistory")}
           value="/calls-history"
           component={Link}
           to="/calls-history"

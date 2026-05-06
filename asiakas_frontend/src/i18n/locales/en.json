@@ -1,0 +1,73 @@
+{
+  "addNewContact": {
+    "addButton": "Add New Contact",
+    "dialogTitle": "Add New Contact",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "jobTitle": "Job Title",
+    "phone": "Phone",
+    "email": "Email Address",
+    "note": "Note",
+    "organization": "Organization",
+    "website": "Website if organization is new",
+    "callingList": "Calling List",
+    "cancel": "Cancel",
+    "save": "Save contact"
+  },
+
+  "navigationTabs": {
+    "contactList": "Contact List",
+    "callView": "Call View",
+    "importContacts": "Import Contacts",
+    "settings": "Settings",
+    "callsHistory": "Call History"
+  },
+
+  "callView": {
+    "pageTitle": "Call View",
+    "searchCompanyPlaceholder": "Search Company",
+    "searchCallListPlaceholder": "Search Call List",
+    "searchAreaButtonPrevious": "Previous",
+    "searchAreaButtonNext": "Next",
+    "searchAreaCompanyIndex": "Company",
+    "contactNamePlaceholder": "Name",
+    "contactLastNamePlaceholder": "Surname",
+    "contactJobTitlePlaceholder": "Job Title",
+    "contactPhonePlaceholder": "Phone",
+    "contactEmailPlaceholder": "Email",
+    "contactWebPlaceholder": "Website",
+    "contactNotePlaceholder": "Notes",
+    "contactAreaButtonPrevious": "Previous",
+    "contactAreaButtonNext": "Next",
+    "contactNotFound": "No contact found"
+  },
+    "twilioCallButton": {
+    "call": "Call",
+    "hangUp": "Hang Up",
+    "deviceNotReady": "Device not ready"
+   },
+
+   "callStatusArea": {
+    "callActivity": "Call Activity",
+    "addCallStatusTitle": "Add Call Status",
+    "meetingScheduled": "Meeting Scheduled",
+    "open": "Open",
+    "scheduledCall": "Scheduled Call",
+    "notInterested": "Not Interested",
+    "noAnswer": "No Answer"
+   },
+   "scheduledCallCalendar": {
+    "cancel": "Cancel",
+    "save": "Save"
+   },
+
+  "contactList": {
+    "pageTitle": "Contact List",
+    "deleteButton": "Delete",
+    "exportButton": "Export to Excel",
+    "columnMenuSelectAll": "Select All",
+    "columnMenuDeselectAll": "Deselect All"
+    
+  }   
+
+}
