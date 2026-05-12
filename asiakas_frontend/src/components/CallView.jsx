@@ -26,8 +26,10 @@ import StatusesCallView from "./StatusesCallView";
 import EditContact from "./EditContact.jsx";
 import AlertMessage from "./AlertMessage.jsx";
 import OutboundCallButton from "./twilio_components/OutboundCallButton.jsx";
+import { useTranslation } from "react-i18next";
 
 export default function CallView() {
+  const { t } = useTranslation();
   const [currentOrgIndex, setCurrentOrgIndex] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [companySearch, setCompanySearch] = useState("");
@@ -247,7 +249,7 @@ export default function CallView() {
             sx={{ color: "#08205e", fontSize: 22, marginRight: 1 }}
           />
           <Typography sx={{ color: "#08205e", fontSize: 20, fontWeight: 400 }}>
-            Call View
+            {t("callView.pageTitle")}
           </Typography>
         </Box>
         <Box sx={{ minWidth: 800, overflow: "auto" }}>
@@ -287,7 +289,7 @@ export default function CallView() {
 
               <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                 <TextField
-                  label="Search Company"
+                  label={t("callView.searchCompanyPlaceholder")}
                   value={companySearch}
                   onChange={(e) => setCompanySearch(e.target.value)}
                   size="small"
@@ -295,11 +297,11 @@ export default function CallView() {
                 />
                 <FormControl size="small" sx={{ width: "100%" }}>
                   <InputLabel id="calllist-label" shrink>
-                    Search Call list
+                    {t("callView.searchCallListPlaceholder")}
                   </InputLabel>
                   <Select
                     labelId="calllist-label"
-                    label="Search Call List"
+                    label={t("callView.searchCallListPlaceholder")}
                     value={
                       callListOptions.includes(callListSearch)
                         ? callListSearch
@@ -338,14 +340,14 @@ export default function CallView() {
                 onClick={() => goToOrganization(currentOrgIndex - 1)}
                 disabled={currentOrgIndex <= 0}
               >
-                Previous
+                {t("callView.searchAreaButtonPrevious")}
               </Button>
               <Typography
                 variant="subtitle"
                 sx={{ color: "#08205e", alignSelf: "center" }}
               >
                 {filteredOrgNames.length > 1 &&
-                  `Company ${currentOrgIndex + 1} of ${
+                  `${t("callView.searchAreaCompanyIndex")} ${currentOrgIndex + 1} of ${
                     filteredOrgNames.length
                   }`}
               </Typography>
@@ -355,7 +357,7 @@ export default function CallView() {
                 onClick={() => goToOrganization(currentOrgIndex + 1)}
                 disabled={currentOrgIndex >= filteredOrgNames.length - 1}
               >
-                Next
+                {t("callView.searchAreaButtonNext")}
               </Button>
             </Box>
 
@@ -396,13 +398,13 @@ export default function CallView() {
                     <Stack spacing={{ xs: 1, sm: 2, md: 2 }} width={"100%"}>
                       <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                         <TextField
-                          label="Name"
+                          label={t("callView.contactNamePlaceholder")}
                           value={contact.contact.first_name || ""}
                           size="small"
                           sx={{ width: "50%" }}
                         />
                         <TextField
-                          label="Surname"
+                          label={t("callView.contactLastNamePlaceholder")}
                           value={contact.contact.last_name || ""}
                           size="small"
                           sx={{ width: "50%" }}
@@ -410,13 +412,13 @@ export default function CallView() {
                       </Stack>
                       <Stack spacing={{ xs: 1, sm: 2, md: 2 }} direction="row">
                         <TextField
-                          label="Job Title"
+                          label={t("callView.contactJobTitlePlaceholder")}
                           value={contact.contact.job_title || ""}
                           size="small"
                           sx={{ width: "50%" }}
                         />
                         <TextField
-                          label="Phone"
+                          label={t("callView.contactPhonePlaceholder")}
                           value={contact.contact.phone}
                           size="small"
                           sx={{ width: "50%" }}
@@ -424,13 +426,13 @@ export default function CallView() {
                       </Stack>
                       <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
                         <TextField
-                          label="Email"
+                          label={t("callView.contactEmailPlaceholder")}
                           value={contact.contact.email || ""}
                           size="small"
                           sx={{ width: "100%" }}
                         />
                         <TextField
-                          label="Website"
+                          label={t("callView.contactWebPlaceholder")}
                           value={contact.contact.website || ""}
                           size="small"
                           sx={{ width: "100%" }}
@@ -441,7 +443,7 @@ export default function CallView() {
                     <Stack spacing={{ xs: 1, sm: 2 }} width="100%">
                       <TextField
                         id="outlined-multiline-static"
-                        label="Notes"
+                        label={t("callView.contactNotePlaceholder")}
                         multiline
                         rows={9}
                         value={noteValue}
@@ -479,7 +481,7 @@ export default function CallView() {
                     onClick={() => goToContact(currentIndex - 1)}
                     disabled={currentIndex <= 0}
                   >
-                    Previous
+                    {t("callView.contactAreaButtonPrevious")}
                   </Button>
                   <Typography
                     variant="subtitle"
@@ -494,14 +496,14 @@ export default function CallView() {
                     onClick={() => goToContact(currentIndex + 1)}
                     disabled={currentIndex >= activeContacts.length - 1}
                   >
-                    Next
+                    {t("callView.contactAreaButtonNext")}
                   </Button>
                 </ThemeProvider>
               </Box>
             </Box>
           </>
         ) : (
-          <Typography sx={{ p: 4 }}>No contact found.</Typography>
+          <Typography sx={{ p: 4 }}>{t("callView.contactNotFound")}</Typography>
         )}
       </ThemeProvider>
     </>

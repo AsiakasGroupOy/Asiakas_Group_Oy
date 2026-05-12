@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
+import i18n from "./i18n/i18n.js";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ContactList from "./components/ContactList.jsx";
 import CallView from "./components/CallView.jsx";
@@ -107,5 +108,5 @@ createRoot(document.getElementById("root")).render(
         <RouterProvider router={router} />
       </TwilioProvider>
     </AuthProvider>
-  </StrictMode>
+  </StrictMode>,
 );

@@ -1,0 +1,68 @@
+{
+  "addNewContact": {
+    "addButton": "Lisää uusi kontakti",
+    "dialogTitle": "Lisää uusi kontakti",
+    "firstName": "Etunimi",
+    "lastName": "Sukunimi",
+    "jobTitle": "Tehtävänimike",
+    "phone": "Puhelin",
+    "email": "Sähköposti",
+    "note": "Muistiinpano",
+    "organization": "Organisaatio",
+    "website": "Verkkosivusto (jos uusi organisaatio)",
+    "callingList": "Soittolista",
+    "cancel": "Peruuta",
+    "save": "Tallenna kontakti"
+  },
+   "navigationTabs": {
+    "contactList": "Kontaktit",
+    "callView": "Soitto näkymä",
+    "importContacts": "Tuo kontakteja",
+    "settings": "Asetukset",
+    "callsHistory": "Puheluhistoria"
+   },
+    "callView": {
+    "pageTitle": "Soitto näkymä",
+    "searchCompanyPlaceholder": "Organisaatio nimi",
+    "searchCallListPlaceholder": "Soittolista",
+    "searchAreaButtonPrevious": "Edellinen",
+    "searchAreaButtonNext": "Seuraava",
+    "searchAreaCompanyIndex": "Organisaatio",
+    "contactNamePlaceholder": "Etunimi",
+    "contactLastNamePlaceholder": "Sukunimi",
+    "contactJobTitlePlaceholder": "Titteli",
+    "contactPhonePlaceholder": "Puhelinnumero",
+    "contactEmailPlaceholder": "Sähköposti",
+    "contactWebPlaceholder": "Linkki verkkosivulle",
+    "contactNotePlaceholder": "Muistiinpano",
+    "contactAreaButtonPrevious": "Edellinen",
+    "contactAreaButtonNext": "Seuraava",
+    "contactNotFound": "Kontaktia ei löydy"
+  },
+  "twilioCallButton": {
+    "call": "Soita",
+    "hangUp": "Lopeta puhelu",
+    "deviceNotReady": "Laite ei ole valmis"
+   },
+   "callStatusArea": {
+    "callActivity": "Tapahtumat",
+    "addCallStatusTitle": "Lisää tapahtuma",
+    "meetingScheduled": "Tapaaminen sovittu",
+    "open": "Avoin",
+    "scheduledCall": "Ajastettu puhelu",
+    "notInterested": "Ei kiinnostusta",
+    "noAnswer": "Ei vastausta"
+   },
+   "scheduledCallCalendar": {
+    "cancel": "Peruuta",
+    "save": "Tallenna"
+   },
+   "contactList": {
+    "pageTitle": "Kontaktit",
+    "deleteButton": "Poista",
+    "exportButton": "Vie Exceliin",
+    "columnMenuSelectAll": "Valitse kaikki",
+    "columnMenuDeselectAll": "Poista valinnat"
+   }
+
+}

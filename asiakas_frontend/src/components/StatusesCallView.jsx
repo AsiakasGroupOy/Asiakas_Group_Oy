@@ -18,6 +18,7 @@ import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlin
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import PhoneDisabledIcon from "@mui/icons-material/PhoneDisabled";
 import ScheduledCallCalendar from "./ScheduledCallCalendar.jsx";
+import { useTranslation } from "react-i18next";
 
 export default function StatusesCallView({ addNewStatus, statusList }) {
   const statuses = statusList || []; // Ensure statusList is an array
@@ -25,7 +26,8 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  console.log("StatusesCallView rendered with statuses:", statuses);
+  const { t, i18n } = useTranslation();
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -58,7 +60,8 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
         alignItems="center"
       >
         <Typography variant="h10">
-          Call Activity{totalStatuses > 0 ? `: ${totalStatuses}` : ""}
+          {t("callStatusArea.callActivity")}
+          {totalStatuses > 0 ? `: ${totalStatuses}` : ""}
         </Typography>
 
         <IconButton
@@ -69,7 +72,7 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
         >
-          Add Call Status
+          {t("callStatusArea.addCallStatusTitle")}
           <AddIcon sx={{ color: "#08205e", fontSize: 15, marginLeft: 1 }} />
         </IconButton>
 
@@ -89,31 +92,31 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
             <EventAvailableOutlinedIcon
               sx={{ color: "#214f19", fontSize: 20, marginRight: 1 }}
             />
-            Meeting Scheduled
+            {t("callStatusArea.meetingScheduled")}
           </MenuItem>
           <MenuItem onClick={() => handleAddStatus("Open")}>
             <EventRepeatOutlinedIcon
               sx={{ color: "#08205e", fontSize: 20, marginRight: 1 }}
             />
-            Open
+            {t("callStatusArea.open")}
           </MenuItem>
           <MenuItem onClick={() => handleCalendarOpen()}>
             <EventOutlinedIcon
               sx={{ color: "#08205e", fontSize: 20, marginRight: 1 }}
             />
-            Scheduled Call
+            {t("callStatusArea.scheduledCall")}
           </MenuItem>
           <MenuItem onClick={() => handleAddStatus("Not Interested")}>
             <EventBusyOutlinedIcon
               sx={{ color: "#863737", fontSize: 20, marginRight: 1 }}
             />
-            Not Interested
+            {t("callStatusArea.notInterested")}
           </MenuItem>
           <MenuItem onClick={() => handleAddStatus("No Answer")}>
             <PhoneDisabledIcon
               sx={{ color: "#867537ff", fontSize: 20, marginRight: 1 }}
             />
-            No Answer
+            {t("callStatusArea.noAnswer")}
           </MenuItem>
         </Menu>
       </Stack>
@@ -167,13 +170,23 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
               >
                 <Typography>
                   {status.status === "Scheduled Call" && status.scheduled_call
-                    ? `Scheduled Call (${dayjs(status.scheduled_call).format(
-                        "DD.MM.YYYY HH:mm",
-                      )})`
-                    : status.status}
+                    ? `${t("callStatusArea.scheduledCall")} (${dayjs(
+                        status.scheduled_call,
+                      ).format("DD.MM.YYYY HH:mm")})`
+                    : status.status === "Meeting Scheduled"
+                      ? t("callStatusArea.meetingScheduled")
+                      : status.status === "Open"
+                        ? t("callStatusArea.open")
+                        : status.status === "Not Interested"
+                          ? t("callStatusArea.notInterested")
+                          : status.status === "No Answer"
+                            ? t("callStatusArea.noAnswer")
+                            : null}
                 </Typography>
                 <Typography>
-                  {dayjs(status.call_timestamp).format("HH:mm")}
+                  {dayjs(status.call_timestamp)
+                    .locale(i18n.language)
+                    .format("HH:mm")}
                 </Typography>
               </Stack>
 
@@ -184,7 +197,9 @@ export default function StatusesCallView({ addNewStatus, statusList }) {
                 justifyContent="flex-end"
               >
                 <Typography>
-                  {dayjs(status.call_timestamp).format("dddd DD.MM.YYYY")}{" "}
+                  {dayjs(status.call_timestamp)
+                    .locale(i18n.language)
+                    .format("dddd DD.MM.YYYY")}{" "}
                 </Typography>
               </Stack>
             </Stack>

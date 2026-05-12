@@ -116,6 +116,23 @@ const theme = createTheme({
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          color: "#8d9ecd",
+          fontSize: "11px",
+          padding: "4px",
+          "&:hover": {
+            backgroundColor: "#ecedef", // default text color
+            borderColor: "transparent", // default text color
+          },
+          "&.Mui-selected": {
+            color: "#ffffff", // active tab color
+            backgroundColor: "#031b4d", // active tab background color
+          },
+        },
+      },
+    },
   },
 });
 export default theme;

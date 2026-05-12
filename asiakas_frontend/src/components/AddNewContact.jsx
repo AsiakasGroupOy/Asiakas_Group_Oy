@@ -10,8 +10,10 @@ import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import { fetchOrganizations, fetchCallLists } from "../services/contactListApi";
+import { useTranslation } from "react-i18next";
 
 export default function AddContactForm({ addNewContact, setAgGridFilter }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
 
   const [organizationList, setOrganizationList] = useState([]); // State to hold organization names
@@ -37,7 +39,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
 
     if (organizations.status === "success" && organizations.data.length > 0) {
       setOrganizationList(
-        organizations.data.map((org) => org.organization_name)
+        organizations.data.map((org) => org.organization_name),
       );
     } else {
       setOrganizationList([]);
@@ -93,19 +95,19 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
         startIcon={<FontAwesomeIcon icon={faUserPlus} />}
         onClick={handleClickOpen}
       >
-        Add New Contact
+        {t("addNewContact.addButton")}
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle color="dustblue">
           <FontAwesomeIcon icon={faUserPlus} style={{ marginRight: 8 }} />
-          Add New Contact
+          {t("addNewContact.dialogTitle")}
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             required
             margin="dense"
-            label="First Name"
+            label={t("addNewContact.firstName")}
             name="first_name"
             value={contact.first_name}
             onChange={handleChange}
@@ -115,7 +117,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
           <TextField
             required
             margin="dense"
-            label="Last Name"
+            label={t("addNewContact.lastName")}
             name="last_name"
             value={contact.last_name}
             onChange={handleChange}
@@ -124,7 +126,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
           />
           <TextField
             margin="dense"
-            label="Job Title"
+            label={t("addNewContact.jobTitle")}
             name="job_title"
             value={contact.job_title}
             onChange={handleChange}
@@ -134,7 +136,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
           <TextField
             required
             margin="dense"
-            label="Phone"
+            label={t("addNewContact.phone")}
             name="phone"
             value={contact.phone}
             onChange={handleChange}
@@ -143,7 +145,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
           />
           <TextField
             margin="dense"
-            label="Email Address"
+            label={t("addNewContact.email")}
             name="email"
             value={contact.email}
             onChange={handleChange}
@@ -153,7 +155,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
 
           <TextField
             margin="dense"
-            label="Note"
+            label={t("addNewContact.note")}
             name="note"
             value={contact.note}
             onChange={handleChange}
@@ -173,7 +175,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
               <TextField
                 {...params}
                 autoComplete="off"
-                label="Organization"
+                label={t("addNewContact.organization")}
                 variant="standard"
                 required
                 onKeyDown={(e) => e.stopPropagation()}
@@ -183,7 +185,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
 
           <TextField
             margin="dense"
-            label="Website if organization is new"
+            label={t("addNewContact.website")}
             name="website"
             value={contact.website}
             onChange={handleChange}
@@ -202,7 +204,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Calling List"
+                label={t("addNewContact.callingList")}
                 variant="standard"
                 required
                 onKeyDown={(e) => e.stopPropagation()}
@@ -212,10 +214,10 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="dustblue" onClick={handleClose}>
-            Cancel
+            {t("addNewContact.cancel")}
           </Button>
           <Button variant="contained" color="dustblue" onClick={handleSave}>
-            Save contact
+            {t("addNewContact.save")}
           </Button>
         </DialogActions>
       </Dialog>
