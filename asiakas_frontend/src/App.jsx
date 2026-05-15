@@ -32,18 +32,34 @@ function App() {
               alignItems: "center",
             }}
           >
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
+            <Box
               sx={{
-                marginTop: "10px",
-                display: { xs: "none", sm: "block", md: "flex" },
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              Soitto.ai
-            </Typography>
-
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{
+                  marginTop: "10px",
+                  display: { xs: "none", sm: "block", md: "flex" },
+                }}
+              >
+                Soitto.ai
+              </Typography>
+              <Typography
+                variant="h8"
+                noWrap
+                sx={{
+                  marginTop: "1px",
+                  display: { xs: "none", sm: "block", md: "flex" },
+                }}
+              >
+                Myy enemmän, soita tehokkaammin
+              </Typography>
+            </Box>
             {isAuthenticated && (
               <Box
                 sx={{

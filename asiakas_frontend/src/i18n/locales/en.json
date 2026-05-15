@@ -15,6 +15,17 @@
     "save": "Save contact"
   },
 
+  "editContact": {  
+    "dialogTitle": "Edit Contact",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "jobTitle": "Job Title",
+    "phone": "Phone",
+    "email": "Email Address",
+    "cancel": "Cancel",
+    "save": "Save contact"
+  },
+
   "navigationTabs": {
     "contactList": "Contact List",
     "callView": "Call View",
@@ -27,6 +38,7 @@
     "pageTitle": "Call View",
     "searchCompanyPlaceholder": "Search Company",
     "searchCallListPlaceholder": "Search Call List",
+    "searchEmptyCallListPlaceholder": "Empty list",
     "searchAreaButtonPrevious": "Previous",
     "searchAreaButtonNext": "Next",
     "searchAreaCompanyIndex": "Company",
@@ -68,6 +80,90 @@
     "columnMenuSelectAll": "Select All",
     "columnMenuDeselectAll": "Deselect All"
     
-  }   
+  },
+  
+  "contactListTable": {
+    "callingList": "Calling List",
+    "company": "Company",
+    "contact": "Contact",
+    "phone": "Phone Number",
+    "additionalInformation": "Additional Information",
+    "status": "Status",
+    "lastActivity": "Last Activity",
+    "latestScheduledCall": "Latest Scheduled Call",
+    "numberOfCalls": "Number of Calls"
+    
 
+  } ,
+
+  "rolesManagement": {
+    "pageTitle": "Roles Management"
+  },
+
+  "activeUsersTable": {
+    "userName": "User name",
+    "userEmail": "Email",
+    "role": "Role",
+    "actions": "Actions",
+    "buttonChangeRole": "Change Role",
+    "adminAccessRole": "Admin Access",
+    "managerRole": "Manager",
+    "userRole": "User"
+    
+  },
+"inviteUsersTable": {
+    "userEmail": "Email",
+    "role": "Role",
+    "actions": "Actions",
+    "expDate": "Expiration date",
+    "buttonSendInvitation": "Send invitation",
+    "adminAccessRole": "Admin Access",
+    "managerRole": "Manager",
+    "userRole": "User"
+    
+  },
+
+  "callHistoryPage":{
+    "pageTitle": "Call History"
+  },
+
+  "callHistoryTable": {
+    "customerName": "Customer Name",
+    "userName": "User Name",
+    "direction": "Direction",
+    "callingListName": "Calling List",
+    "company": "Company",
+    "contactName": "Contact Name",
+    "from": "From",
+    "to": "To",
+    "startedAt": "Started At",
+    "endedAt": "Ended At",
+    "status": "Status",
+    "duration": "Duration",
+    "recId": "Rec ID"
+  },
+
+  "loginForm": {
+    "email": "User Email",
+    "password": "Password",
+    "login": "Login",
+    "alertEmptyFieldsTitle":"Empty fields",
+    "alertEmptyFields": "Please fill in all fields",
+    "alertInvalidCredentialsTitle": "Login Failed",
+    "alertInvalidCredentials": "Invalid email or password."
+  },
+
+  "grid": {
+    "dateFilterResetButton": "Reset",
+    "pageSizeSelectorLabel": "Page Size",
+    "page": "Page",
+    "to": " to ",
+    "of": " of ",
+    "more": "More",
+    "next": "Next",
+    "previous": "Previous",
+    "firstPage": "First Page",
+    "lastPage": "Last Page"
+    
+}
 }

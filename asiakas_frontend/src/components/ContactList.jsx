@@ -30,27 +30,28 @@ import { useAuth } from "./users_components/AuthContext.jsx";
 import AlertMessage from "./AlertMessage";
 import { dateOnlyComparator } from "../services/dateComparator.js";
 import { useTranslation } from "react-i18next";
+import { getAgGridLocale } from "../i18n/AgGridLocale.js";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function ContactList() {
   const [contactList, setContactList] = useState();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { role } = useAuth();
   const columnDefs = useMemo(
     () => [
       {
-        headerName: "Calling List",
+        headerName: t("contactListTable.callingList"),
         field: "calling_list.calling_list_name",
         filter: true,
       },
       {
-        headerName: "Company",
+        headerName: t("contactListTable.company"),
         field: "contact.organization_name",
         filter: true,
       },
       {
-        headerName: "Contact",
+        headerName: t("contactListTable.contact"),
         field: "contact_name",
         valueGetter: (params) =>
           `${params.data.contact.first_name || ""} ${
@@ -58,11 +59,18 @@ export default function ContactList() {
           }`,
         filter: true,
       },
-      { headerName: "Phone Number", field: "contact.phone" },
-      { headerName: "Additional Information", field: "contact.website" },
-      { headerName: "Status", field: "latest_call_log.status", filter: true },
+      { headerName: t("contactListTable.phone"), field: "contact.phone" },
       {
-        headerName: "Last Activity",
+        headerName: t("contactListTable.additionalInformation"),
+        field: "contact.website",
+      },
+      {
+        headerName: t("contactListTable.status"),
+        field: "latest_call_log.status",
+        filter: true,
+      },
+      {
+        headerName: t("contactListTable.lastActivity"),
         field: "latest_call_log.call_timestamp",
         filter: "agDateColumnFilter",
         valueGetter: (params) => {
@@ -76,11 +84,12 @@ export default function ContactList() {
         },
         filterParams: {
           comparator: dateOnlyComparator,
+          inRangeInclusive: true,
           buttons: ["reset"],
         },
       },
       {
-        headerName: "Latest Scheduled Call",
+        headerName: t("contactListTable.latestScheduledCall"),
         field: "latest_call_log.latest_scheduled_call",
         filter: "agDateColumnFilter",
         valueGetter: (params) => {
@@ -92,14 +101,20 @@ export default function ContactList() {
             ? dayjs(params.value).format("DD.MM.YYYY HH:mm")
             : "";
         },
+
+        filterParams: {
+          comparator: dateOnlyComparator,
+          inRangeInclusive: true,
+          buttons: ["reset"],
+        },
       },
       {
-        headerName: "Number of Calls",
+        headerName: t("contactListTable.numberOfCalls"),
         field: "latest_call_log.call_count",
         filter: true,
       },
     ],
-    [],
+    [t],
   );
 
   const [setColumnStateVersion] = useState(0);
@@ -381,6 +396,7 @@ export default function ContactList() {
             <AgGridReact
               rowData={contactList}
               columnDefs={columnDefs}
+              key={i18n.language}
               pagination={true}
               {...(role !== "User" && {
                 rowSelection: {
@@ -388,6 +404,7 @@ export default function ContactList() {
                   selectAll: "filtered",
                 },
               })}
+              localeText={getAgGridLocale(t)}
               onSelectionChanged={handleSelectedRows}
               defaultColDef={{
                 resizable: true,

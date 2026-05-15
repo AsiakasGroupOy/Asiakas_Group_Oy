@@ -15,10 +15,12 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../theme";
 import { useAuth } from "./AuthContext.jsx";
 import AlertMessage from "../AlertMessage";
+import { useTranslation } from "react-i18next";
 
 export default function LoginForm() {
   const { handleLogin } = useAuth();
   const [alert, setAlert] = useState(null);
+  const { t } = useTranslation();
   const [logInData, setLogInData] = useState({
     useremail: "",
     password: "",
@@ -34,8 +36,8 @@ export default function LoginForm() {
     if (!logInData.useremail || !logInData.password) {
       setAlert({
         status: "error",
-        title: "Empty fields",
-        message: "Please fill in all fields.",
+        title: t("loginForm.alertEmptyFieldsTitle"),
+        message: t("loginForm.alertEmptyFields"),
       });
       return;
     }
@@ -47,8 +49,8 @@ export default function LoginForm() {
     if (response?.status === "error") {
       setAlert({
         status: "error",
-        title: "Login Failed",
-        message: response.error || "Invalid email or password.",
+        title: t("loginForm.alertInvalidCredentialsTitle"),
+        message: t("loginForm.alertInvalidCredentials"),
       });
     }
   };
@@ -73,14 +75,14 @@ export default function LoginForm() {
               required
               fullWidth
               margin="normal"
-              label="User Email"
+              label={t("loginForm.email")}
               name="useremail"
               value={logInData.useremail}
               onChange={handleChange}
             />
 
             <TextField
-              label="Password"
+              label={t("loginForm.password")}
               required
               type="password"
               variant="outlined"
@@ -97,7 +99,7 @@ export default function LoginForm() {
               style={{ marginTop: "20px" }}
               type="submit"
             >
-              Login
+              {t("loginForm.login")}
             </Button>
           </form>
         </ThemeProvider>

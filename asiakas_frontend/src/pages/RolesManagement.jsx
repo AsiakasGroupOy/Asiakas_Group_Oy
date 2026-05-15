@@ -12,6 +12,7 @@ import {
 import ActiveUsers from "../components/users_components/ActiveUsers";
 import InviteUsers from "../components/users_components/InviteUsers";
 import AlertMessage from "../components/AlertMessage";
+import { useTranslation } from "react-i18next";
 
 export default function RolesManagement() {
   const [userList, setUserList] = useState([]);
@@ -19,6 +20,7 @@ export default function RolesManagement() {
   const [alert, setAlert] = useState(null);
   const [invitationsList, setInvitationsList] = useState([]);
   const [loadingInv, setLoadingInv] = useState(false);
+  const { t } = useTranslation();
 
   const fetchUserList = async () => {
     setLoading(true);
@@ -148,7 +150,7 @@ export default function RolesManagement() {
       <Stack direction="row" spacing={1} alignItems="top" marginBlockEnd={3}>
         <SettingsSuggestIcon sx={{ fontSize: 30, color: "#08205e" }} />
         <Typography variant="h6" sx={{ color: "#08205e" }}>
-          Roles Management
+          {t("rolesManagement.pageTitle")}
         </Typography>
       </Stack>
 
