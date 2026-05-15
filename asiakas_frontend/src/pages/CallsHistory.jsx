@@ -17,6 +17,8 @@ import ListIcon from "@mui/icons-material/List";
 import { useAuth } from "../components/users_components/AuthContext.jsx";
 import { fetchCustomersList } from "../services/customersApi.js";
 import { dateOnlyComparator } from "../services/dateComparator.js";
+import { useTranslation } from "react-i18next";
+import { getAgGridLocale } from "../i18n/AgGridLocale.js";
 
 export default function CallsHistory() {
   const [callsHistory, setCallsHistory] = useState([]);
@@ -27,47 +29,52 @@ export default function CallsHistory() {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   const { current_customer_id, role } = useAuth();
+  const { t, i18n } = useTranslation();
   const columnDefs = useMemo(
     () => [
       {
-        headerName: "Customer Name",
+        headerName: t("callHistoryTable.customerName"),
         field: "customer_name",
         filter: true,
       },
       {
-        headerName: "User Name",
+        headerName: t("callHistoryTable.userName"),
         field: "user_name",
         filter: true,
       },
       {
-        headerName: "Direction",
+        headerName: t("callHistoryTable.direction"),
         field: "direction",
         filter: true,
       },
 
       {
-        headerName: "Calling List",
+        headerName: t("callHistoryTable.callingListName"),
         field: "calling_list_name",
         filter: true,
       },
       {
-        headerName: "Company",
+        headerName: t("callHistoryTable.company"),
         field: "organization_name",
         filter: true,
       },
 
       {
-        headerName: "Contact Name",
+        headerName: t("callHistoryTable.contactName"),
         field: "contact_name",
         filter: true,
       },
 
-      { headerName: "From Number", field: "from_number" },
-
-      { headerName: "To Number", field: "to_number", filter: true },
+      { headerName: t("callHistoryTable.from"), field: "from_number" },
 
       {
-        headerName: "Started At",
+        headerName: t("callHistoryTable.to"),
+        field: "to_number",
+        filter: true,
+      },
+
+      {
+        headerName: t("callHistoryTable.startedAt"),
         field: "started_at",
         filter: "agDateColumnFilter",
         valueGetter: (params) => {
@@ -86,7 +93,7 @@ export default function CallsHistory() {
       },
 
       {
-        headerName: "Ended At",
+        headerName: t("callHistoryTable.endedAt"),
         field: "ended_at",
         filter: "agDateColumnFilter",
         valueGetter: (params) => {
@@ -104,19 +111,23 @@ export default function CallsHistory() {
         },
       },
 
-      { headerName: "Status", field: "status", filter: true },
+      {
+        headerName: t("callHistoryTable.status"),
+        field: "status",
+        filter: true,
+      },
 
       {
-        headerName: "Duration",
+        headerName: t("callHistoryTable.duration"),
         field: "recording_duration",
       },
 
       {
-        headerName: "Recording id",
+        headerName: t("callHistoryTable.recId"),
         field: "recording_sid",
       },
     ],
-    [],
+    [t],
   );
 
   useEffect(() => {
@@ -195,7 +206,7 @@ export default function CallsHistory() {
         <Stack direction="row" spacing={1}>
           <ListIcon sx={{ color: "#08205e", fontSize: 30 }} />
           <Typography variant="h6" sx={{ color: "#08205e" }}>
-            Calls History
+            {t("callHistoryPage.pageTitle")}
           </Typography>
         </Stack>
 
@@ -245,6 +256,8 @@ export default function CallsHistory() {
             rowData={callsHistory}
             columnDefs={columnDefs}
             ref={gridRef}
+            key={i18n.language}
+            localeText={getAgGridLocale(t)}
             onGridReady={(params) => {
               gridRef.current = params.api;
             }}

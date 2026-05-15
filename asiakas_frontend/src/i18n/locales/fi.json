@@ -14,17 +14,30 @@
     "cancel": "Peruuta",
     "save": "Tallenna kontakti"
   },
+
+"editContact": {  
+    "dialogTitle": "Muokkaa kontaktia",
+    "firstName": "Etunimi",
+    "lastName": "Sukunimi",
+    "jobTitle": "Tehtävänimike",
+    "phone": "Puhelin",
+    "email": "Sähköposti",
+    "cancel": "Peruuta",
+    "save": "Tallenna kontakti"
+  },
+  
    "navigationTabs": {
     "contactList": "Kontaktit",
-    "callView": "Soitto näkymä",
+    "callView": "Soittonäkymä",
     "importContacts": "Tuo kontakteja",
     "settings": "Asetukset",
     "callsHistory": "Puheluhistoria"
    },
     "callView": {
-    "pageTitle": "Soitto näkymä",
+    "pageTitle": "Soittonäkymä",
     "searchCompanyPlaceholder": "Organisaatio nimi",
     "searchCallListPlaceholder": "Soittolista",
+    "searchEmptyCallListPlaceholder": "Tyhjä lista",
     "searchAreaButtonPrevious": "Edellinen",
     "searchAreaButtonNext": "Seuraava",
     "searchAreaCompanyIndex": "Organisaatio",
@@ -49,7 +62,7 @@
     "addCallStatusTitle": "Lisää tapahtuma",
     "meetingScheduled": "Tapaaminen sovittu",
     "open": "Avoin",
-    "scheduledCall": "Ajastettu puhelu",
+    "scheduledCall": "Soittopyyntö",
     "notInterested": "Ei kiinnostusta",
     "noAnswer": "Ei vastausta"
    },
@@ -63,6 +76,100 @@
     "exportButton": "Vie Exceliin",
     "columnMenuSelectAll": "Valitse kaikki",
     "columnMenuDeselectAll": "Poista valinnat"
-   }
+   },
 
-}
+   "contactListTable": {
+    "callingList": "Soittolista",
+    "company": "Organisaatio",
+    "contact": "Yhteyshenkilö",
+    "phone": "Puhelinnumero",
+    "additionalInformation": "Lisätietoja",
+    "status": "Tila",
+    "lastActivity": "Viimeisin toiminta",
+    "latestScheduledCall": "Viimeisin sovittu puhelu",
+    "numberOfCalls": "Puheluiden määrä"
+    
+  } ,
+
+  "rolesManagement": {
+    "pageTitle": "Roolien hallinta"
+  },
+
+    "activeUsersTable": {
+    "userName": "Käyttäjä",
+    "userEmail": "Sähköposti",
+    "role": "Rooli",
+    "actions": "Toiminnot",
+    "buttonChangeRole": "Vaihda rooli",
+    "adminAccessRole": "Ylläpitäjä",
+    "managerRole": "Päällikkö",
+    "userRole": "Käyttäjä"
+    
+  },
+
+  "inviteUsersTable": {
+    "userEmail": "Sähköposti",
+    "role": "Rooli",
+    "actions": "Toiminnot",
+    "expDate": "Vanhenemispäivämäärä",
+    "buttonSendInvitation": "Lähetä kutsu",
+    "adminAccessRole": "Ylläpitäjä",
+    "managerRole": "Päällikkö",
+    "userRole": "Käyttäjä"
+    
+  },
+
+  
+  "callHistoryPage":{
+    "pageTitle": "Puheluhistoria"
+  },
+  
+  "callHistoryTable": {
+    "customerName": "Asiakkaan nimi",
+    "userName": "Käyttäjän nimi",
+    "direction": "Suunta",
+    "callingListName": "Soittolista",
+    "company": "Organisaatio",
+    "contactName": "Yhteyshenkilö",
+    "from": "Lähtevä",
+    "to": "Saapuva",
+    "startedAt": "Aloitettu",
+    "endedAt": "Päättynyt",
+    "buttonReset":"Nollaa",
+    "status": "Tila",
+    "duration": "Kesto",
+    "recId": "Rec ID"
+  },
+
+  "loginForm": {
+    "email": "Sähköposti",
+    "password": "Salasana",
+    "login": "Kirjaudu sisään",
+    "alertEmptyFieldsTitle": "Tyhjät kentät",
+    "alertEmptyFields": "Täytä kaikki kentät",
+    "lertInvalidCredentialsTitle": "Kirjautuminen epäonnistui",
+    "alertInvalidCredentials": "Virheellinen sähköposti tai salasana."
+  },
+
+  "grid": {
+    "dateFilterResetButton": "Nollaa",
+    "pageSizeSelectorLabel": "Rivejä sivulla",
+    "page": "Sivu",
+    "of": " / ",
+    "to": "-",
+    "more": "Lisää",
+    "next": "Seuraava",
+    "previous": "Edellinen",
+    "firstPage": "Ensimmäinen sivu",
+    "lastPage": "Viimeinen sivu",
+    "selectAll": "(Valitse kaikki)",
+    "filterOoo": "Suodata...",
+    "applyFilter": "Käytä...",
+    "clearFilter": "Tyhjennä",
+    "dateFormatOoo": "pp-kk-vvvv",
+    "monthNames": ["Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"],
+    "monthNamesShort": ["Tammi", "Helmi", "Maalis", "Huhti", "Touko", "Kesä", "Heinä", "Elo", "Syys", "Loka", "Marras", "Joulu"]
+  }
+
+  }
+

@@ -10,9 +10,11 @@ import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import IconButton from "@mui/material/IconButton";
+import { useTranslation } from "react-i18next";
 
 export default function EditContact({ editContact, saveEditContact }) {
   const [open, setOpen] = React.useState(false);
+  const { t } = useTranslation();
 
   const [contact, setContact] = useState({
     contact_id: "",
@@ -58,14 +60,14 @@ export default function EditContact({ editContact, saveEditContact }) {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle color="dustblue">
           <FontAwesomeIcon icon={faUserPlus} style={{ marginRight: 8 }} />
-          Edit Contact
+          {t("editContact.dialogTitle")}
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             required
             margin="dense"
-            label="First Name"
+            label={t("editContact.firstName")}
             name="first_name"
             value={contact.first_name}
             onChange={handleChange}
@@ -75,7 +77,7 @@ export default function EditContact({ editContact, saveEditContact }) {
           <TextField
             required
             margin="dense"
-            label="Last Name"
+            label={t("editContact.lastName")}
             name="last_name"
             value={contact.last_name}
             onChange={handleChange}
@@ -84,7 +86,7 @@ export default function EditContact({ editContact, saveEditContact }) {
           />
           <TextField
             margin="dense"
-            label="Job Title"
+            label={t("editContact.jobTitle")}
             name="job_title"
             value={contact.job_title}
             onChange={handleChange}
@@ -94,7 +96,7 @@ export default function EditContact({ editContact, saveEditContact }) {
           <TextField
             required
             margin="dense"
-            label="Phone"
+            label={t("editContact.phone")}
             name="phone"
             value={contact.phone}
             onChange={handleChange}
@@ -103,7 +105,7 @@ export default function EditContact({ editContact, saveEditContact }) {
           />
           <TextField
             margin="dense"
-            label="Email Address"
+            label={t("editContact.email")}
             name="email"
             value={contact.email}
             onChange={handleChange}
@@ -113,10 +115,10 @@ export default function EditContact({ editContact, saveEditContact }) {
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="dustblue" onClick={handleClose}>
-            Cancel
+            {t("editContact.cancel")}
           </Button>
           <Button variant="contained" color="dustblue" onClick={handleSave}>
-            Save contact
+            {t("editContact.save")}
           </Button>
         </DialogActions>
       </Dialog>

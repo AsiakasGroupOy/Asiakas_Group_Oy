@@ -310,7 +310,9 @@ export default function CallView() {
                     onChange={(e) => handleCallListChange(e.target.value)}
                     size="small"
                     displayEmpty
-                    renderValue={(selected) => selected || "Empty list"}
+                    renderValue={(selected) =>
+                      selected || t("callView.searchEmptyCallListPlaceholder")
+                    }
                   >
                     {callListOptions.map((option) => (
                       <MenuItem key={option} value={option}>
@@ -347,7 +349,7 @@ export default function CallView() {
                 sx={{ color: "#08205e", alignSelf: "center" }}
               >
                 {filteredOrgNames.length > 1 &&
-                  `${t("callView.searchAreaCompanyIndex")} ${currentOrgIndex + 1} of ${
+                  `${t("callView.searchAreaCompanyIndex")} ${currentOrgIndex + 1} - ${
                     filteredOrgNames.length
                   }`}
               </Typography>
@@ -488,7 +490,7 @@ export default function CallView() {
                     sx={{ color: "#08205e", alignSelf: "center" }}
                   >
                     {activeContacts.length > 1 &&
-                      `Contact ${currentIndex + 1} of ${activeContacts.length}`}
+                      `${currentIndex + 1} - ${activeContacts.length}`}
                   </Typography>
                   <Button
                     variant="contained"
