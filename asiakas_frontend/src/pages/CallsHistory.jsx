@@ -18,7 +18,7 @@ import { useAuth } from "../components/users_components/AuthContext.jsx";
 import { fetchCustomersList } from "../services/customersApi.js";
 import { dateOnlyComparator } from "../services/dateComparator.js";
 import { useTranslation } from "react-i18next";
-import { getAgGridLocale } from "../i18n/AgGridLocale.js";
+import { getAgGridLocale } from "../i18n/agGridLocale.js";
 
 export default function CallsHistory() {
   const [callsHistory, setCallsHistory] = useState([]);

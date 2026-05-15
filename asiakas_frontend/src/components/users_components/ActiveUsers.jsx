@@ -7,7 +7,7 @@ import "ag-grid-community/styles/ag-theme-material.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 ModuleRegistry.registerModules([AllCommunityModule]);
 import { useTranslation } from "react-i18next";
-import { getAgGridLocale } from "../../i18n/AgGridLocale.js";
+import { getAgGridLocale } from "../../i18n/agGridLocale.js";
 
 export default function ActiveUsers({
   userList,
