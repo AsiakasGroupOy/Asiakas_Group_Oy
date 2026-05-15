@@ -30,7 +30,7 @@ import { useAuth } from "./users_components/AuthContext.jsx";
 import AlertMessage from "./AlertMessage";
 import { dateOnlyComparator } from "../services/dateComparator.js";
 import { useTranslation } from "react-i18next";
-import { getAgGridLocale } from "../i18n/AgGridLocale.js";
+import { getAgGridLocale } from "../i18n/agGridLocale.js";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

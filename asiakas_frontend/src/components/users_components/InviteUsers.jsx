@@ -5,7 +5,7 @@ import { FormControl, Select, MenuItem } from "@mui/material";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-material.css";
 import { useTranslation } from "react-i18next";
-import { getAgGridLocale } from "../../i18n/AgGridLocale.js";
+import { getAgGridLocale } from "../../i18n/agGridLocale.js";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 
