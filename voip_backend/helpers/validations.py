@@ -26,7 +26,9 @@ def validate_phone(phone):
     # Replace leading 0 with Finland country code
     if cleaned.startswith("0"):
         cleaned = "358" + cleaned[1:]
-
+        
+    elif not cleaned.startswith("358"):
+        cleaned = "358" + cleaned
     # Length between 6 and 15 digits
     if re.match(r"^\d{6,15}$", cleaned): 
         return "+" + cleaned
@@ -40,19 +42,19 @@ def is_valid_password(password: str) -> tuple[bool, list[str]]:
     errors = []
 
     if len(password) < 8:
-        errors.append("Password must be at least 8 characters long. ")
+        errors.append("passwordMinLength")
     if len(password) > 128:
-        errors.append("Password must not exceed 128 characters. ")
+        errors.append("passwordMaxLength")
 
     if not re.search(r"[A-Z]", password):
-        errors.append("Password must include at least one uppercase letter. ")
+        errors.append("passwordUppercase")
     if not re.search(r"[a-z]", password):
-        errors.append("Password must include at least one lowercase letter. ")
+        errors.append("passwordLowercase")
     if not re.search(r"\d", password):
-        errors.append("Password must include at least one digit. ")
+        errors.append("passwordDigit")
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=]", password):
-        errors.append("Password must include at least one special character. ")
-    
+        errors.append("passwordSpecialCharacter")
+
     return {
         "valid": len(errors) == 0,
         "errors": errors
