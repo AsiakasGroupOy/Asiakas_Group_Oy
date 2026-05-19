@@ -48,8 +48,8 @@ allowed_origins = [
     frontend_url,
     "http://localhost",        # For local testing
     "http://localhost:3000",   # For local testing
-    "https://soitto.ai",       #  PRODUCTION DOMAIN
-    "https://www.soitto.ai"    #  PRODUCTION DOMAIN (with www)
+    "https://app.soitto.ai",       #  PRODUCTION DOMAIN
+    
     ]
 CORS(app,supports_credentials=True, origins=allowed_origins)
 
