@@ -6,11 +6,14 @@ import {
   DialogTitle,
   Button,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
+
 export default function SubmitFileUploading({
   submittingDialogOpen,
   handleSubmitFileUploadClosed,
   handleSubmitFileUpload,
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog
       open={submittingDialogOpen}
@@ -20,7 +23,7 @@ export default function SubmitFileUploading({
       }}
     >
       <DialogTitle id="alert-dialog-title">
-        {" Your file is ready. Press Submit to upload."}
+        {t("submitFileUploading.dialogTitle")}
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description"></DialogContentText>
@@ -33,7 +36,7 @@ export default function SubmitFileUploading({
           color="warning"
           variant="contained"
         >
-          Cancel
+          {t("submitFileUploading.buttons.cancel")}
         </Button>
 
         <Button
@@ -42,7 +45,7 @@ export default function SubmitFileUploading({
           color="dustblue"
           autoFocus
         >
-          Submit loading
+          {t("submitFileUploading.buttons.submit")}
         </Button>
       </DialogActions>
     </Dialog>

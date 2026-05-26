@@ -9,6 +9,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { fetchCallLists } from "../services/contactListApi"; // Import the function to fetch call lists
+import { useTranslation } from "react-i18next";
 
 export default function AssignCallListToUploading({
   selectedCallList,
@@ -18,13 +19,14 @@ export default function AssignCallListToUploading({
   handleSubmitDialogWindowOpen,
 }) {
   const [callListOptions, setCallListOptions] = useState([]);
+  const { t } = useTranslation();
 
   const handleCloseDialog = () => {
     handleCloseCallListDialog();
   };
   const handleSubmitDialog = () => {
     if (!selectedCallList) {
-      alert("Please select a call list before proceeding.");
+      alert(t("assignCallListToUploading.alertCallListMissing"));
       return;
     }
     handleSubmitDialogWindowOpen();
@@ -36,7 +38,11 @@ export default function AssignCallListToUploading({
         setCallListOptions(response.data.map((cl) => cl.calling_list_name));
       } else {
         setCallListOptions([]);
-        window.alert("Call lists could be empty or not available.");
+        window.alert(
+          response.message.startsWith("apiFetchErrors.")
+            ? t(response.message)
+            : t("assignCallListToUploading.alertFetchCallList"),
+        );
       }
     };
 
@@ -57,7 +63,7 @@ export default function AssignCallListToUploading({
         <DialogTitle
           sx={{ fontSize: "20px", fontWeight: "bold", color: "#08205eff" }}
         >
-          Assign Call List
+          {t("assignCallListToUploading.dialogTitle")}
         </DialogTitle>
         <DialogContent>
           <Autocomplete
@@ -74,8 +80,8 @@ export default function AssignCallListToUploading({
                 {...params}
                 label={
                   callListOptions.length === 0
-                    ? "No existing call lists - type a new name"
-                    : "Select or type a calling list"
+                    ? t("assignCallListToUploading.dialogLablelNoCallList")
+                    : t("assignCallListToUploading.dialogLableSelectCallList")
                 }
                 variant="standard"
                 required
@@ -91,7 +97,7 @@ export default function AssignCallListToUploading({
           }}
         >
           <Button variant="contained" color="grey" onClick={handleCloseDialog}>
-            Back
+            {t("assignCallListToUploading.buttons.back")}
           </Button>
           <Button
             variant="contained"
@@ -99,7 +105,7 @@ export default function AssignCallListToUploading({
             onClick={handleSubmitDialog}
             autoFocus
           >
-            Next
+            {t("assignCallListToUploading.buttons.next")}
           </Button>
         </DialogActions>
       </Dialog>

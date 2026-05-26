@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { filePreview } from "../services/importFileApi"; // Import the file preview function
 import AlertMessage from "./AlertMessage";
+import { useTranslation } from "react-i18next";
 
 export default function ReviewContactsUploading({
   openPreview,
@@ -35,34 +36,41 @@ export default function ReviewContactsUploading({
   const [loading, setLoading] = useState(false);
   const [warning, setWarning] = useState("");
   const [alert, setAlert] = useState(null);
+  const { t } = useTranslation();
 
   const initialPreview = async () => {
     try {
       if (!fileToPreview) {
-        throw new Error("No file download to preview");
+        throw new Error(t("reviewContactsUploading.errMessages.noFile"));
       }
 
       const dataPreview = await filePreview(fileToPreview);
 
       if (dataPreview.status === "error") {
-        throw new Error(dataPreview.message || "Error fetching preview data");
+        throw new Error(
+          dataPreview.message ||
+            t("reviewContactsUploading.errMessages.errFetchingPreview"),
+        );
       }
 
       setPreviewRows(dataPreview.data.rows);
       setMappingOptions(dataPreview.data.mappingOptions);
       setHeaders(dataPreview.data.headers);
-
+      console.log("Preview data fetched successfully:", dataPreview);
       return true; // Indicate success
     } catch (error) {
       setAlert({
         status: "error",
-        title: "Error",
-        message: error.message || "Failed to load preview data.",
+        title: t("reviewContactsUploading.alert.title"),
+        message: error.message || t("reviewContactsUploading.alert.message"),
       });
 
       return false;
     }
   };
+
+  const translateMappingOption = (option) =>
+    t(`reviewContactsUploading.mappingOptions.${option}`, option);
 
   useEffect(() => {
     const fetchPreview = async () => {
@@ -102,15 +110,13 @@ export default function ReviewContactsUploading({
   };
 
   const handleOpenNextCallListDialog = () => {
-    if (!mapping || !Object.values(mapping).includes("Phone (required)")) {
-      setWarning(
-        "Please include a 'phone' field in the mapping before proceeding."
-      );
+    if (!mapping || !Object.values(mapping).includes("phone")) {
+      setWarning(t("reviewContactsUploading.mappingWarning.phoneMapping"));
       return;
     }
-    if (!mapping || !Object.values(mapping).includes("Organization name")) {
+    if (!mapping || !Object.values(mapping).includes("organization_name")) {
       setWarning(
-        "Please include a 'Organization name' field in the mapping before proceeding."
+        t("reviewContactsUploading.mappingWarning.organizationMapping"),
       );
       return;
     }
@@ -119,7 +125,7 @@ export default function ReviewContactsUploading({
       Object.keys(mapping).length !== headers.length ||
       Object.values(mapping).includes("")
     ) {
-      setWarning("Please map all columns before proceeding.");
+      setWarning(t("reviewContactsUploading.mappingWarning.missedMapping"));
       return;
     }
 
@@ -144,7 +150,7 @@ export default function ReviewContactsUploading({
         <DialogTitle
           sx={{ fontSize: "20px", fontWeight: "bold", color: "#08205eff" }}
         >
-          Map Columns to Fields
+          {t("reviewContactsUploading.mappingTitle")}
         </DialogTitle>
         {warning && (
           <div
@@ -183,18 +189,18 @@ export default function ReviewContactsUploading({
                         value=""
                         sx={{ fontSize: "12px", fontWeight: "bold" }}
                       >
-                        -- Map field --
+                        {t("reviewContactsUploading.emptyMapField")}
                       </MenuItem>
                       {mappingOptions.map((option) => (
                         <MenuItem
                           key={option}
                           value={option}
                           disabled={
-                            option !== "Do not import" &&
+                            option !== "do_not_import" &&
                             Object.values(mapping).includes(option)
                           }
                         >
-                          {option}
+                          {translateMappingOption(option)}
                         </MenuItem>
                       ))}
                     </Select>
@@ -234,7 +240,7 @@ export default function ReviewContactsUploading({
           }}
         >
           <Button variant="contained" color="grey" onClick={handleClose}>
-            Cancel
+            {t("reviewContactsUploading.buttons.cancel")}
           </Button>
           <Button
             variant="contained"
@@ -242,7 +248,7 @@ export default function ReviewContactsUploading({
             onClick={handleOpenNextCallListDialog}
             autoFocus
           >
-            Next
+            {t("reviewContactsUploading.buttons.next")}
           </Button>
         </DialogActions>
       </Dialog>

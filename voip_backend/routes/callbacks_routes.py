@@ -24,9 +24,12 @@ def get_calls_history():
             customer_id = request.args.get("customer_id", type=int)
             if not customer_id:
                 app_logger.warning("Missing customer_id in calls history request by App Admin: user_id=%s,customer_id=%s method=%s path=%s ip=%s",g.user_id, customer_id, request.method, request.path, request.remote_addr)
-                return jsonify({"error": "Customer is not provided"}), 400
+                return jsonify({"error": "errCustomerIdMissing"}), 400
     else:
             customer_id = g.customer_id
+            if not customer_id:
+                app_logger.warning("Customer ID not found in session for calls history request: user_id=%s method=%s path=%s ip=%s", g.user_id, request.method, request.path, request.remote_addr)
+                return jsonify({"error": "errCustomerIdMissing"}), 400
 
     calls = (TwilioCall.query
              .filter_by(customer_id=customer_id)

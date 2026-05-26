@@ -16,17 +16,19 @@ import theme from "../../theme";
 import AlertMessage from "../AlertMessage";
 import { regProcess } from "../../services/usersApi";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcherButtons from "../LanguageSwitcherButtons";
 
 export default function RegistrationForm() {
   const [regData, setRegData] = useState({
     username: "",
     password: "",
   });
-  const [repeatPassword, setRepeatPassord] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const [logInButton, setLogInButton] = useState(false);
 
   const [alert, setAlert] = useState(null);
-
+  const { t } = useTranslation();
   const [token, setToken] = useState("");
   const navigate = useNavigate();
 
@@ -47,8 +49,8 @@ export default function RegistrationForm() {
     if (!regData.username || !regData.password || !repeatPassword) {
       setAlert({
         status: "error",
-        title: "Empty fields",
-        message: "Please fill in all fields.",
+        title: t("registrationForm.errors.alertEmptyFieldsTitle"),
+        message: t("registrationForm.errors.alertEmptyFieldsMessage"),
       });
 
       return;
@@ -56,22 +58,35 @@ export default function RegistrationForm() {
     if (regData.password !== repeatPassword) {
       setAlert({
         status: "error",
-        title: "Wrong password",
-        message: "Please enter the correct password again.",
+        title: t("registrationForm.errors.errPassword.errRepeatPasswordTitle"),
+        message: t(
+          "registrationForm.errors.errPassword.errRepeatPasswordMessage",
+        ),
       });
       return;
     }
 
     const response = await regProcess({ token, ...regData });
-    console.log("Registration response:", response);
+
     if (response.status === "success") {
       setLogInButton(true);
     } else {
-      // Handle errors returned from backend
+      const errors = Array.isArray(response.message)
+        ? response.message
+        : [response.message];
+
+      const translatedErrors = errors.map((err) =>
+        t(err) !== err
+          ? t(err)
+          : t(`registrationForm.errors.errPassword.${err}`),
+      );
+
       setAlert({
         status: "error",
-        title: "Registration failed",
-        message: response.message || "Something went wrong",
+        title: t("registrationForm.errors.errPassword.errPasswordTitle"),
+        message:
+          translatedErrors.join("\n") ||
+          t("registrationForm.errors.errPassword.errPasswordMessage"),
       });
     }
   };
@@ -86,6 +101,7 @@ export default function RegistrationForm() {
           sx={{
             display: "flex",
             alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <Typography
@@ -99,12 +115,13 @@ export default function RegistrationForm() {
           >
             Soitto.ai
           </Typography>
+          <LanguageSwitcherButtons />
         </Toolbar>
       </AppBar>
       <Toolbar />
       <Stack direction="row" justifyContent="center">
         <Typography variant="h6" sx={{ color: "#08205e", marginTop: "10px" }}>
-          Registration Form
+          {t("registrationForm.registrationFormTitle")}
         </Typography>
       </Stack>
 
@@ -126,14 +143,14 @@ export default function RegistrationForm() {
             variant="outlined"
             fullWidth
             margin="normal"
-            label="Username"
+            label={t("registrationForm.username")}
             name="username"
             value={regData.username}
             onChange={handleChange}
           />
 
           <TextField
-            label="Password"
+            label={t("registrationForm.password")}
             required
             variant="outlined"
             fullWidth
@@ -144,14 +161,14 @@ export default function RegistrationForm() {
           />
 
           <TextField
-            label="Confirm password"
+            label={t("registrationForm.confirmPassword")}
             required
             variant="outlined"
             fullWidth
             margin="normal"
             name="repeatPassword"
             value={repeatPassword}
-            onChange={(e) => setRepeatPassord(e.target.value)}
+            onChange={(e) => setRepeatPassword(e.target.value)}
           />
           {logInButton ? (
             <Dialog
@@ -163,7 +180,7 @@ export default function RegistrationForm() {
               }}
             >
               <DialogTitle id="alert-dialog-title">
-                {" You have been registered. Please log in."}
+                {t("registrationForm.dialogTitle")}
               </DialogTitle>
               <DialogActions
                 sx={{
@@ -181,7 +198,7 @@ export default function RegistrationForm() {
                   color="dustblue"
                   autoFocus
                 >
-                  Go to login Page
+                  {t("registrationForm.buttons.login")}
                 </Button>
               </DialogActions>
             </Dialog>
@@ -193,7 +210,7 @@ export default function RegistrationForm() {
               onClick={handleRegistration}
               style={{ marginTop: "20px" }}
             >
-              Register
+              {t("registrationForm.buttons.register")}
             </Button>
           )}
         </ThemeProvider>

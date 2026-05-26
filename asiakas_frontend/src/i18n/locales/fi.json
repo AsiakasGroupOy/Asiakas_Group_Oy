@@ -1,4 +1,18 @@
 {
+  "apiFetchErrors": {
+    "system": {
+      "invalidResponse": "Virheellinen vastaus palvelimelta",
+      "commonError": "Jokin meni pieleen",
+      "networkError": "Verkkovirhe. Yritä uudelleen myöhemmin."
+},
+    "auth": {
+  "sessionExpired": "Istunto on vanhentunut. Kirjaudu uudelleen."
+         },
+    "loginForm":{
+      
+    }     
+  },
+  
   "addNewContact": {
     "addButton": "Lisää uusi kontakti",
     "dialogTitle": "Lisää uusi kontakti",
@@ -12,7 +26,18 @@
     "website": "Verkkosivusto (jos uusi organisaatio)",
     "callingList": "Soittolista",
     "cancel": "Peruuta",
-    "save": "Tallenna kontakti"
+    "save": "Tallenna kontakti",
+    "successMessage": "Kontakti lisätty",
+    "errors": {
+      "alertRequiredFields": "Etunimi, sukunimi, puhelin, organisaatio ja soittolista ovat pakollisia kenttiä.",
+      "nameRequired": "Etunimi ja sukunimi ovat pakollisia",
+      "phoneInvalid": "Puhelinnumero on pakollinen ja sen tulee sisältää vain numeroita sekä valinnaisesti '+358'-alku. Pituuden tulee olla 6–15 numeroa.",
+      "organizationRequired": "Organisaation nimi on pakollinen",
+      "callingListRequired": "Soittolistan nimi on pakollinen",
+      "duplicateValues": "Päällekkäisiä tai puuttuvia pakollisia arvoja.",
+      "dataError": "Jotkin rivit sisältävät virheellisiä tai liian suuria arvoja kentille.",
+      "unexpectedError": "Odottamaton virhe."
+    }
   },
 
 "editContact": {  
@@ -23,8 +48,13 @@
     "phone": "Puhelin",
     "email": "Sähköposti",
     "cancel": "Peruuta",
-    "save": "Tallenna kontakti"
-  },
+    "save": "Tallenna kontakti",
+    "errors": {
+      "alertRequiredFields": "Etunimi, sukunimi, puhelin ovat pakollisia kenttiä." ,
+      "editContactNotFound": "Yhteystietoa ei löytynyt.",
+      "phoneUpdateFailed": "Puhelinnumero on pakollinen ja sen tulee sisältää vain numeroita sekä valinnaisesti '+358'-merkki alussa. Pituuden tulee olla 6–15 numeroa."  
+  }
+},
   
    "navigationTabs": {
     "contactList": "Kontaktit",
@@ -50,13 +80,34 @@
     "contactNotePlaceholder": "Muistiinpano",
     "contactAreaButtonPrevious": "Edellinen",
     "contactAreaButtonNext": "Seuraava",
-    "contactNotFound": "Kontaktia ei löydy"
+    "contactNotFound": "Kontaktia ei löydy",
+    "errors": {
+      "emptyLists": "Kontaktit ja soittolistat ovat tyhjiä",
+      "noContactSelected": "Valittu kontakti vaaditaan",
+      "noCallingListFound": "Soittolista ei löydy",
+      "noConCallListIdFound": "Kontaktia tai soittolistaa ei löydy"     
+    }
   },
+  "callStatus":{
+    "errors": {
+    "dataNotFound": "Yhteystietoja ei löytynyt"
+    }
+  },
+
   "twilioCallButton": {
+    "noPhoneNumber": "Ei puhelinnumeroa",
     "call": "Soita",
     "hangUp": "Lopeta puhelu",
     "deviceNotReady": "Laite ei ole valmis"
    },
+   "twilioInboundCallDialog": {
+    "callFrom": "Soittaja: ",
+    "buttonText": {
+      "accept": "Vastaa",
+      "reject": "Hylkää"
+    } 
+   },
+
    "callStatusArea": {
     "callActivity": "Tapahtumat",
     "addCallStatusTitle": "Lisää tapahtuma",
@@ -70,12 +121,19 @@
     "cancel": "Peruuta",
     "save": "Tallenna"
    },
+
    "contactList": {
     "pageTitle": "Kontaktit",
     "deleteButton": "Poista",
     "exportButton": "Vie Exceliin",
     "columnMenuSelectAll": "Valitse kaikki",
-    "columnMenuDeselectAll": "Poista valinnat"
+    "columnMenuDeselectAll": "Poista valinnat",
+    "csvName": "Kontaktit_Export",
+    "warningDeleteContacts": "Valitse vähintään yksi rivi poistettavaksi.",
+    "deletedRowsMessage": "Poistettu {{count}} rivi(ä).",
+    "errors":{
+      "failedDeleteContacts": "Kontaktien poisto epäonnistui"
+    }
    },
 
    "contactListTable": {
@@ -92,8 +150,67 @@
   } ,
 
   "rolesManagement": {
-    "pageTitle": "Roolien hallinta"
+    "pageTitle": "Roolien hallinta",
+    "alert":{
+      "errUploadTitle": "Lataus epäonnistui",
+      "errFetchUsers": "Käyttäjien hakeminen epäonnistui",
+      "errFetchInvitations": "Kutsujen hakeminen epäonnistui",
+      "sendInvitationTitle": "Onnistui",
+      "sendInvitationMessage": "Kutsu lähetettiin onnistuneesti käyttäjälle ",
+      "errSendInvitationTitle": "Virhe",
+      "errSendInvitation": "Kutsun lähettäminen epäonnistui",
+      "deleteInvitationMessage" :"Käyttäjän sähköpostilla {{email}} oleva kutsu poistettiin onnistuneesti",
+      "errDeleteInvitationTitle": "Kutsun poisto epäonnistui",
+      "errDeleteInvitationMessage": "Virhe tapahtui kutsun poistamisessa",
+      "deleteUserMessage": "Käyttäjä {{useremail}} poistettiin onnistuneesti",
+      "errDeleteUserTitle": "Käyttäjän poisto epäonnistui",
+      "errDeleteUserMessage": "Virhe tapahtui käyttäjän poistamisessa: ",
+      "errUserDataRequired": "Käyttäjätiedot vaaditaan.",
+      "errUserNotFound": "Käyttäjää ei löytynyt."
+    },
+    "roles": {
+      "Manager": "Päällikkö",
+      "User": "Käyttäjä",
+      "Admin Access": "Ylläpitäjä"
+},
+    "rolesUpdate":{
+      "roleUpdatedTitle": "Roolin päivitys onnistui",
+      "roleAssigned": "Rooli '{{role}}' on määrätty käyttäjälle {{username}}.",
+      "errChangeRoleTitle": "Roolin päivitys epäonnistui",
+      "errUseremailAndRoleRequired": "Käyttäjän sähköpostiosoite ja rooli ovat pakollisia.",
+      "errUserNotFound": "Käyttäjää ei löytynyt."
+    }
   },
+  "registrationForm": {
+  "registrationFormTitle": "Rekisteröitymislomake",
+  "username": "Käyttäjänimi",
+  "password": "Salasana",
+  "confirmPassword": "Vahvista salasana",
+  "dialogTitle": "Rekisteröityminen onnistui. Ole hyvä ja kirjaudu sisään.",
+  "buttons": {
+    "register": "Rekisteröidy",
+    "login": "Siirry kirjautumissivulle"
+  },
+  "errors": {
+    "alertEmptyFieldsTitle": "Tyhjät kentät",
+    "alertEmptyFieldsMessage": "Käyttäjänimi ja salasana ovat pakollisia.",
+    "errPassword": {
+      "errRepeatPasswordTitle": "Virheellinen salasana",
+      "errRepeatPasswordMessage": "Salasanat eivät täsmää.",
+      "errPasswordTitle": "Rekisteröityminen epäonnistui",
+      "fieldsRequired": "Käyttäjänimi ja salasana ovat puuttuvat.",
+      "invalidLink": "Virheellinen tai vanhentunut linkki.",
+      "userExists": "Tämä Käyttäjä on jo olemassa.",
+      "passwordMinLength": "Salasanan tulee olla vähintään 8 merkkiä pitkä.",
+      "passwordMaxLength": "Salasana saa olla enintään 128 merkkiä pitkä.",
+      "passwordUppercase": "Salasanassa tulee olla vähintään yksi iso kirjain.",
+      "passwordLowercase": "Salasanassa tulee olla vähintään yksi pieni kirjain.",
+      "passwordDigit": "Salasanassa tulee olla vähintään yksi numero.",
+      "passwordSpecialCharacter": "Salasanassa tulee olla vähintään yksi erikoismerkki.",
+      "errPasswordMessage": "Virhe tapahtui rekisteröitymisen aikana. Yritä uudelleen."
+    }
+  }
+},
 
     "activeUsersTable": {
     "userName": "Käyttäjä",
@@ -121,7 +238,8 @@
 
   
   "callHistoryPage":{
-    "pageTitle": "Puheluhistoria"
+    "pageTitle": "Puheluhistoria",
+    "errCustomerIdMissing": "Asiakasta ei ole määritetty"
   },
   
   "callHistoryTable": {
@@ -147,10 +265,109 @@
     "login": "Kirjaudu sisään",
     "alertEmptyFieldsTitle": "Tyhjät kentät",
     "alertEmptyFields": "Täytä kaikki kentät",
-    "lertInvalidCredentialsTitle": "Kirjautuminen epäonnistui",
+    "alertInvalidCredentialsTitle": "Kirjautuminen epäonnistui",
     "alertInvalidCredentials": "Virheellinen sähköposti tai salasana."
   },
 
+  "importContacts": {
+   "instructionsList": {
+    "title": "Valitse kontaktilista",
+    "item1": "Tiedoston latausvaatimukset: ",
+    "item2": "Sallitut tiedostomuodot: csv, xls, xslx",
+    "item3": "Tiedostossa tulee olla ensimmäisenä rivinä otsikkorivi.",
+    "item4": "Excel-tiedostoissa kontaktit luetaan ensimmäisestä taulukosta"
+  },
+
+  "steps": {
+    "selectFile": "Valitse tiedosto",
+    "reviewAndUpload": "Tarkista kontaktien tiedot",
+    "complete": "Valmis"
+  },
+  
+  "nofileSelected": "Tiedostoa ei ole valittu",
+  "selectFilePlaceholder": "Valittu tiedosto",
+
+  "buttons": {
+    "next": "Seuraava",
+    "selectFile": "Valitse tiedosto"
+  },
+
+  "alerts": {
+    "invalidFile": "Lataa CSV- tai Excel-tiedosto.",
+    "cancelUpload": "Haluatko varmasti keskeyttää tiedoston latauksen?",
+    "uploadWarnings": "Lataus valmis varoitusten kanssa",
+    "uploadWarningsEndMessage": "riviä ladattu",
+    "uploadSuccessful": "riviä ladattu onnistuneesti",
+    "uploadIssues": "Seuraavat ongelmat havaittiin:",
+    "uploadComplete": "Tiedosto on ladattu ja valmis käytettäväksi.",
+    "uploadNoRows": "Tiedoston latauksessa tapahtui virhe. Yritä uudelleen."
+  },
+
+  "errMessages": {
+    "uploadFailed": "Lataus epäonnistui",
+    "networkError": "Tiedoston latauksen aikana tapahtui virhe"
+  }
+},
+
+"reviewContactsUploading": {
+    "errMessages":{
+       "noFile":"Ei tiedostoa esikatselua varten",
+       "errFetchingPreview": "Esikatselutietojen hakemisessa tapahtui virhe"},
+    "alert":{
+      "title": "Virhe",
+      "message": "Esikatselutietojen lataaminen epäonnistui."
+    },
+    "mappingWarning": {
+      
+      "phoneMapping": "Lisää 'Puhelin' kenttä karttaan ennen jatkamista.",
+      "organizationMapping": "Lisää 'Yrityksen nimi' kenttä karttaan ennen jatkamista.",
+      "missedMapping": "Karttaa kaikki sarakkeet ennen jatkamista."
+    },
+    "mappingTitle":"Sarakkeiden yhdistäminen kenttiin",
+    "emptyMapField": "-- Valitse kenttä --",
+    "buttons": {
+      "cancel": "Peruuta",
+      "next": "Seuraava"
+    },
+    
+    "mappingOptions": {
+      "first_name": "Etunimi",
+      "last_name": "Sukunimi",
+      "email": "Sähköposti",
+      "phone": "Puhelin (pakollinen)",
+      "job_title": "Tehtävänimike",
+      "organization_name": "Yrityksen nimi",
+      "website": "Yrityksen verkkosivusto",
+      "note": "Muistiinpano",
+      "do_not_import": "Älä tuo"
+    } 
+
+   
+
+},
+ "assignCallListToUploading":{
+        "alertCallListMissing":"Valitse kontatilista ennen jatkamista.",
+        "alertFetchCallList":"Kontaktilistoja ei ole saatavilla.",
+        "dialogTitle":"Määritä kontaktilista",
+        "dialogLablelNoCallList":"Ei olemassa olevia kontaktilistoja - kirjoita uusi nimi",
+        "dialogLableSelectCallList":"Valitse tai kirjoita kontaktilista",
+        "buttons":{
+          "back":"Takaisin",
+          "next":"Seuraava"
+        }
+    },
+    "submitFileUploading": {
+        "dialogTitle": "Tiedosto on valmis. Aloita lataus painamalla Lähetä.",
+        "buttons": {
+          "cancel": "Peruuta",
+          "submit": "Lähetä lataus"
+        }
+},
+      "apiFetchError": {
+      "invalidResponse": "Virheellinen palvelinvastaus.",
+      "commonError": "Tietojen hakemisessa tapahtui virhe.",
+      "networkError": "Verkkovirhe. Tarkista yhteytesi ja yritä uudelleen."
+    },
   "grid": {
     "dateFilterResetButton": "Nollaa",
     "pageSizeSelectorLabel": "Rivejä sivulla",

@@ -50,7 +50,9 @@ export default function LoginForm() {
       setAlert({
         status: "error",
         title: t("loginForm.alertInvalidCredentialsTitle"),
-        message: t("loginForm.alertInvalidCredentials"),
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`loginForm.${response.message}`),
       });
     }
   };
@@ -72,7 +74,6 @@ export default function LoginForm() {
           <form onSubmit={handleUserLogIn}>
             <TextField
               variant="outlined"
-              required
               fullWidth
               margin="normal"
               label={t("loginForm.email")}
@@ -83,7 +84,6 @@ export default function LoginForm() {
 
             <TextField
               label={t("loginForm.password")}
-              required
               type="password"
               variant="outlined"
               fullWidth

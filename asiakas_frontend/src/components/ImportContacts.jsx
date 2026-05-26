@@ -21,6 +21,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import AssignCallListToUploading from "./AssignCallListToUploadingContacts";
 import SubmitFileUploading from "./SubmitFileUploading";
 import { uploadContactsFile } from "../services/contactListApi";
+import { useTranslation } from "react-i18next";
 
 export default function ImportContacts() {
   const [activeStep, setActiveStep] = useState(-1);
@@ -37,8 +38,13 @@ export default function ImportContacts() {
   const [uploadFailedAlert, setUploadFailedAlert] = useState(false);
   const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [loadingStarts, setLoadingStarts] = useState(false);
+  const { t } = useTranslation();
 
-  const steps = ["Select file", "Review and upload", "Complete"];
+  const steps = [
+    t("importContacts.steps.selectFile"),
+    t("importContacts.steps.reviewAndUpload"),
+    t("importContacts.steps.complete"),
+  ];
 
   const fileInputRef = useRef(null);
 
@@ -55,7 +61,7 @@ export default function ImportContacts() {
       const allowed = [".csv", ".xls", ".xlsx"];
       const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
       if (!allowed.includes(ext)) {
-        alert("Please upload a CSV or Excel file.");
+        alert(t("importContacts.alerts.invalidFile"));
         setFileName("");
         setActiveStep(-1);
         return;
@@ -107,7 +113,6 @@ export default function ImportContacts() {
   };
 
   const handleSubmitFileUpload = async () => {
-    console.log(selectedCallList, mapping, fileToPreview);
     try {
       setLoadingStarts(true);
       setSubmittingDialogOpen(false);
@@ -115,7 +120,7 @@ export default function ImportContacts() {
       const uploading = await uploadContactsFile(
         fileToPreview,
         mapping,
-        selectedCallList
+        selectedCallList,
       );
 
       setLoadingStarts(false);
@@ -131,30 +136,27 @@ export default function ImportContacts() {
           if (warnings?.length) {
             setUploadErrorMessage(warnings.join("\n"));
           }
-          console.log("Uploading result:", uploading);
         } else if (warnings?.length) {
           // Uploaded 0 rows and warnings
           setUploadErrorMessage(warnings.join("\n"));
           setUploadFailedAlert(true);
         }
       } else {
-        setUploadErrorMessage(uploading.message || "Upload failed.");
+        setUploadErrorMessage(t("importContacts.errMessages.uploadFailed"));
         setUploadFailedAlert(true);
       }
     } catch (err) {
       setLoadingStarts(false);
       // Network or unexpected errors
       console.error(err);
-      setUploadErrorMessage(
-        err.message || "Something went wrong while uploading the file."
-      );
+      setUploadErrorMessage(t("importContacts.errMessages.networkError"));
       setUploadFailedAlert(true);
     }
   };
 
   const handleSubmitFileUploadClosed = () => {
     // Reset all the states to initial
-    alert("Are you sure you want to cancel the file upload?");
+    alert(t("importContacts.alerts.cancelUpload"));
     setSubmittingDialogOpen(false);
     setSelectedCallList("");
     handleBack();
@@ -200,17 +202,14 @@ export default function ImportContacts() {
                   component="div"
                   sx={{ marginBottom: 2 }}
                 >
-                  Select contact list
+                  {t("importContacts.instructionsList.title")}
                 </Typography>
                 <Typography variant="body" component="div">
-                  Content (requirements for the file upload):
+                  {t("importContacts.instructionsList.item1")}
                   <ul>
-                    <li>Allowed file formats: .csv, .xls, .xlsx</li>
-                    <li>The first row of the file must contain headers.</li>
-                    <li>
-                      In Excel files, contacts must be listed in the first
-                      worksheet.
-                    </li>
+                    <li>{t("importContacts.instructionsList.item2")}</li>
+                    <li>{t("importContacts.instructionsList.item3")}</li>
+                    <li>{t("importContacts.instructionsList.item4")}</li>
                   </ul>
                 </Typography>
 
@@ -224,7 +223,9 @@ export default function ImportContacts() {
 
                 {/* Show selected file name */}
                 <TextField
-                  value={fileName ? fileName : "No file selected"}
+                  value={
+                    fileName ? fileName : t("importContacts.nofileSelected")
+                  }
                   variant="standard"
                   fullWidth
                   size="medium"
@@ -238,7 +239,7 @@ export default function ImportContacts() {
                   color="dustblue"
                   onClick={handleButtonClick}
                 >
-                  Select file
+                  {t("importContacts.buttons.selectFile")}
                 </Button>
                 <Button
                   variant="contained"
@@ -246,7 +247,7 @@ export default function ImportContacts() {
                   disabled={ifNextDisabled}
                   onClick={() => setOpenPreview(true)}
                 >
-                  Next
+                  {t("importContacts.buttons.next")}
                 </Button>
               </CardActions>
             </Card>
@@ -288,8 +289,8 @@ export default function ImportContacts() {
                 uploadErrorMessage && numberUploadedRows > 0
                   ? "warning"
                   : completeAlert && numberUploadedRows > 0
-                  ? "success"
-                  : "error"
+                    ? "success"
+                    : "error"
               }
               onClose={() => {
                 setCompleteAlert(false);
@@ -302,16 +303,16 @@ export default function ImportContacts() {
             >
               <AlertTitle sx={{ mt: 2, fontSize: "15px" }}>
                 {uploadErrorMessage && numberUploadedRows > 0
-                  ? `Upload Completed with Warnings (${numberUploadedRows} row(s) uploaded)`
+                  ? `${t("importContacts.alerts.uploadWarnings")} (${numberUploadedRows} ${t("importContacts.alerts.uploadWarningsEndMessage")})`
                   : completeAlert && numberUploadedRows > 0
-                  ? `Upload Successful (${numberUploadedRows} row(s))`
-                  : "Upload Failed"}
+                    ? `(${numberUploadedRows}  ${t("importContacts.alerts.uploadSuccessful")})`
+                    : `${t("importContacts.errMessages.uploadFailed")}`}
               </AlertTitle>
 
               {uploadErrorMessage ? (
                 <>
                   <br />
-                  These issues were found:
+                  {t("importContacts.alerts.uploadIssues")}
                   <br />
                   <br />
                   {uploadErrorMessage.split("\n").map((msg, idx) => (
@@ -321,9 +322,9 @@ export default function ImportContacts() {
                   ))}
                 </>
               ) : completeAlert && numberUploadedRows > 0 ? (
-                "Your file has been uploaded and is ready to use."
+                t("importContacts.alerts.uploadComplete")
               ) : (
-                "There was an error uploading your file. Please try again."
+                t("importContacts.alerts.uploadNoRows")
               )}
             </Alert>
           )}

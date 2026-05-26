@@ -58,6 +58,12 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
+        setAlert({
+          status: data.status,
+          message: data.message.startsWith("apiFetchErrors.")
+            ? t(data.message)
+            : t(`callView.errors.${data.message}`),
+        });
       }
     };
     filteredFromConCallingList();
@@ -126,6 +132,12 @@ export default function CallView() {
       setFilteredContacts(data.data);
     } else {
       setFilteredContacts([]);
+      setAlert({
+        status: data.status,
+        message: data.message.startsWith("apiFetchErrors.")
+          ? t(data.message)
+          : t(`callView.errors.${data.message}`),
+      });
     }
   };
 
@@ -140,11 +152,19 @@ export default function CallView() {
         setNoteValue(newNote);
       } else {
         setFilteredContacts([]);
+        setAlert({
+          status: data.status,
+          message: data.message.startsWith("apiFetchErrors.")
+            ? t(data.message)
+            : t(`callView.errors.${data.message}`),
+        });
       }
     } else {
       setAlert({
         status: dataNote.status,
-        message: dataNote.message,
+        message: dataNote.message.startsWith("apiFetchErrors.")
+          ? t(dataNote.message)
+          : t(`callView.errors.${dataNote.message}`),
       });
     }
   };
@@ -206,11 +226,19 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
+        setAlert({
+          status: data.status,
+          message: data.message.startsWith("apiFetchErrors.")
+            ? t(data.message)
+            : t(`callView.errors.${data.message}`),
+        });
       }
     } else {
       setAlert({
         status: dataStatus.status,
-        message: dataStatus.message,
+        message: dataStatus.message.startsWith("apiFetchErrors.")
+          ? t(dataStatus.message)
+          : t(`callStatus.errors.${dataStatus.message}`),
       });
     }
   };
@@ -225,11 +253,19 @@ export default function CallView() {
         setFilteredContacts(data.data);
       } else {
         setFilteredContacts([]);
+        setAlert({
+          status: data.status,
+          message: data.message.startsWith("apiFetchErrors.")
+            ? t(data.message)
+            : t(`callView.errors.${data.message}`),
+        });
       }
     } else {
       setAlert({
         status: saveData.status,
-        message: saveData.message,
+        message: saveData.message.startsWith("apiFetchErrors.")
+          ? t(saveData.message)
+          : t(`editContact.errors.${saveData.message}`),
       });
     }
   };

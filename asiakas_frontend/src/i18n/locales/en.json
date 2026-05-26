@@ -1,5 +1,15 @@
-{
-  "addNewContact": {
+{"apiFetchErrors": {
+    "system": {
+      "invalidResponse": "Invalid response from server",
+      "commonError": "Something went wrong",
+      "networkError": "Network error. Please try again later."
+    },
+    "auth": {
+      "sessionExpired": "Session expired. Please log in again."
+         }
+  },
+
+ "addNewContact": {
     "addButton": "Add New Contact",
     "dialogTitle": "Add New Contact",
     "firstName": "First Name",
@@ -12,7 +22,18 @@
     "website": "Website if organization is new",
     "callingList": "Calling List",
     "cancel": "Cancel",
-    "save": "Save contact"
+    "save": "Save contact",
+    "successMessage": "Contact added successfully",
+    "errors":{
+      "alertRequiredFields":"The following fields are required: First Name, Last Name, Phone, Organization, and Calling List.",
+      "nameRequired":"First name and Last name are required",
+      "phoneInvalid":"Phone number is required and must contain only digits with an optional '+358' at the start, 6 to 15 digits long.",
+      "organizationRequired":"Organization name is required",
+      "callingListRequired":"Calling list name is required",
+      "duplicateValues":"Duplicate or missing required values.",
+      "dataError":"Some rows contain invalid or too large values for the fields.",
+      "unexpectedError":"Unexpected error."
+    }
   },
 
   "editContact": {  
@@ -23,7 +44,12 @@
     "phone": "Phone",
     "email": "Email Address",
     "cancel": "Cancel",
-    "save": "Save contact"
+    "save": "Save contact",
+    "errors":{
+      "alertRequiredFields":"The following fields are required: First Name, Last Name, Phone.",
+      "editContactNotFound": "Contact not found.",
+      "phoneUpdateFailed": "Phone number is required and must contain only digits with an optional '+358' at the start, 6 to 15 digits long."
+    }
   },
 
   "navigationTabs": {
@@ -51,12 +77,33 @@
     "contactNotePlaceholder": "Notes",
     "contactAreaButtonPrevious": "Previous",
     "contactAreaButtonNext": "Next",
-    "contactNotFound": "No contact found"
+    "contactNotFound": "No contact found",
+    "errors": {
+      "emptyLists": "Contact and Calling Lists are empty",
+      "noContactSelected": "Selected contact is required",
+      "noCallingListFound": "Calling List not found",
+      "noConCallListIdFound": "Contact or Calling List not found"
+     
+    }
   },
+  "callStatus":{
+    "errors": {
+    "dataNotFound": "Contact information is not found"
+    }
+  },
+
     "twilioCallButton": {
-    "call": "Call",
-    "hangUp": "Hang Up",
-    "deviceNotReady": "Device not ready"
+      "noPhoneNumber": "No phone number",
+      "call": "Call",
+      "hangUp": "Hang Up",
+      "deviceNotReady": "Device not ready"
+   },
+   "twilioInboundCallDialog": {
+    "callFrom": "CALL FROM ",
+       "buttonText": {
+      "accept": "Respond",
+      "reject": "Hang Up"
+    } 
    },
 
    "callStatusArea": {
@@ -78,7 +125,13 @@
     "deleteButton": "Delete",
     "exportButton": "Export to Excel",
     "columnMenuSelectAll": "Select All",
-    "columnMenuDeselectAll": "Deselect All"
+    "columnMenuDeselectAll": "Deselect All",
+    "csvName": "Contact_List_Export",
+    "warningDeleteContacts": "Please select at least one row to delete.",
+    "deletedRowsMessage": "Removed {{count}} row(s).",
+    "errors":{
+      "failedDeleteContacts": "Failed to delete contacts"
+    }
     
   },
   
@@ -97,8 +150,68 @@
   } ,
 
   "rolesManagement": {
-    "pageTitle": "Roles Management"
+    "pageTitle": "Roles Management",
+    "alert":{
+      "errUploadTitle": "Upload Failed",
+      "errFetchUsers": "Failed to fetch users",
+      "errFetchInvitations": "Failed to fetch invitations",
+      "sendInvitationTitle": "Success",
+      "sendInvitationMessage": "Invitation sent successfully to ",
+      "errSendInvitationTitle": "Error",
+      "errSendInvitation": "Failed to send invitation",
+      "deleteInvitationMessage": "Invitation for user with email {{email}} deleted successfully",
+      "errDeleteInvitationTitle": "Failed to delete invitation",
+      "errDeleteInvitationMessage": "Error occurred while deleting invitation",
+      "deleteUserMessage": "User with email {{useremail}} deleted successfully",
+      "errDeleteUserTitle": "Failed to delete user",
+      "errDeleteUserMessage": "Error occurred while deleting user: ",
+      "errUserDataRequired":"User data required.",
+      "errUserNotFound": "User not found."
+      },
+    "roles": {
+      "Manager": "Manager",
+      "User": "User",
+      "Admin Access": "Admin Access"
+      },
+    "rolesUpdate":{
+      "roleUpdatedTitle": "Role updated successfully",
+      "roleAssigned": "Role '{{role}}' assigned to {{username}}.",
+      "errChangeRoleTitle": "Failed to update role",
+      "errUseremailAndRoleRequired": "Useremail and role are required.",
+      "errUserNotFound": "User not found."
+    }
   },
+
+  "registrationForm": {
+    "registrationFormTitle": "Registration Form",
+    "username": "User Name",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "dialogTitle": " You have been registered. Please log in.",
+    "buttons": {
+      "register": "Register",
+      "login": "Go to login Page"
+    }, 
+    "errors": {
+      "alertEmptyFieldsTitle":"Empty fields",
+      "alertEmptyFieldsMessage": "Username, and password are required.",
+        "errPassword":{
+          "errRepeatPasswordTitle":"Invalid password",
+          "errRepeatPasswordMessage":"Passwords do not match.",
+          "errPasswordTitle": "Registration failed",
+          "fieldsRequired": "Username or password is missing.",
+          "invalidLink": "Invalid or expired link.",
+          "userExists": "This User already exists.",
+          "passwordMinLength": "Password must be at least 8 characters long.",
+          "passwordMaxLength": "Password must not exceed 128 characters.",
+          "passwordUppercase": "Password must include at least one uppercase letter.",
+          "passwordLowercase": "Password must include at least one lowercase letter.",
+          "passwordDigit": "Password must include at least one digit.",
+          "passwordSpecialCharacter": "Password must include at least one special character.",
+          "errPasswordMessage": "Something went wrong"
+        }
+    }
+     },
 
   "activeUsersTable": {
     "userName": "User name",
@@ -124,7 +237,8 @@
   },
 
   "callHistoryPage":{
-    "pageTitle": "Call History"
+    "pageTitle": "Call History",
+    "errCustomerIdMissing": "Customer is not provided"
   },
 
   "callHistoryTable": {
@@ -152,6 +266,104 @@
     "alertInvalidCredentialsTitle": "Login Failed",
     "alertInvalidCredentials": "Invalid email or password."
   },
+
+  "importContacts":{
+    "instructionsList": {
+    "title": "Select contact list to import",
+    "item1": "Content (requirements for the file upload): ",
+    "item2": "The file must be in CSV or Excel format.",
+    "item3": "The first row should contain column headers.",
+    "item4": "In Excel files, contacts must be listed in the first worksheet."
+  },
+
+    "steps": {
+    "selectFile": "Select file",
+    "reviewAndUpload": "Review and upload",
+    "complete": "Complete"
+
+  },
+    "nofileSelected": "No file selected",
+    "selectFilePlaceholder": "Select file",
+
+  "buttons": {
+    "next": "Next",
+    "selectFile": "Select file"
+  },
+  "alerts": {
+    "invalidFile": "Please upload a CSV or Excel file.",
+    "cancelUpload": "Are you sure you want to cancel the file upload?",
+    "uploadWarnings": "Upload Completed with Warnings",
+    "uploadWarningsEndMessage": "row(s) uploaded",
+    "uploadSuccessful": "row(s) uploaded successfully",
+    "uploadIssues":"These issues were found:",
+    "uploadComplete": "Your file has been uploaded and is ready to use.",
+    "uploadNoRows":"There was an error uploading your file. Please try again."
+  },
+  "errMessages": {
+       "uploadFailed": "Upload Failed",
+       "networkError": "Something went wrong while uploading the file"
+  }
+  },
+
+  "reviewContactsUploading": {
+    "errMessages":{
+       "noFile":"No file download to preview",
+       "errFetchingPreview": "Error fetching preview data"},
+    "alert":{
+      "title": "Error",
+      "message": "Failed to load preview data."
+    },
+    "mappingWarning": {
+      
+      "phoneMapping": "Please include a 'phone' field in the mapping before proceeding.",
+      "organizationMapping": "Please include a 'Organization name' field in the mapping before proceeding.",
+      "missedMapping": "Please map all columns before proceeding."
+    },
+    "mappingTitle":"Map Columns to Fields",
+    "emptyMapField": "-- Map field --",
+    "buttons": {
+      "cancel": "Cancel",
+      "next": "Next"
+    },
+
+    "mappingOptions": {
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "email": "Email",
+      "phone": "Phone (required)",
+      "job_title": "Job Title",
+      "organization_name": "Organization name",
+      "website": "Organization website",
+      "note": "Note",
+      "do_not_import": "Do not import"
+    }
+
+    
+},
+"assignCallListToUploading":{
+        "alertCallListMissing":"Please select a call list before proceeding.",
+        "alertFetchCallList":"Call lists could be empty or not available.",
+        "dialogTitle":"Assign Call List",
+        "dialogLablelNoCallList":"No existing call lists - type a new name",
+        "dialogLableSelectCallList":"Select or type a calling list",
+        "buttons":{
+          "back":"Back",
+          "next":"Next"
+        }
+    },
+    "submitFileUploading":{
+      "dialogTitle":" Your file is ready. Press Submit to upload.",
+      "buttons":{
+        "cancel": "Cancel",
+        "submit":"Submit loading"
+      }
+    },
+
+   "apiFetchError": {
+      "invalidResponse": "Invalid response from server",
+      "commonError": "Something went wrong while fetching data",
+      "networkError": "Network error. Please check your connection and try again."
+    },
 
   "grid": {
     "dateFilterResetButton": "Reset",

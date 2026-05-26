@@ -1,4 +1,5 @@
 import { invokeGlobalLogout } from "./globalLogout";
+import i18n from "../i18n/i18n";
 
 // General apiFetch Utility
 export const apiFetch = async (url, options = {}) => {
@@ -10,13 +11,17 @@ export const apiFetch = async (url, options = {}) => {
     try {
       data = await response.json();
     } catch {
-      return { status: "error", message: "Invalid response from server" };
+      return {
+        status: "error",
+        message: "apiFetchErrors.system.invalidResponse",
+      };
     }
 
     if (!response.ok) {
       return {
         status: "error",
-        message: data.error || data.message || "Something went wrong",
+        message:
+          data.error || data.message || "apiFetchErrors.system.commonError",
       };
     }
 
@@ -24,11 +29,11 @@ export const apiFetch = async (url, options = {}) => {
   } catch (networkError) {
     console.error(
       "Network/system error:",
-      networkError.message || networkError
+      networkError.message || networkError,
     );
     return {
       status: "error",
-      message: "Network error. Please try again later.",
+      message: "apiFetchErrors.system.networkError",
     };
   }
 };
@@ -56,7 +61,8 @@ export const secureApiFetch = async (url, options = {}) => {
       }
 
       console.error("Refresh token invalid → logging out ", refresh.message);
-      window.alert("Session expired. Please log in again.");
+
+      window.alert(i18n.t("apiFetchErrors.auth.sessionExpired"));
       await invokeGlobalLogout(); // this triggers logout() in AuthProvider // force logout
 
       return { status: "session-expired" };
@@ -73,7 +79,7 @@ export const refreshToken = async () => {
       {
         method: "POST",
         credentials: "include",
-      }
+      },
     );
 
     const data = await response.json().catch(() => ({}));
@@ -106,7 +112,7 @@ export const getCurrentUser = async () => {
     `${import.meta.env.VITE_BACKEND_URL}/api/users/current`,
     {
       method: "GET",
-    }
+    },
   );
 };
 
@@ -120,6 +126,6 @@ export const logOutProcess = async (current_user_id) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ user_id: current_user_id }),
-    }
+    },
   );
 };

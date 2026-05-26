@@ -7,8 +7,7 @@ export default function OutboundCallButton({ callData }) {
   const { makeCall, twilioStatus, hangup, activeCall } = useTwilio();
   const { t } = useTranslation();
   if (!callData?.to_number) {
-    console.log("No phone number in callData:", callData);
-    return <div>NO phone number</div>;
+    return <div>{t("twilioCallButton.noPhoneNumber")}</div>;
   }
 
   const handleClick = () => {

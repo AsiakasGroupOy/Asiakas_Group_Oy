@@ -131,7 +131,7 @@ def invite_user():
 
     audit_logger.info("Invitation sent to user: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, customer_id)
 
-    return jsonify({"message": f"Invitation sent to '{invitation_email}'"}), 200
+    return jsonify({"message": invitation_email}), 200
 
 
 # ✅ DELETE Invitation for user
@@ -154,7 +154,7 @@ def delete_user_invitation():
 
     audit_logger.info("User invitation DELETED: invitation_email=%s, deleted_by_user_id=%s customer_id=%s", result['invitation'], g.user_id, g.customer_id)
 
-    return jsonify({"message": f"Invitation for user with Email {result['invitation']} deleted successfully"}), 200
+    return jsonify({"message": result['invitation']}), 200
 
 
 

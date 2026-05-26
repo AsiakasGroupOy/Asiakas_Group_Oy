@@ -31,8 +31,8 @@ export default function RolesManagement() {
     } else {
       setAlert({
         status: response.status,
-        title: "Upload Failed",
-        message: response.message || "Failed to fetch users",
+        title: t("rolesManagement.alert.errUploadTitle"),
+        message: t("rolesManagement.alert.errFetchUsers"),
       });
     }
 
@@ -56,8 +56,8 @@ export default function RolesManagement() {
       setInvitationsList([createAddRow()]);
       setAlert({
         status: list.status,
-        title: "Upload Failed",
-        message: list.message || "Failed to fetch invintations",
+        title: t("rolesManagement.alert.errUploadTitle"),
+        message: t("rolesManagement.alert.errFetchInvitations"),
       });
     }
     setLoadingInv(false);
@@ -74,14 +74,19 @@ export default function RolesManagement() {
     if (role.status === "success") {
       setAlert({
         status: role.status,
-        title: "Role updated successfully",
-        message: role.data.message,
+        title: t("rolesManagement.rolesUpdate.roleUpdatedTitle"),
+        message: t("rolesManagement.rolesUpdate.roleAssigned", {
+          role: t(`rolesManagement.roles.${role.data.role}`),
+          username: role.data.username,
+        }),
       });
     } else if (role.status === "error") {
       setAlert({
         status: role.status,
-        title: "Failed to update role",
-        message: role.message,
+        title: t("rolesManagement.rolesUpdate.errChangeRoleTitle"),
+        message: role.message.startsWith("apiFetchErrors.")
+          ? t(role.message)
+          : t(`rolesManagement.rolesUpdate.${role.message}`),
       });
     }
   };
@@ -92,14 +97,16 @@ export default function RolesManagement() {
     if (invitation.status === "success") {
       setAlert({
         status: invitation.status,
-        title: "Success",
-        message: invitation.data.message,
+        title: t("rolesManagement.alert.sendInvitationTitle"),
+        message:
+          t("rolesManagement.alert.sendInvitationMessage") +
+          `${invitation.data.message}`,
       });
     } else if (invitation.status === "error") {
       setAlert({
         status: invitation.status,
-        title: "Error",
-        message: invitation.message,
+        title: t("rolesManagement.alert.errSendInvitationTitle"),
+        message: t("rolesManagement.alert.errSendInvitation"),
       });
     }
     fetchUserInvitations();
@@ -112,15 +119,21 @@ export default function RolesManagement() {
       setAlert({
         status: response.status,
         title: "",
-        message: response.data.message,
+        message: t("rolesManagement.alert.deleteUserMessage", {
+          useremail: response.data.message,
+        }),
       });
       fetchUserList();
     } else {
       // Handle errors returned from backend
       setAlert({
         status: "error",
-        title: "User was not removed from the list",
-        message: response.message || "Something went wrong",
+        title: t("rolesManagement.alert.errDeleteUserTitle"),
+        message:
+          t("rolesManagement.alert.errDeleteUserMessage") +
+          response.message.startsWith("apiFetchErrors.")
+            ? t(response.message)
+            : t(`rolesManagement.alert.${response.message}`),
       });
     }
   };
@@ -132,15 +145,19 @@ export default function RolesManagement() {
       setAlert({
         status: response.status,
         title: "",
-        message: response.data.message,
+        message: t("rolesManagement.alert.deleteInvitationMessage", {
+          email: response.data.message,
+        }),
       });
       fetchUserInvitations();
     } else {
       // Handle errors returned from backend
       setAlert({
         status: "error",
-        title: "User was not removed from the list",
-        message: response.message || "Something went wrong",
+        title: t("rolesManagement.alert.errDeleteInvitationTitle"),
+        message:
+          t("rolesManagement.alert.errDeleteInvitationMessage") +
+          `${response.message || ""}`,
       });
     }
   };
