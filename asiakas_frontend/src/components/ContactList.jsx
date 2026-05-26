@@ -146,7 +146,7 @@ export default function ContactList() {
       setContactList([]);
       setAlert({
         status: response.status,
-        message: response.message,
+        message: t(response.message),
       });
     }
   };
@@ -195,7 +195,7 @@ export default function ContactList() {
     const columnKeys = columnDefs.map((col) => col.field);
     const now = new Date();
     const timestamp = now.toISOString().replace(/[:.]/g, "-");
-    const fileName = `Contact list_${timestamp}.csv`;
+    const fileName = t(`contactList.csvName`) + `_${timestamp}.csv`;
     const params = {
       columnKeys: columnKeys,
       fileName: fileName, // Specify the file name for the exported CSV file
@@ -219,12 +219,14 @@ export default function ContactList() {
       fetchContactList(); // Refresh contact list after adding
       setAlert({
         status: response.status,
-        message: response.data.message,
+        message: t(`addNewContact.${response.message}`),
       });
     } else {
       setAlert({
         status: response.status,
-        message: response.message,
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`addNewContact.errors.${response.message}`),
       });
     }
   };
@@ -233,7 +235,7 @@ export default function ContactList() {
     if (selectedRows.length === 0) {
       setAlert({
         status: "warning",
-        message: "Please select at least one row to delete.",
+        message: t("contactList.warningDeleteContacts"),
       });
       return;
     }
@@ -249,14 +251,17 @@ export default function ContactList() {
     if (response.status === "success") {
       setAlert({
         status: response.status,
-        message: response.data.message,
+        message: t("contactList.deletedRowsMessage", {
+          count: response.data.message,
+        }),
       });
       fetchContactList(); // Refresh contact list after deletion
     } else {
       setAlert({
         status: response.status,
-        message:
-          "Failed to delete contacts: " + (response.message || "Unknown error"),
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t("contactList.errors.failedDeleteContacts"),
       });
     }
   };

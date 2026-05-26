@@ -27,7 +27,7 @@ def get_contact_calling_list_By_firstCCLId():
         app_logger.warning(
         "First concal_id is empty when filtered Calling List by first concal_id for user_id=%s customer_id=%s method=%s path=%s ip=%s",
         g.user_id, g.customer_id, request.method, request.path, request.remote_addr )
-        return jsonify({"error": "Contact and Calling List is empty"}), 404
+        return jsonify({"error": "emptyLists"}), 404
     
     calling_list_id = first_concal.calling_list_id
 
@@ -114,7 +114,7 @@ def get_contact_calling_list_By_SelectedRowId(concal_id): # Get the concal_id fr
         "Selected row's concal missing when Calling List is filtered by concal_id from selected row: user_id=%s customer_id=%s method=%s path=%s ip=%s",
         g.user_id, g.customer_id, request.method, request.path, request.remote_addr
     )
-        return jsonify({"error": "Selected contact is required"}), 400
+        return jsonify({"error": "noContactSelected"}), 400
     
     navId_concal = ContactCallingList.query.get(concal_id)
     calling_list_id = navId_concal.calling_list_id
@@ -203,7 +203,7 @@ def get_contact_calling_list_By_CallingListName(name):
         app_logger.warning(
         "CallingList not found by name: name=%s user_id=%s customer_id=%s method=%s path=%s ip=%s",
         name, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Calling List not found"}), 404
+        return jsonify({"error": "noCallingListFound"}), 404
     
     calling_list_id = calling_list.calling_list_id
 
@@ -457,7 +457,7 @@ def remove():
     audit_logger.info("Contact(s) of Calling List(s)%s REMOVED: contacts by user_id=%s customer_id=%s",deleted_count, g.user_id, g.customer_id)
 
     return jsonify({
-        "message": f"Removed {deleted_count} row(s).",
+        "message": deleted_count,
         "removed_contacts": list(contact_ids_to_check),
         "removed_lists": list(list_ids_to_check),
         "removed_orgs": list(org_ids_to_check)
@@ -474,7 +474,7 @@ def update_note(concal_id):
     if not concal:
         app_logger.warning("Attempt to update note for non-existent ContactCallingList: concal_id=%s user_id=%s customer_id=%s method=%s path=%s ip=%s",
             concal_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Contact Calling List not found"}), 404
+        return jsonify({"error": "noConCallListIdFound"}), 404
 
     concal.note = note
     db.session.commit()

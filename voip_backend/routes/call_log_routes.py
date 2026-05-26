@@ -34,7 +34,7 @@ def create_call_log(concal_id):
         "Attempt to create call log for non-existent ContactCallingList: concal_id=%s method=%s path=%s ip=%s",
         concal_id, request.method, request.path, request.remote_addr
     )
-        return jsonify({"error": "Contact information is not found"}), 404
+        return jsonify({"error": "dataNotFound"}), 404
 
     new_log = CallLog (
         concal_id=concal_id,

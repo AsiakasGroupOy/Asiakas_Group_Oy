@@ -11,10 +11,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import IconButton from "@mui/material/IconButton";
 import { useTranslation } from "react-i18next";
+import AlertMessage from "./AlertMessage";
 
 export default function EditContact({ editContact, saveEditContact }) {
   const [open, setOpen] = React.useState(false);
   const { t } = useTranslation();
+  const [alert, setAlert] = useState(null);
 
   const [contact, setContact] = useState({
     contact_id: "",
@@ -48,6 +50,13 @@ export default function EditContact({ editContact, saveEditContact }) {
 
   const handleSave = (e) => {
     e.preventDefault();
+    if (!contact.first_name || !contact.last_name || !contact.phone) {
+      setAlert({
+        status: "error",
+        message: t("editContact.errors.alertRequiredFields"),
+      });
+      return;
+    }
     saveEditContact(contact);
     handleClose();
   };
@@ -113,6 +122,7 @@ export default function EditContact({ editContact, saveEditContact }) {
             variant="standard"
           />
         </DialogContent>
+        {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
         <DialogActions>
           <Button variant="contained" color="dustblue" onClick={handleClose}>
             {t("editContact.cancel")}

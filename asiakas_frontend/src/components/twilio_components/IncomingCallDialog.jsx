@@ -4,10 +4,12 @@ import PhoneCallbackIcon from "@mui/icons-material/PhoneCallback";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 import PhoneDisabledIcon from "@mui/icons-material/PhoneDisabled";
 import { Snackbar, Alert, Button, Paper } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export default function IncomingCallDialog() {
   const { incomingCall, activeCall, hangup, acceptIncomingCall } = useTwilio();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (incomingCall && !open) {
@@ -33,7 +35,7 @@ export default function IncomingCallDialog() {
 
   const handleCancelCall = () => {
     incomingCall.ignore(); //To stop incoming sound for the local Device instance
-    console.log("Ignoring the incoming call.");
+
     setOpen(false);
   };
 
@@ -43,7 +45,9 @@ export default function IncomingCallDialog() {
     <CallEndIcon sx={{ color: "#08205e" }} />
   ) : null;
 
-  const buttonText = incomingCall ? `Respond` : `Hang Up`;
+  const buttonText = incomingCall
+    ? t("twilioInboundCallDialog.buttonText.accept")
+    : t("twilioInboundCallDialog.buttonText.reject");
 
   return (
     <Snackbar
@@ -68,7 +72,8 @@ export default function IncomingCallDialog() {
           borderRadius: 4,
         }}
       >
-        CALL FROM {fromNumber} {orgName ? `${orgName} ` : ""}
+        {t("twilioInboundCallDialog.callFrom")} {fromNumber}{" "}
+        {orgName ? `${orgName} ` : ""}
         <Button
           onClick={handleAcceptClick}
           size="small"

@@ -30,14 +30,14 @@ def create_contact():
     last_name = data.get('last_name', '').strip()
     if not first_name or not last_name:
       app_logger.warning("Validation failed: first_name or last_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-      return jsonify({"error": "First name and Last name are required"}), 400
+      return jsonify({"error": "nameRequired"}), 400
     
     phone=data.get('phone', '').strip()
 
     phone = validate_phone(phone)
     if not phone:
         app_logger.warning("Validation failed: invalid phone format: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
+        return jsonify({"error": "phoneInvalid"}), 400
 
   
     # Organization
@@ -45,7 +45,7 @@ def create_contact():
     organization_name = data.get('organization_name', '').strip()
     if not organization_name:
         app_logger.warning("Validation failed: organization_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "Organization name is required"}), 400
+        return jsonify({"error": "organizationRequired"}), 400
     
     try:
         organization = Organization.query.filter_by(organization_name=organization_name, customer_id=g.customer_id).first()
@@ -63,7 +63,7 @@ def create_contact():
         calling_list_name = data.get('calling_list_name', '').strip()
         if not calling_list_name:
             app_logger.warning("Validation failed: calling_list_name missing: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-            return jsonify({"error": "Calling list name is required"}), 400
+            return jsonify({"error": "callingListRequired"}), 400
         
         if calling_list_name:
             calling_list = CallingList.query.filter_by(calling_list_name=calling_list_name, customer_id=g.customer_id).first()
@@ -106,19 +106,19 @@ def create_contact():
     except IntegrityError as e:
         db.session.rollback()
         app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Some rows could not be inserted due to duplicate or missing required values."}), 400
+        return jsonify({"message": "duplicateValues"}), 400
 
     except DataError as e:
         db.session.rollback()
         app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Some rows contain invalid or too large values for the database fields."}), 400
+        return jsonify({"message": "dataError"}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
         app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Unexpected database error."}), 500
+        return jsonify({"message": "unexpectedError"}), 500
         
-    return jsonify({"message": "Contact added successfully"}), 201  
+    return jsonify({"message": "successMessage"}), 201  
         
 
 
@@ -126,15 +126,15 @@ def create_contact():
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 SYSTEM_FIELDS = {
-    "First Name": "first_name",
-    "Last Name": "last_name",
-    "Email": "email",
-    "Phone (required)": "phone",
-    "Job Title": "job_title",
-    "Organization name": "organization_name",
-    "Organization website": "website",
-    "Note": "note",
-    "Do not import": None
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "email": "email",
+    "phone": "phone",
+    "job_title": "job_title",
+    "organization_name": "organization_name",
+    "website": "website",
+    "note": "note",
+    "do_not_import": None
 }
 
 @contact_bp.route('/upload_contacts', methods=['POST'])
@@ -208,7 +208,7 @@ def upload_contacts():
         for idx, row in df.iterrows():
             new_row = {}
             for header in user_headers:  # original order
-                mapped_option = mapping.get(header, "Do not import")
+                mapped_option = mapping.get(header, "do_not_import")
                 sys_col = SYSTEM_FIELDS.get(mapped_option)
                 if sys_col is None:  
                     continue  # skip "Do not import"
@@ -324,13 +324,13 @@ def update_contact():
     
     if not contact:
         app_logger.warning("Attempt to update non-existent contact: contact_id=%s by user_id=%s customer_id=%s method=%s path=%s ip=%s", contact_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Contact not found"}), 404
+        return jsonify({"error": "editContactNotFound"}), 404
 
     phone = data.get('phone', '').strip()
     phone = validate_phone(phone)
     if not phone:
         app_logger.warning("Validation failed: invalid phone format during contact update: contact_id=%s by user_id=%s customer_id=%s method=%s path=%s ip=%s", contact_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
+        return jsonify({"error": "phoneUpdateFailed"}), 400
 
     contact.first_name = data.get('first_name', '').strip()
     contact.last_name = data.get('last_name', '').strip()

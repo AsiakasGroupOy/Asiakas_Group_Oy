@@ -30,6 +30,7 @@ function App() {
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
             <Box
@@ -69,7 +70,7 @@ function App() {
                 }}
               >
                 <NavigationTabs role={role} sx={{ alignSelf: "flex-end" }} />
-                <LanguageSwitcherButtons />
+
                 <IconButton onClick={logout}>
                   <LogoutOutlinedIcon
                     sx={{ color: "#fbfbfbff", marginLeft: "25px" }}
@@ -77,6 +78,7 @@ function App() {
                 </IconButton>
               </Box>
             )}
+            <LanguageSwitcherButtons />
           </Toolbar>
 
           <Box

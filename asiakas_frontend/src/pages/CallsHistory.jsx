@@ -147,7 +147,9 @@ export default function CallsHistory() {
       setCallsHistory([]);
       setAlert({
         status: response.status,
-        message: response.message,
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`callHistoryPage.${response.message}`),
       });
     }
   };
@@ -165,7 +167,7 @@ export default function CallsHistory() {
       setCustomersOptions([]);
       setAlert({
         status: customersList.status,
-        message: customersList.message,
+        message: t(customersList.message),
       });
     }
   };
@@ -184,7 +186,9 @@ export default function CallsHistory() {
       setCallsHistory([]);
       setAlert({
         status: response.status,
-        message: response.message,
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`callHistoryPage.${response.message}`),
       });
     }
   };

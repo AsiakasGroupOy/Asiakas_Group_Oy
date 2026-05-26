@@ -11,10 +11,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import { fetchOrganizations, fetchCallLists } from "../services/contactListApi";
 import { useTranslation } from "react-i18next";
+import AlertMessage from "./AlertMessage";
 
 export default function AddContactForm({ addNewContact, setAgGridFilter }) {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const [alert, setAlert] = useState(null);
 
   const [organizationList, setOrganizationList] = useState([]); // State to hold organization names
   const [callingListNames, setCallingListNames] = useState([]); // State to hold calling list names
@@ -43,6 +45,11 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
       );
     } else {
       setOrganizationList([]);
+      window.alert(
+        organizations.message.startsWith("apiFetchErrors.")
+          ? t(organizations.message)
+          : t("Error"),
+      );
     }
 
     if (callLists.status === "success" && callLists.data.length > 0) {
@@ -51,10 +58,6 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
       setCallingListNames([]);
     }
   };
-
-  useEffect(() => {
-    fetchOrganizationAndCallLists();
-  }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -84,6 +87,19 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
 
   const handleSave = (e) => {
     e.preventDefault();
+    if (
+      !contact.first_name ||
+      !contact.last_name ||
+      !contact.phone ||
+      !contact.organization_name ||
+      !contact.calling_list_name
+    ) {
+      setAlert({
+        status: "error",
+        message: t("addNewContact.errors.alertRequiredFields"),
+      });
+      return;
+    }
     addNewContact(contact);
     handleClose();
   };
@@ -212,6 +228,7 @@ export default function AddContactForm({ addNewContact, setAgGridFilter }) {
             )}
           />
         </DialogContent>
+        {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
         <DialogActions>
           <Button variant="contained" color="dustblue" onClick={handleClose}>
             {t("addNewContact.cancel")}

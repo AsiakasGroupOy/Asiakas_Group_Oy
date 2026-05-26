@@ -26,7 +26,7 @@ app_logger = logging.getLogger("app")
 def get_all_users():
     if g.role not in ["Admin Access", "App Admin"]:
         security_logger.error("Unauthorized access: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Forbidden"}), 403
+        return jsonify({"Forbidden"}), 403
 
 
     users = User.query.filter(User.customer_id == g.customer_id, User.user_id !=1).all()
@@ -41,30 +41,32 @@ def register():
     username = data.get("username")
     password = data.get("password", "").strip()
     
-
     if not token or not username or not password:
         app_logger.warning("Registration attempt with missing fields: ip=%s path=%s", request.remote_addr, request.path)
-        return jsonify({"error": "Username, and password are required."}), 400
+        return jsonify({"error":["fieldsRequired"]}), 400
 
     password_valid= is_valid_password(password)
     if not password_valid["valid"]:
         app_logger.warning("Registration attempt with invalid password: username=%s ip=%s path=%s", username, request.remote_addr, request.path)
-        return jsonify({"error": "\n".join(password_valid["errors"])}), 400
+        return jsonify({"error": password_valid["errors"]}), 400
     
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     invitation = Invitation.query.filter_by(token_hash=token_hash, used=False, revoked=False).first()
-
+    if not invitation: 
+        app_logger.warning( "Invalid registration link attempt: ip=%s path=%s", request.remote_addr, request.path ) 
+        return jsonify({"error":["invalidLink"]}), 400
+   
     db_time_toCompare= invitation.expires_at
     if db_time_toCompare.tzinfo is None:
         db_time_toCompare = db_time_toCompare.replace(tzinfo=timezone.utc)
 
-    if not invitation or db_time_toCompare < datetime.now(timezone.utc):
+    if db_time_toCompare < datetime.now(timezone.utc):
         app_logger.warning("Invalid or expired registration link attempt: ip=%s path=%s", request.remote_addr, request.path)
-        return jsonify({"error": "Invalid or expired link"}), 400
+        return jsonify({"error":["invalidLink"]}), 400
     existing_user = User.query.filter_by(useremail=invitation.invitation_email, username=username).first()
     if existing_user:
         app_logger.warning("Registration attempt with existing user: username=%s email=%s ip=%s path=%s", username, invitation.invitation_email, request.remote_addr, request.path)
-        return jsonify({"error": "This User already exists."}), 400
+        return jsonify({"error": ["userExists"]}), 400
 
     user = User(
         username=username,
@@ -90,7 +92,7 @@ def register():
 
     audit_logger.info("New User REGISTERED: user_id=%s customer_id=%s", user.user_id, user.customer_id)
 
-    return jsonify({"message": "Registration successful"}), 201
+    return jsonify({"message": "registrationSuccessful"}), 201
 
 # ✅ User Role change
 @user_bp.route('/role', methods=['PUT'])
@@ -104,7 +106,7 @@ def assign_user_role():
         
     if not data.get('useremail') or not data.get('role'): # Check for all required fields data.get('useremail')
         app_logger.warning("Role assignment attempt with missing fields: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Useremail and role are required."}), 400
+        return jsonify({"error": "errUseremailAndRoleRequired"}), 400
     if g.role=="App Admin":
         customer_id = data.get('customer_id')
         user = User.query.filter_by(useremail=data['useremail'], customer_id=customer_id).first() 
@@ -112,7 +114,7 @@ def assign_user_role():
         user = User.query.filter_by(useremail=data['useremail'], customer_id=g.customer_id).first() # For assignment and further use after verification useremail can be get as data['useremail']
     if not user:
         app_logger.warning("Role assignment attempt for non-existing user: by user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "User not found."}), 404
+        return jsonify({"error": "errUserNotFound"}), 404
 
     role = data['role']
     if role :
@@ -122,7 +124,7 @@ def assign_user_role():
 
     db.session.commit()
     audit_logger.info("User ROLE CHANGED: user_id=%s, new_role=%s by user_id=%s customer_id=%s", user.user_id, user.role.value, g.user_id, g.customer_id)
-    return jsonify({"message": f"Role '{data['role']}' assigned to {user.username}."}), 200
+    return jsonify({"role": data["role"],"username": user.username}), 200
 
 # DELETE user
 @user_bp.route('/remove', methods=['POST'])
@@ -136,20 +138,20 @@ def delete_user():
     
     if not userId.get('user_id'): 
         app_logger.warning("User deletion attempt with missing user_id: by user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "User data required."}), 400
+        return jsonify({"error": "errUserDataRequired"}), 400
 
     user_id = userId.get('user_id')
     user = User.query.get(user_id)
     if not user:
         app_logger.warning("User deletion attempt for non-existing user: user_id=%s by user_id=%s, customer_id=%s method=%s path=%s ip=%s", user_id, g.user_id, g.customer_id, request.method, request.path, request.remote_addr)   
-        return jsonify({"error": "User not found."}), 404
+        return jsonify({"error": "errUserNotFound"}), 404
 
     db.session.delete(user)
     db.session.commit()
 
     audit_logger.info("User DELETED: user_id=%s, useremail=%s by user_id=%s", user.user_id, user.useremail, g.user_id)
 
-    return jsonify({"message": f"User with Email {user.useremail} deleted successfully"}), 200
+    return jsonify({"message": user.useremail}), 200
 
 
 # ✅ User Log In
@@ -162,7 +164,7 @@ def login():
     current_user = User.query.filter_by(useremail=useremail).first()
     if not current_user or not current_user.check_password(password):
         security_logger.warning("Failed login attempt: useremail=%s ip=%s path=%s", useremail, request.remote_addr, request.path)
-        return jsonify({"error": "Invalid password or user email"}), 401
+        return jsonify({"error": "alertInvalidCredentials"}), 401
 
     access_token = create_access_token(current_user)
     refresh_token = create_refresh_token(current_user)
