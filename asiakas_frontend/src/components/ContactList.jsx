@@ -219,7 +219,7 @@ export default function ContactList() {
       fetchContactList(); // Refresh contact list after adding
       setAlert({
         status: response.status,
-        message: t(`addNewContact.${response.message}`),
+        message: t(`addNewContact.${response.data.message}`),
       });
     } else {
       setAlert({
