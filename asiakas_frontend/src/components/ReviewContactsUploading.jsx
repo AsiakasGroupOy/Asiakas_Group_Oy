@@ -39,34 +39,33 @@ export default function ReviewContactsUploading({
   const { t } = useTranslation();
 
   const initialPreview = async () => {
-    try {
-      if (!fileToPreview) {
-        throw new Error(t("reviewContactsUploading.errMessages.noFile"));
-      }
-
-      const dataPreview = await filePreview(fileToPreview);
-
-      if (dataPreview.status === "error") {
-        throw new Error(
-          dataPreview.message ||
-            t("reviewContactsUploading.errMessages.errFetchingPreview"),
-        );
-      }
-
-      setPreviewRows(dataPreview.data.rows);
-      setMappingOptions(dataPreview.data.mappingOptions);
-      setHeaders(dataPreview.data.headers);
-      console.log("Preview data fetched successfully:", dataPreview);
-      return true; // Indicate success
-    } catch (error) {
+    if (!fileToPreview) {
       setAlert({
         status: "error",
-        title: t("reviewContactsUploading.alert.title"),
-        message: error.message || t("reviewContactsUploading.alert.message"),
+        message: t("reviewContactsUploading.errors.noFile"),
+      });
+      return false;
+    }
+
+    const dataPreview = await filePreview(fileToPreview);
+
+    if (dataPreview.status === "error") {
+      setAlert({
+        status: "error",
+        title: t("reviewContactsUploading.errors.msgTitle"),
+        message: dataPreview.message.startsWith("apiFetchErrors.")
+          ? t(dataPreview.message)
+          : t(`importContacts.errors.${dataPreview.message}`), //same errors as in importContacts
       });
 
       return false;
     }
+
+    setPreviewRows(dataPreview.data.rows);
+    setMappingOptions(dataPreview.data.mappingOptions);
+    setHeaders(dataPreview.data.headers);
+
+    return true; // Indicate success
   };
 
   const translateMappingOption = (option) =>

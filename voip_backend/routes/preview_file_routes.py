@@ -30,13 +30,13 @@ def preview_file():
     
     if 'file' not in request.files:
         app_logger.warning("No file part in the request: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "No file provided"}), 400
+        return jsonify({"error": "noFileProvided"}), 400
     
     file = request.files['file']
 
     if request.content_length and request.content_length > MAX_FILE_SIZE:
         app_logger.warning("Uploaded file is too large: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "File is too large"}), 400
+        return jsonify({"error": "largeFileSize"}), 400
     
     file_name = file.filename
     
@@ -47,7 +47,7 @@ def preview_file():
             df = pd.read_excel(file)
     except Exception as e:
         app_logger.warning("Error reading uploaded file: user_id=%s, customer_id=%s method=%s path=%s ip=%s error=%s", g.user_id, g.customer_id, request.method, request.path, request.remote_addr, str(e)) 
-        return jsonify({"error": f"Could not read file: {str(e)}"}), 400
+        return jsonify({"error": "fileReadFailed"}), 400
     
         
     mappingOptions = list(SYSTEM_FIELDS.keys())

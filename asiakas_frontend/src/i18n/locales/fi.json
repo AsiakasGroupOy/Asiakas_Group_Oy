@@ -293,8 +293,8 @@
   },
 
   "alerts": {
-    "invalidFile": "Lataa CSV- tai Excel-tiedosto.",
-    "cancelUpload": "Haluatko varmasti keskeyttää tiedoston latauksen?",
+    "invalidFileFormat": "Lataa CSV- tai Excel-tiedosto.",
+    "cancelUpload": "Tiedoston lataus peruutettiin",
     "uploadWarnings": "Lataus valmis varoitusten kanssa",
     "uploadWarningsEndMessage": "riviä ladattu",
     "uploadSuccessful": "riviä ladattu onnistuneesti",
@@ -303,22 +303,26 @@
     "uploadNoRows": "Tiedoston latauksessa tapahtui virhe. Yritä uudelleen."
   },
 
-  "errMessages": {
-    "uploadFailed": "Lataus epäonnistui",
-    "networkError": "Tiedoston latauksen aikana tapahtui virhe"
+  "errors": {
+    "callingListNameRequired": "Soittolistan nimi vaaditaan",
+    "noFileProvided": "Tiedostoa ei toimitettu",
+    "largeFileSize": "Tiedosto on liian suuri",
+    "fileReadFailed": "Tiedostoa ei voitu lukea. Tarkista muoto.",
+    "noMappingProvided": "Mappailua ei toimitettu",
+    "invalidMappingJSON": "Virheellinen tiedostomuoto. Tarkista tiedot ja yritä uudelleen",
+    "dbIntegrityErr": "Joitain rivejä ei voitu lisätä päällekkäisyyden tai puuttuvien vaadittujen arvojen vuoksi.",
+    "dbDataErr": "Joitain rivejä sisältävät virheellisiä tai liian suuria arvoja tietokantakentille.",
+    "dbUnexpectedErr": "Odottamaton tietokantavirhe.",
+    "uploadFailed": "Tiedoston lataus epäonnistui"
+  },
+  "warnings": {
+    "missingRequiredFields": "Rivi {{row}}: Puuttuvat pakolliset kentät (puhelin tai organisaation nimi)",
+    "invalidPhone": "Rivi {{row}}: Virheellinen puhelinnumeron muoto"
   }
 },
 
 "reviewContactsUploading": {
-    "errMessages":{
-       "noFile":"Ei tiedostoa esikatselua varten",
-       "errFetchingPreview": "Esikatselutietojen hakemisessa tapahtui virhe"},
-    "alert":{
-      "title": "Virhe",
-      "message": "Esikatselutietojen lataaminen epäonnistui."
-    },
     "mappingWarning": {
-      
       "phoneMapping": "Lisää 'Puhelin' kenttä karttaan ennen jatkamista.",
       "organizationMapping": "Lisää 'Yrityksen nimi' kenttä karttaan ennen jatkamista.",
       "missedMapping": "Karttaa kaikki sarakkeet ennen jatkamista."
@@ -340,14 +344,15 @@
       "website": "Yrityksen verkkosivusto",
       "note": "Muistiinpano",
       "do_not_import": "Älä tuo"
-    } 
-
-   
-
+    },
+    "errors":{
+      "msgTitle":"Virhe",
+       "noFile":"Ei tiedostoa esikatselua varten"
+      }
+    
 },
  "assignCallListToUploading":{
         "alertCallListMissing":"Valitse kontatilista ennen jatkamista.",
-        "alertFetchCallList":"Kontaktilistoja ei ole saatavilla.",
         "dialogTitle":"Määritä kontaktilista",
         "dialogLablelNoCallList":"Ei olemassa olevia kontaktilistoja - kirjoita uusi nimi",
         "dialogLableSelectCallList":"Valitse tai kirjoita kontaktilista",
@@ -363,11 +368,7 @@
           "submit": "Lähetä lataus"
         }
 },
-      "apiFetchError": {
-      "invalidResponse": "Virheellinen palvelinvastaus.",
-      "commonError": "Tietojen hakemisessa tapahtui virhe.",
-      "networkError": "Verkkovirhe. Tarkista yhteytesi ja yritä uudelleen."
-    },
+     
   "grid": {
     "dateFilterResetButton": "Nollaa",
     "pageSizeSelectorLabel": "Rivejä sivulla",

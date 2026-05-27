@@ -22,6 +22,7 @@ import AssignCallListToUploading from "./AssignCallListToUploadingContacts";
 import SubmitFileUploading from "./SubmitFileUploading";
 import { uploadContactsFile } from "../services/contactListApi";
 import { useTranslation } from "react-i18next";
+import AlertMessage from "./AlertMessage";
 
 export default function ImportContacts() {
   const [activeStep, setActiveStep] = useState(-1);
@@ -39,6 +40,7 @@ export default function ImportContacts() {
   const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [loadingStarts, setLoadingStarts] = useState(false);
   const { t } = useTranslation();
+  const [alert, setAlert] = useState(null);
 
   const steps = [
     t("importContacts.steps.selectFile"),
@@ -61,7 +63,10 @@ export default function ImportContacts() {
       const allowed = [".csv", ".xls", ".xlsx"];
       const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
       if (!allowed.includes(ext)) {
-        alert(t("importContacts.alerts.invalidFile"));
+        setAlert({
+          status: "error",
+          message: t("importContacts.alerts.invalidFileFormat"),
+        });
         setFileName("");
         setActiveStep(-1);
         return;
@@ -113,50 +118,51 @@ export default function ImportContacts() {
   };
 
   const handleSubmitFileUpload = async () => {
-    try {
-      setLoadingStarts(true);
-      setSubmittingDialogOpen(false);
-      setOpen(false); // Close the preview dialog
-      const uploading = await uploadContactsFile(
-        fileToPreview,
-        mapping,
-        selectedCallList,
+    setLoadingStarts(true);
+    setSubmittingDialogOpen(false);
+    setOpen(false); // Close the preview dialog
+    const uploading = await uploadContactsFile(
+      fileToPreview,
+      mapping,
+      selectedCallList,
+    );
+
+    setLoadingStarts(false);
+    if (uploading.status === "success") {
+      const { inserted_contacts, warnings } = uploading.data;
+      setNumberUploadedRows(inserted_contacts);
+      const translatedWarnings = warnings?.map((w) =>
+        t(`importContacts.warnings.${w.code}`, { row: w.row }),
       );
+      if (inserted_contacts > 0) {
+        // Successfully uploaded at least one row
+        setActiveStep(3);
+        setCompleteAlert(true);
 
-      setLoadingStarts(false);
-      if (uploading.status === "success") {
-        const { inserted_contacts, warnings } = uploading.data;
-        setNumberUploadedRows(inserted_contacts);
-
-        if (inserted_contacts > 0) {
-          // Successfully uploaded at least one row
-          setActiveStep(3);
-          setCompleteAlert(true);
-
-          if (warnings?.length) {
-            setUploadErrorMessage(warnings.join("\n"));
-          }
-        } else if (warnings?.length) {
-          // Uploaded 0 rows and warnings
-          setUploadErrorMessage(warnings.join("\n"));
-          setUploadFailedAlert(true);
+        if (warnings?.length) {
+          setUploadErrorMessage(translatedWarnings.join("\n"));
         }
-      } else {
-        setUploadErrorMessage(t("importContacts.errMessages.uploadFailed"));
+      } else if (warnings?.length) {
+        // Uploaded 0 rows and warnings
+        setUploadErrorMessage(translatedWarnings.join("\n"));
         setUploadFailedAlert(true);
       }
-    } catch (err) {
-      setLoadingStarts(false);
-      // Network or unexpected errors
-      console.error(err);
-      setUploadErrorMessage(t("importContacts.errMessages.networkError"));
+    } else {
+      setUploadErrorMessage(
+        uploading.message.startsWith("apiFetchErrors.")
+          ? t(uploading.message)
+          : t(`importContacts.errors.${uploading.message}`),
+      );
       setUploadFailedAlert(true);
     }
   };
 
   const handleSubmitFileUploadClosed = () => {
     // Reset all the states to initial
-    alert(t("importContacts.alerts.cancelUpload"));
+    setAlert({
+      status: "warning",
+      message: t("importContacts.alerts.cancelUpload"),
+    });
     setSubmittingDialogOpen(false);
     setSelectedCallList("");
     handleBack();
@@ -281,6 +287,7 @@ export default function ImportContacts() {
           {loadingStarts ? (
             <CircularProgress sx={{ color: "#08205eff" }} />
           ) : null}
+          {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
 
           {(uploadFailedAlert || completeAlert) && (
             <Alert
@@ -306,7 +313,7 @@ export default function ImportContacts() {
                   ? `${t("importContacts.alerts.uploadWarnings")} (${numberUploadedRows} ${t("importContacts.alerts.uploadWarningsEndMessage")})`
                   : completeAlert && numberUploadedRows > 0
                     ? `(${numberUploadedRows}  ${t("importContacts.alerts.uploadSuccessful")})`
-                    : `${t("importContacts.errMessages.uploadFailed")}`}
+                    : `${t("importContacts.errors.uploadFailed")}`}
               </AlertTitle>
 
               {uploadErrorMessage ? (

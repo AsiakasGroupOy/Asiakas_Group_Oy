@@ -24,9 +24,9 @@ const NavigationTabs = ({ role }) => {
       indicatorColor="primary"
       textColor="inherit"
       sx={{
-        "& .MuiTabs-flexContainer": {
-          justifyContent: "flex-end", // aligns tabs to the right
-        },
+        display: "inline-flex",
+        flexShrink: 0,
+        marginLeft: "auto",
         "& .MuiTab-root": {
           color: "#a6b8e0", // Default tab color
         },
@@ -37,7 +37,6 @@ const NavigationTabs = ({ role }) => {
           backgroundColor: "#ffffff",
           height: "1px", // Active tab underline color
         },
-        minWidth: 600,
       }}
     >
       <Tab

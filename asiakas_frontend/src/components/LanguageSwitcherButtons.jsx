@@ -24,6 +24,7 @@ export default function LanguageSwitcherButtons() {
         exclusive
         onChange={handleChange}
         aria-label="Platform"
+        sx={{ marginLeft: "auto" }}
       >
         <ToggleButton value="fi">Fi</ToggleButton>
         <ToggleButton value="en">En</ToggleButton>
