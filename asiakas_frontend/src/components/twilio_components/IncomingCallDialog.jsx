@@ -70,6 +70,7 @@ export default function IncomingCallDialog() {
           gap: 2,
           backgroundColor: "#f0ffffff",
           borderRadius: 4,
+          marginLeft: 25,
         }}
       >
         {t("twilioInboundCallDialog.callFrom")} {fromNumber}{" "}

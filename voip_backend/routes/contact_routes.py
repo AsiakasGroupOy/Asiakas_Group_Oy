@@ -147,17 +147,17 @@ def upload_contacts():
     calling_list_name = request.form.get('callingList', '').strip()
     if not calling_list_name:
         app_logger.warning("Calling list name missing in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "Calling list name is required"}), 400
+        return jsonify({"error": "callingListNameRequired"}), 400
     
     if 'file' not in request.files:
         app_logger.warning("No file part in the request in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "No file provided"}), 400
+        return jsonify({"error": "noFileProvided"}), 400
     
     file = request.files['file']
 
     if request.content_length and request.content_length > MAX_FILE_SIZE:
         app_logger.warning("Uploaded file exceeds maximum size in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)  
-        return jsonify({"error": "File is too large"}), 400
+        return jsonify({"error": "largeFileSize"}), 400
     
     file_name = file.filename
     
@@ -168,7 +168,7 @@ def upload_contacts():
             df = pd.read_excel(file)
     except Exception as e:
         app_logger.error("Error reading uploaded file in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s, error=%s",g.user_id, g.customer_id, request.method, request.path, str(e))
-        return jsonify({"error": f"Could not read file: {str(e)}"}), 400
+        return jsonify({"error": "fileReadFailed"}), 400
     
     user_headers = list(df.columns) # preserve original order
    
@@ -176,16 +176,16 @@ def upload_contacts():
         mapping_raw = request.form.get('mapping')
         if not mapping_raw:
             app_logger.warning("No mapping provided in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-            return jsonify({"error": "No mapping provided"}), 400
+            return jsonify({"error": "noMappingProvided"}), 400
         
         mapping = json.loads(mapping_raw)
     except Exception:
         app_logger.error("Error parsing mapping JSON in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "Invalid mapping JSON"}), 400
+        return jsonify({"error": "invalidMappingJSON"}), 400
 
     if not mapping:
         app_logger.warning("Empty mapping provided in upload_contacts: user_id=%s, customer_id=%s, method=%s, path=%s",g.user_id, g.customer_id, request.method, request.path)
-        return jsonify({"error": "No mapping provided"}), 400
+        return jsonify({"error": "noMappingProvided"}), 400
 
 
     contacts_to_add = []
@@ -227,11 +227,17 @@ def upload_contacts():
             
         # Validation
             if not phone or not organization_name:
-                warnings.append(f"Row {idx+2}: Missing required field(s) phone or organization name")
+                warnings.append({
+                    "code": "missingRequiredFields",
+                    "row":idx+2
+                })
                 continue
             phone = validate_phone(phone)
             if not phone:
-                warnings.append(f"Row {idx+2}: Invalid phone format")
+                warnings.append({
+                    "code": "invalidPhone",
+                    "row":idx+2
+                })
                 continue
 
         # Organization
@@ -297,17 +303,17 @@ def upload_contacts():
     except IntegrityError as e:
         db.session.rollback()
         app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Some rows could not be inserted due to duplicate or missing required values."}), 400
+        return jsonify({"message": "dbIntegrityErr"}), 400
 
     except DataError as e:
         db.session.rollback()
         app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Some rows contain invalid or too large values for the database fields."}), 400
+        return jsonify({"message": "dbDataErr"}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
         app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "Unexpected database error."}), 500
+        return jsonify({"message": "dbUnexpectedErr"}), 500
     
     return jsonify({
         "inserted_contacts": inserted_count,

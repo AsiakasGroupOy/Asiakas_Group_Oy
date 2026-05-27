@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { fetchCallLists } from "../services/contactListApi"; // Import the function to fetch call lists
 import { useTranslation } from "react-i18next";
+import AlertMessage from "./AlertMessage";
 
 export default function AssignCallListToUploading({
   selectedCallList,
@@ -20,13 +21,18 @@ export default function AssignCallListToUploading({
 }) {
   const [callListOptions, setCallListOptions] = useState([]);
   const { t } = useTranslation();
+  const [alert, setAlert] = useState(null);
 
   const handleCloseDialog = () => {
     handleCloseCallListDialog();
   };
   const handleSubmitDialog = () => {
     if (!selectedCallList) {
-      alert(t("assignCallListToUploading.alertCallListMissing"));
+      setAlert({
+        status: "warning",
+        message: t("assignCallListToUploading.alertCallListMissing"),
+      });
+
       return;
     }
     handleSubmitDialogWindowOpen();
@@ -38,14 +44,12 @@ export default function AssignCallListToUploading({
         setCallListOptions(response.data.map((cl) => cl.calling_list_name));
       } else {
         setCallListOptions([]);
-        window.alert(
-          response.message.startsWith("apiFetchErrors.")
-            ? t(response.message)
-            : t("assignCallListToUploading.alertFetchCallList"),
-        );
+        setAlert({
+          status: "error",
+          message: t(response.message),
+        });
       }
     };
-
     fetchAllCallLists();
   }, []);
 
@@ -65,6 +69,7 @@ export default function AssignCallListToUploading({
         >
           {t("assignCallListToUploading.dialogTitle")}
         </DialogTitle>
+        {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
         <DialogContent>
           <Autocomplete
             freeSolo
@@ -89,6 +94,7 @@ export default function AssignCallListToUploading({
             )}
           />
         </DialogContent>
+
         <DialogActions
           sx={{
             justifyContent: "space-between",

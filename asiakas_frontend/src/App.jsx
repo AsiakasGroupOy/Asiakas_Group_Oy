@@ -22,68 +22,54 @@ function App() {
     <>
       <Container maxWidth="xl">
         <CssBaseline />
-        <AppBar
-          position="fixed"
-          sx={{ backgroundColor: "#08205e", overflowX: "auto" }}
-        >
+        <AppBar position="fixed" sx={{ backgroundColor: "#08205e" }}>
           <Toolbar
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              width: "100%",
+              gap: 1,
             }}
           >
             <Box
               sx={{
+                flexShrink: 0,
                 display: "flex",
-                flexDirection: "column",
+                alignItems: "center",
               }}
             >
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{
-                  marginTop: "10px",
-                  display: { xs: "none", sm: "block", md: "flex" },
+              <img
+                src="/soitto.ai_white.png"
+                style={{
+                  height: "55px",
                 }}
-              >
-                Soitto.ai
-              </Typography>
-              <Typography
-                variant="h8"
-                noWrap
-                sx={{
-                  marginTop: "1px",
-                  display: { xs: "none", sm: "block", md: "flex" },
-                }}
-              >
-                Myy enemmän, soita tehokkaammin
-              </Typography>
+                alt="Logo"
+              />
             </Box>
             {isAuthenticated && (
               <Box
                 sx={{
-                  marginLeft: "auto",
                   display: "flex",
+                  overflowX: "auto",
+                  flex: 1,
+                  scrollButtons: "auto",
                   alignItems: "center",
+                  marginLeft: "auto",
                 }}
               >
-                <NavigationTabs role={role} sx={{ alignSelf: "flex-end" }} />
-
-                <IconButton onClick={logout}>
-                  <LogoutOutlinedIcon
-                    sx={{ color: "#fbfbfbff", marginLeft: "25px" }}
-                  />
-                </IconButton>
+                <NavigationTabs role={role} sx={{}} />
               </Box>
+            )}
+            {isAuthenticated && (
+              <IconButton onClick={logout}>
+                <LogoutOutlinedIcon sx={{ color: "#fbfbfbff" }} />
+              </IconButton>
             )}
             <LanguageSwitcherButtons />
           </Toolbar>
 
           <Box
             sx={{
-              width: "100%",
               height: "1px",
               backgroundColor: "white",
               opacity: 0.7,
