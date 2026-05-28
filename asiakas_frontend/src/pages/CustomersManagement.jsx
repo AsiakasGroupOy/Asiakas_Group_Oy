@@ -13,6 +13,8 @@ import {
 import { newRole, deleteUser } from "../services/usersApi.js";
 import UserDialog from "../components/customers_components/UsersDialog.jsx";
 import InviteCustomers from "../components/customers_components/InviteCustomers.jsx";
+import AlertMessage from "../components/AlertMessage";
+import { useTranslation } from "react-i18next";
 
 export default function CustomersManagement() {
   const [customersList, setCustomersList] = useState([]);
@@ -22,6 +24,8 @@ export default function CustomersManagement() {
   const [invitationsList, setInvitationsList] = useState([]);
   const [loadingInv, setLoadingInv] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchCustomersList();
@@ -34,7 +38,10 @@ export default function CustomersManagement() {
     if (response.status === "success") {
       setCustomersList(response.data);
     } else {
-      window.alert("Failed to fetch customers: " + (response.message || ""));
+      setAlert({
+        status: response.status,
+        message: t(response.message),
+      });
     }
     setLoading(false);
   };
@@ -42,32 +49,50 @@ export default function CustomersManagement() {
   const handleUpdateCustomer = async (customer) => {
     const updatedCustomer = await updateCustomer(
       customer.customer_id,
-      customer
+      customer,
     );
     if (updatedCustomer.status === "success") {
-      window.alert(updatedCustomer.data.message);
+      setAlert({
+        status: updatedCustomer.status,
+        message: t("customersManagement.updateSuccessMsg", {
+          customer_name: updatedCustomer.data.message,
+        }),
+      });
     } else {
-      window.alert(
-        "Failed to update customer: " + (updatedCustomer.message || "")
-      );
+      setAlert({
+        status: updatedCustomer.status,
+        message: updatedCustomer.message.startsWith("apiFetchErrors.")
+          ? t(updatedCustomer.message)
+          : t(`customersManagement.errors.${updatedCustomer.message}`),
+      });
     }
     fetchCustomersList();
   };
 
   const handleCustomerRemove = async (customer) => {
-    if (window.confirm("Are you sure you want to delete this customer?")) {
+    if (window.confirm(t("customersManagement.removeCustomerAwareMsg"))) {
       const customerDeleted = await deleteCustomer(customer.customer_id);
 
       if (customerDeleted.status === "success") {
-        window.alert(customerDeleted.data.message + " deleted successfully");
+        setAlert({
+          status: customerDeleted.status,
+          message: t("customersManagement.removeSuccessMsg", {
+            customer_name: customerDeleted.data.message,
+          }),
+        });
+
         fetchCustomersList();
       } else {
-        window.alert(
-          "Failed to delete customer: " + (customerDeleted.message || "")
-        );
+        setAlert({
+          status: customerDeleted.status,
+          message: customerDeleted.message.startsWith("apiFetchErrors.")
+            ? t(customerDeleted.message)
+            : t(`customersManagement.errors.${customerDeleted.message}`),
+        });
       }
     }
   };
+
   const createAddRow = () => ({
     customer_name: "",
     customer_address: "",
@@ -84,18 +109,42 @@ export default function CustomersManagement() {
       setInvitationsList([...listData, createAddRow()]);
     } else {
       setInvitationsList([createAddRow()]);
-      window.alert("Failed to fetch invitations: " + (list.message || ""));
+      setAlert({
+        status: list.status,
+        title: t("customersManagement.errors.errFailedFetchInvitations"),
+        message: t(list.message),
+      });
     }
     setLoadingInv(false);
   };
 
   const handleSendInvitation = async (data) => {
+    const checkFields = data;
+    if (!checkFields.customer_name || !checkFields.customer_address) {
+      setAlert({
+        status: "error",
+        message: t(
+          "customersManagement.errors.errInvitationsNoCustomerNameOrAddress",
+        ),
+      });
+      return;
+    }
     const invitation = await newCustomerInvitation(data);
 
     if (invitation.status === "success") {
-      window.alert(invitation.data.message);
+      setAlert({
+        status: invitation.status,
+        message: t("customersManagement.invitationSent", {
+          invitation_email: invitation.data.message,
+        }),
+      });
     } else if (invitation.status === "error") {
-      window.alert(invitation.message);
+      setAlert({
+        status: invitation.status,
+        message: invitation.message.startsWith("apiFetchErrors.")
+          ? t(invitation.message)
+          : t(`customersManagement.errors.${invitation.message}`),
+      });
     }
     fetchInvitationsList();
   };
@@ -104,31 +153,44 @@ export default function CustomersManagement() {
     const response = await deleteCustomerInvitation(invID.invitation_id);
 
     if (response.status === "success") {
-      window.alert(response.data.message);
+      setAlert({
+        status: response.status,
+        message: t("customersManagement.invitRemoveSuccessMsg", {
+          invitation_email: response.data.message,
+        }),
+      });
       fetchInvitationsList();
     } else {
-      window.alert(
-        "Failed to remove invitation: " +
-          (response.message || "Something went wrong")
-      );
+      setAlert({
+        status: response.status,
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`customersManagement.errors.${response.message}`),
+      });
     }
   };
 
-  const fetchUsersForCustomer = async (customer_id) => {
+  const loadUsersForCustomer = async (customer_id) => {
     const response = await fetchCustomerUsers(customer_id);
     if (response.status === "success") {
       setUserList(response.data);
+    } else {
+      setUserList([]);
     }
     return response;
   };
 
   const handleShowCustomerUsers = async (customer) => {
-    const response = await fetchUsersForCustomer(customer.customer_id);
+    const response = await loadUsersForCustomer(customer.customer_id);
     if (response.status === "success") {
       setSelectedCustomer(customer);
       setUsersDialogOpen(true);
     } else {
-      window.alert("Failed to fetch users: " + (response.message || ""));
+      setAlert({
+        status: response.status,
+        title: t("customersManagement.errors.errFailedLoadUsers"),
+        message: t(response.message),
+      });
     }
   };
 
@@ -141,29 +203,60 @@ export default function CustomersManagement() {
   const handleUpdateUserRole = async (data) => {
     const role = await newRole(data);
     if (role.status === "success") {
-      window.alert("Role updated successfully: " + role.data.message);
+      setAlert({
+        status: role.status,
+        title: t("rolesManagement.rolesUpdate.roleUpdatedTitle"), //same msg as in rolesManagement
+        message: t("rolesManagement.rolesUpdate.roleAssigned", {
+          role: t(`rolesManagement.roles.${role.data.role}`),
+          username: role.data.username,
+        }),
+      });
+      const response = await loadUsersForCustomer(selectedCustomer.customer_id);
+      if (response.status === "error") {
+        setAlert({
+          status: response.status,
+          title: t("customersManagement.errors.errFailedLoadUsers"),
+          message: t(response.message),
+        });
+      }
     } else {
-      window.alert("Failed to update role: " + (role.message || ""));
-    }
-    const response = await fetchUsersForCustomer(selectedCustomer.customer_id);
-    if (response.status === "error") {
-      window.alert("Failed to fetch users: " + (response.message || ""));
+      setAlert({
+        status: role.status,
+        title: t("rolesManagement.rolesUpdate.errors.errChangeRoleTitle"), //same msg as in rolesManagement
+        message: role.message.startsWith("apiFetchErrors.")
+          ? t(role.message)
+          : t(`rolesManagement.rolesUpdate.errors.${role.message}`),
+      });
     }
   };
 
   const handleUserRemove = async (data) => {
-    console.log("Removing user with data:", data);
     const response = await deleteUser(data.user_id);
     if (response.status === "success") {
-      window.alert(response.data.message);
-      const users = await fetchUsersForCustomer(selectedCustomer.customer_id);
+      setAlert({
+        status: response.status,
+        message: t("rolesManagement.users.deleteUserSuccessMsg", {
+          //same msg as in rolesManagement
+          useremail: response.data.message,
+        }),
+      });
+
+      const users = await loadUsersForCustomer(selectedCustomer.customer_id);
       if (users.status === "error") {
-        window.alert("Failed to fetch users: " + (users.message || ""));
+        setAlert({
+          status: users.status,
+          title: t("customersManagement.errors.errFailedLoadUsers"),
+          message: t(users.message),
+        });
       }
     } else {
-      window.alert(
-        "Failed to remove user: " + (response.message || "Something went wrong")
-      );
+      setAlert({
+        status: "error",
+        title: t("rolesManagement.users.errors.errDeleteUserTitle"), //same msg as in rolesManagement
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`rolesManagement.users.errors.${response.message}`),
+      });
     }
   };
 
@@ -171,7 +264,7 @@ export default function CustomersManagement() {
     <>
       <Stack direction="row" spacing={1} alignItems="top" marginBlockEnd={3}>
         <Typography variant="h6" sx={{ color: "#08205e" }}>
-          Customers Management
+          {t("customersManagement.pageTitle")}
         </Typography>
       </Stack>
       {loadingInv ? (
@@ -191,6 +284,7 @@ export default function CustomersManagement() {
           sx={{ color: "#08205eff", marginLeft: "50%" }}
         />
       ) : null}
+      {alert && <AlertMessage alert={alert} setAlert={setAlert} />}
       <ActiveCustomers
         customersList={customersList}
         handleUpdateCustomer={handleUpdateCustomer}

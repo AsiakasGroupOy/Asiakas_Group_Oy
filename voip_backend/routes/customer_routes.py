@@ -61,14 +61,14 @@ def delete_customer():
 
     customer = Customer.query.get(customer_id)
     if not customer:
-        return jsonify({"error": "Customer not found"}), 404
+        return jsonify({"error": "errRemoveCustomer"}), 404
 
     db.session.delete(customer)
     db.session.commit()
 
     audit_logger.info("Customer DELETED: customer_id=%s customer_name=%s by user_id=%s", customer.customer_id, customer.customer_name, g.user_id)
 
-    return jsonify({"message": f"Customer {customer.customer_name} and all related data deleted successfully"}), 200
+    return jsonify({"message": customer.customer_name}), 200
 
 # ✅ Update Customer 
 @customer_bp.route('/<int:customer_id>', methods=['PUT'])
@@ -86,12 +86,12 @@ def update_customer(customer_id):
     if assigned_number:
         assigned_number = validate_phone(assigned_number)
         if not assigned_number:
-            return jsonify({"error": "Phone number is required and must contain only digits with an optional '+' at the start, 6 to 15 digits long."}), 400
+            return jsonify({"error": "errUpdatePhoneValidation"}), 400
   
         
     customer = Customer.query.get(customer_id)
     if not customer:
-        return jsonify({"error": "Customer not found"}), 404
+        return jsonify({"error": "errUpdateCustomerNotFound"}), 404
 
     customer.customer_name = customer_name
     customer.customer_address = customer_address
@@ -100,4 +100,4 @@ def update_customer(customer_id):
     
     audit_logger.info("Customer UPDATED: customer_id=%s customer_name=%s by user_id=%s", customer.customer_id, customer.customer_name, g.user_id)
 
-    return jsonify({"message": f"Customer {customer.customer_name} updated successfully"}), 200
+    return jsonify({"message": customer.customer_name}), 200

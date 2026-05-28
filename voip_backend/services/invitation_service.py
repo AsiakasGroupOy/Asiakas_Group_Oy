@@ -75,19 +75,44 @@ class InvitationService:
 
     @staticmethod
     def send_invitation_email(invitation_email, role, invitation_link):
-        subject = "You're invited to join our Soitto.ai Application"
+        role_translations_fi = {
+       "Manager": "Päällikkö",
+       "User": "Käyttäjä",
+       "Admin Access": "Ylläpitäjä"
+    }   
+        role_fi = role_translations_fi.get(role, role)
+        
+        subject = "Kutsu liittyä Soitto.ai -palveluun / You're invited to join our Soitto.ai Application"
         body = f"""
+
+        
+        Hei,
+
+        Sinut on kutsuttu liittymään järjestelmään seuraavilla tiedoilla:
+
+        Sähköposti: {invitation_email}
+        Rooli: {role_fi}
+
+        Kutsulinkki on voimassa 24 tuntia:
+        {invitation_link}
+
+        Ystävällisin terveisin,
+        Soitto.ai
+    
+       ----------------------------------------
+
         Hello,
 
         You have been invited to join the system with the following details:
 
-        Customer Email: {invitation_email}
+        Email: {invitation_email}
         Role: {role}
-        Invitation link (valid for 24h):
+        
+        Invitation link valid for 24h:
         {invitation_link}
 
         Best regards,
-        The Support Team
+        Soitto.ai
         """
         msg = Message(subject=subject, recipients=[invitation_email], body=body)
         mail.send(msg)
@@ -97,7 +122,7 @@ class InvitationService:
         invitation = Invitation.query.get(invitation_id)
         if not invitation:
             app_logger.error("Attempted to delete non-existent invitation ID %s", invitation_id)
-            return {"status": "error", "message": "Invitation not found"}, 404
+            return {"status": "error", "message": "errInvitationsRemoveIdNotFound"}, 404
         db.session.delete(invitation)
         db.session.commit()
         return {"status": "success", "invitation": invitation.invitation_email}, 200
@@ -108,11 +133,11 @@ class InvitationService:
         invitation = Invitation.query.get(invitation_id)
         if not invitation:
             app_logger.error("Attempted to delete non-existent invitation ID %s for customer", invitation_id)
-            return {"status": "error", "message": "Invitation not found"}, 404
+            return {"status": "error", "message": "errInvitationsRemoveIdNotFound"}, 404
         customer = Customer.query.get(invitation.customer_id)
         if not customer:
             app_logger.error("Attempted to delete invitation ID %s but customer ID %s not found", invitation_id, invitation.customer_id)
-            return {"status": "error", "message": "Customer not found"}, 404
+            return {"status": "error", "message": "errInvitationsRemoveCustomerNotFound"}, 404
         
         db.session.delete(invitation)
         db.session.delete(customer)

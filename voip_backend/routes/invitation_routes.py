@@ -37,16 +37,22 @@ def invite_new_customer_user():
            
     invitation_email = data.get("invitation_email", "").strip()
     if not invitation_email or not is_valid_email(invitation_email):
-        return jsonify({"error": "Valid email is required."}), 400
+        return jsonify({"error": "errInvitationsInvalidEmail"}), 400
     if User.query.filter_by(useremail=invitation_email).first():
         app_logger.info("Attempt to invite user by existing email: invitation_email=%s, invited_by_user_id=%s", invitation_email, g.user_id)
-        return jsonify({"error": "User with this email already exists."}), 400
+        return jsonify({"error": "errInvitationsUserExists"}), 400
     
     customer_name = data.get("customer_name")
+    if not customer_name:
+        return jsonify({"error": "errInvitationsNoCustomerName"}), 400
+    
     customer_address = data.get("customer_address") 
+    if not customer_address:
+        return jsonify({"error": "errInvitationsNoCustomerAddress"}), 400
+    
     if Customer.query.filter_by(customer_name=customer_name, customer_address=customer_address).first():
         app_logger.info("Attempt to create customer with existing name: customer_name=%s, invited_by_user_id=%s", customer_name, g.user_id)
-        return jsonify({"error": "Customer with this name already exists."}), 400
+        return jsonify({"error": "errInvitationsCustomerExists"}), 400
     
     customer = InvitationService.create_customer(customer_name, customer_address)
            
@@ -59,7 +65,7 @@ def invite_new_customer_user():
 
     audit_logger.info("Invitation sent to new customer admin user: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, customer.customer_id)
 
-    return jsonify({"message": f"Invitation sent to '{invitation_email}'"}), 200
+    return jsonify({"message": invitation_email}), 200
 
 # ✅ DELETE Invitation for customer and its admin user
 @invitation_bp.route('/customers/remove', methods=['POST'])
@@ -72,7 +78,7 @@ def delete_customer_invitation():
     invId= request.get_json()
     if not invId.get('invitation_id'): 
         app_logger.warning("No invitation ID provided for deletion by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Invitation data required."}), 400
+        return jsonify({"error": "errInvitationsRemoveNoIdSend."}), 400
     
     result,status = InvitationService.delete_customer_invitation(invId['invitation_id'])
     if result["status"] == "error":
@@ -81,7 +87,7 @@ def delete_customer_invitation():
     
     audit_logger.info("Customer invitation DELETED: invitation_email=%s, deleted_by_user_id=%s", result['invitation'], g.user_id)
 
-    return jsonify({"message": f"Invitation for user with Email {result['invitation']} deleted successfully"}), 200
+    return jsonify({"message": result['invitation']}), 200
 
 
 # ✅ Invitation Users List
@@ -108,20 +114,20 @@ def invite_user():
     
     if not data.get("invitation_email") or not data.get("role"):
         app_logger.warning("Invitation data incomplete: invited_by_user_id=%s, customer_id=%s", g.user_id, g.customer_id)
-        return jsonify({"error": "Role and email are required."}), 400
+        return jsonify({"error": "errSentInvitationsEmailRoleRequired"}), 400
     
     role = data.get("role")
   
     invitation_email = data.get("invitation_email").strip()
     if not is_valid_email(invitation_email):
         app_logger.warning("Invalid email address provided for invitation: invitation_email=%s, invited_by_user_id=%s, customer_id=%s", invitation_email, g.user_id, g.customer_id)
-        return jsonify({"error": "Invalid email address."}), 400
+        return jsonify({"error": "errInvitationsInvalidEmail"}), 400
     
     # Get customer_id from cookie token
     customer_id = g.customer_id   
     if User.query.filter_by(useremail=invitation_email).first():
         app_logger.info("Attempt to invite user by existing email: invitation_email=%s, invited_by_user_id=%s", invitation_email, g.user_id)
-        return jsonify({"error": "User with this email already exists."}), 400
+        return jsonify({"error": "errInvitationsUserExists"}), 400
 
     token,invitation = InvitationService.create_invitation(customer_id, invitation_email, role, g.user_id)
   
@@ -145,7 +151,7 @@ def delete_user_invitation():
     invId= request.get_json()
     if not invId.get('invitation_id'): 
         app_logger.warning("No invitation ID provided for deletion by user: user_id=%s, customer_id=%s method=%s path=%s ip=%s", g.user_id,  g.customer_id, request.method, request.path, request.remote_addr)
-        return jsonify({"error": "Invitation data required."}), 400
+        return jsonify({"error": "errInvitationsRemoveNoIdSend"}), 400
     
     result,status = InvitationService.delete_invitation(invId['invitation_id'])
     if result["status"] == "error":
