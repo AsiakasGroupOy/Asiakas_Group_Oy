@@ -151,23 +151,6 @@
 
   "rolesManagement": {
     "pageTitle": "Roles Management",
-    "alert":{
-      "errUploadTitle": "Upload Failed",
-      "errFetchUsers": "Failed to fetch users",
-      "errFetchInvitations": "Failed to fetch invitations",
-      "sendInvitationTitle": "Success",
-      "sendInvitationMessage": "Invitation sent successfully to ",
-      "errSendInvitationTitle": "Error",
-      "errSendInvitation": "Failed to send invitation",
-      "deleteInvitationMessage": "Invitation for user with email {{email}} deleted successfully",
-      "errDeleteInvitationTitle": "Failed to delete invitation",
-      "errDeleteInvitationMessage": "Error occurred while deleting invitation",
-      "deleteUserMessage": "User with email {{useremail}} deleted successfully",
-      "errDeleteUserTitle": "Failed to delete user",
-      "errDeleteUserMessage": "Error occurred while deleting user: ",
-      "errUserDataRequired":"User data required.",
-      "errUserNotFound": "User not found."
-      },
     "roles": {
       "Manager": "Manager",
       "User": "User",
@@ -176,10 +159,63 @@
     "rolesUpdate":{
       "roleUpdatedTitle": "Role updated successfully",
       "roleAssigned": "Role '{{role}}' assigned to {{username}}.",
-      "errChangeRoleTitle": "Failed to update role",
-      "errUseremailAndRoleRequired": "Useremail and role are required.",
-      "errUserNotFound": "User not found."
+      "errors":{
+        "errChangeRoleTitle": "Failed to update role",
+        "errUseremailAndRoleRequired": "Useremail and role are required.",
+        "errUserNotFound": "User not found."
+      }
+    },
+    "invitation":{
+      "sendInvitationTitle": "Success",
+      "sendInvitationMsg": "Invitation sent successfully to {{email}}",
+      "deleteInvitationMsg": "Invitation for user with email {{email}} deleted successfully",
+      "errors":{
+        "errFetchInvitationsTitle": "Failed to upload invitations",
+        "errSendInvitationTitle": "Failed to send invitation",
+        "errSentInvitationsEmailRoleRequired": "Role and email are required",
+        "errInvitationsInvalidEmail": "Valid email is required",
+        "errInvitationsUserExists": "User with this email already exists",
+        "errDeleteInvitationTitle": "Failed to delete invitation",
+        "errInvitationsRemoveNoIdSend":"Invitation data required",
+        "errInvitationsRemoveIdNotFound":"Invitation ID not found"
+      }
+    },
+    "users":{
+      "deleteUserSuccessMsg": "User with email {{useremail}} deleted successfully",
+      "errors":{
+        "errFetchUsersTitle": "Failed to upload users",
+        "errDeleteUserTitle": "Failed to delete user",
+        "errUserDataRequired":"User data required.",
+        "errUserNotFound": "User not found"
+        }
     }
+  },
+
+  "customersManagement":{
+    "pageTitle":"Customers Management",
+    "removeCustomerAwareMsg":"Are you sure you want to delete this customer?",
+    "removeSuccessMsg": "Customer {{customer_name}} and all related data deleted successfully",
+    "updateSuccessMsg": "Customer {{customer_name}} updated successfully",
+    "invitationSent":"Invitation sent to '{{invitation_email}}'",
+    "invitRemoveSuccessMsg": "Invitation for user with Email '{{invitation_email}}' deleted successfully",
+
+    "errors":{
+      "errRemoveCustomer":"Failed to remove. Customer not found",
+      "errUpdatePhoneValidation": "Phone number is required and must contain only digits with an optional '+358' at the start, 6 to 15 digits long.",
+      "errUpdateCustomerNotFound": "Failed to update. Customer not found",
+      "errFailedFetchInvitations": "Failed to fetch invitations",
+      "errFailedLoadUsers":" Failed to load users for customer",
+      "errInvitationsInvalidEmail": "Valid email is required",
+      "errInvitationsNoCustomerNameOrAddress": "Customer's name and address are required",
+      "errInvitationsNoCustomerName": "Customer's name is required",
+      "errInvitationsNoCustomerAddress": "Customer's address is required",
+      "errInvitationsUserExists": "User with this email already exists",
+      "errInvitationsCustomerExists":"Customer with this name already exists",
+      "errInvitationsRemoveNoIdSend":"Invitation data required",
+      "errInvitationsRemoveIdNotFound":"Invitation ID not found",
+      "errInvitationsRemoveCustomerNotFound":"Customer not found"
+    }
+
   },
 
   "registrationForm": {

@@ -159,13 +159,11 @@ export default function ImportContacts() {
 
   const handleSubmitFileUploadClosed = () => {
     // Reset all the states to initial
-    setAlert({
-      status: "warning",
-      message: t("importContacts.alerts.cancelUpload"),
-    });
-    setSubmittingDialogOpen(false);
-    setSelectedCallList("");
-    handleBack();
+    if (window.confirm(t("importContacts.alerts.cancelUpload"))) {
+      setSubmittingDialogOpen(false);
+      setSelectedCallList("");
+      handleBack();
+    }
   };
 
   return (

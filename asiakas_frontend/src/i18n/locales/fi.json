@@ -148,26 +148,8 @@
     "numberOfCalls": "Puheluiden määrä"
     
   } ,
-
-  "rolesManagement": {
+   "rolesManagement": {
     "pageTitle": "Roolien hallinta",
-    "alert":{
-      "errUploadTitle": "Lataus epäonnistui",
-      "errFetchUsers": "Käyttäjien hakeminen epäonnistui",
-      "errFetchInvitations": "Kutsujen hakeminen epäonnistui",
-      "sendInvitationTitle": "Onnistui",
-      "sendInvitationMessage": "Kutsu lähetettiin onnistuneesti käyttäjälle ",
-      "errSendInvitationTitle": "Virhe",
-      "errSendInvitation": "Kutsun lähettäminen epäonnistui",
-      "deleteInvitationMessage" :"Käyttäjän sähköpostilla {{email}} oleva kutsu poistettiin onnistuneesti",
-      "errDeleteInvitationTitle": "Kutsun poisto epäonnistui",
-      "errDeleteInvitationMessage": "Virhe tapahtui kutsun poistamisessa",
-      "deleteUserMessage": "Käyttäjä {{useremail}} poistettiin onnistuneesti",
-      "errDeleteUserTitle": "Käyttäjän poisto epäonnistui",
-      "errDeleteUserMessage": "Virhe tapahtui käyttäjän poistamisessa: ",
-      "errUserDataRequired": "Käyttäjätiedot vaaditaan.",
-      "errUserNotFound": "Käyttäjää ei löytynyt."
-    },
     "roles": {
       "Manager": "Päällikkö",
       "User": "Käyttäjä",
@@ -176,12 +158,65 @@
     "rolesUpdate":{
       "roleUpdatedTitle": "Roolin päivitys onnistui",
       "roleAssigned": "Rooli '{{role}}' on määrätty käyttäjälle {{username}}.",
-      "errChangeRoleTitle": "Roolin päivitys epäonnistui",
-      "errUseremailAndRoleRequired": "Käyttäjän sähköpostiosoite ja rooli ovat pakollisia.",
-      "errUserNotFound": "Käyttäjää ei löytynyt."
+      "errors":{
+        "errChangeRoleTitle": "Roolin päivitys epäonnistui",
+        "errUseremailAndRoleRequired": "Käyttäjän sähköpostiosoite ja rooli ovat pakollisia.",
+        "errUserNotFound": "Käyttäjää ei löytynyt."
+      }
+    },
+    "invitation":{
+      "sendInvitationTitle": "Onnistui",
+      "sendInvitationMsg": "Kutsu lähetettiin onnistuneesti käyttäjälle {{email}}",
+      "deleteInvitationMsg": "Käyttäjän sähköpostilla {{email}} oleva kutsu poistettiin onnistuneesti",
+      "errors":{
+        "errFetchInvitationsTitle": "Kutsujen hakeminen epäonnistui",
+        "errSendInvitationTitle": "Kutsun lähettäminen epäonnistui",
+        "errSentInvitationsEmailRoleRequired": "Rooli ja sähköpostiosoite ovat pakollisia",
+        "errInvitationsInvalidEmail": "Kelvollinen sähköpostiosoite vaaditaan",
+        "errInvitationsUserExists": "Käyttäjä tällä sähköpostiosoitteella on jo olemassa",
+        "errDeleteInvitationTitle": "Kutsun poistaminen epäonnistui",
+        "errInvitationsRemoveNoIdSend": "Kutsun tiedot vaaditaan",
+        "errInvitationsRemoveIdNotFound": "Kutsun tunnistetta ei löytynyt"
+      }
+    },
+    "users":{
+      "deleteUserSuccessMsg": "Käyttäjä {{useremail}} poistettiin onnistuneesti",
+      "errors":{
+        "errFetchUsersTitle": "Käyttäjien hakeminen epäonnistui",
+        "errDeleteUserTitle": "Käyttäjän poisto epäonnistui",
+        "errUserDataRequired":"Käyttäjätiedot vaaditaan",
+        "errUserNotFound": "Käyttäjää ei löytynyt"
+        }
     }
   },
-  "registrationForm": {
+
+"customersManagement":{
+  "pageTitle": "Asiakashallinta",
+  "removeCustomerAwareMsg": "Haluatko varmasti poistaa tämän asiakkaan?",
+  "removeSuccessMsg": "Asiakas {{customer_name}} ja kaikki siihen liittyvät tiedot poistettu onnistuneesti",
+  "updateSuccessMsg": "Asiakas {{customer_name}} päivitetty onnistuneesti",
+  "invitationSent": "Kutsu lähetetty sähköpostiin '{{invitation_email}}'",
+  "invitRemoveSuccessMsg": "Käyttäjän kutsu sähköpostilla '{{invitation_email}}' poistettu onnistuneesti",
+
+  "errors": {
+    "errRemoveCustomer": "Poistaminen epäonnistui. Asiakasta ei löydy",
+    "errUpdatePhoneValidation": "Puhelinnumero on pakollinen ja sen tulee sisältää vain numeroita, alussa valinnainen '+358', 6–15 numeroa",
+    "errUpdateCustomerNotFound": "Päivitys epäonnistui. Asiakasta ei löydy",
+    "errFailedFetchInvitations": "Kutsujen hakeminen epäonnistui",
+    "errFailedLoadUsers": "Asiakkaan käyttäjien lataaminen epäonnistui",
+    "errInvitationsInvalidEmail": "Kelvollinen sähköpostiosoite vaaditaan",
+    "errInvitationsNoCustomerNameOrAddress":"Asiakkaan nimi ja osoite ovat pakolliset",
+    "errInvitationsNoCustomerName": "Asiakkaan nimi on pakollinen",
+    "errInvitationsNoCustomerAddress":  "Asiakkaan osoite on pakollinen",
+    "errInvitationsUserExists": "Käyttäjä tällä sähköpostilla on jo olemassa",
+    "errInvitationsCustomerExists": "Asiakas tällä nimellä on jo olemassa",
+    "errInvitationsRemoveNoIdSend": "Kutsun tiedot vaaditaan",
+    "errInvitationsRemoveIdNotFound": "Kutsun ID:tä ei löydy",
+    "errInvitationsRemoveCustomerNotFound": "Asiakasta ei löydy"
+  }
+},
+
+"registrationForm": {
   "registrationFormTitle": "Rekisteröitymislomake",
   "username": "Käyttäjänimi",
   "password": "Salasana",

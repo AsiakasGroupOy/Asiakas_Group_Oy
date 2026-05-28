@@ -22,17 +22,27 @@ export default function RolesManagement() {
   const [loadingInv, setLoadingInv] = useState(false);
   const { t } = useTranslation();
 
-  const fetchUserList = async () => {
-    setLoading(true);
+  const refreshUsers = async () => {
     const response = await fetchUsers();
 
     if (response.status === "success") {
       setUserList(response.data);
     } else {
+      setUserList([]);
+    }
+
+    return response;
+  };
+
+  const fetchUserList = async () => {
+    setLoading(true);
+    const response = await refreshUsers();
+
+    if (response.status === "error") {
       setAlert({
         status: response.status,
-        title: t("rolesManagement.alert.errUploadTitle"),
-        message: t("rolesManagement.alert.errFetchUsers"),
+        title: t("rolesManagement.users.errors.errFetchUsersTitle"),
+        message: t(response.message),
       });
     }
 
@@ -56,8 +66,8 @@ export default function RolesManagement() {
       setInvitationsList([createAddRow()]);
       setAlert({
         status: list.status,
-        title: t("rolesManagement.alert.errUploadTitle"),
-        message: t("rolesManagement.alert.errFetchInvitations"),
+        title: t("rolesManagement.invitation.errors.errFetchInvitationsTitle"),
+        message: t(list.message),
       });
     }
     setLoadingInv(false);
@@ -80,33 +90,56 @@ export default function RolesManagement() {
           username: role.data.username,
         }),
       });
+
+      const response = await refreshUsers();
+      if (response.status === "error") {
+        setAlert({
+          status: response.status,
+          title: t("rolesManagement.users.errors.errFetchUsersTitle"),
+          message: t(response.message),
+        });
+      }
     } else if (role.status === "error") {
       setAlert({
         status: role.status,
-        title: t("rolesManagement.rolesUpdate.errChangeRoleTitle"),
+        title: t("rolesManagement.rolesUpdate.errors.errChangeRoleTitle"),
         message: role.message.startsWith("apiFetchErrors.")
           ? t(role.message)
-          : t(`rolesManagement.rolesUpdate.${role.message}`),
+          : t(`rolesManagement.rolesUpdate.errors.${role.message}`),
       });
     }
   };
 
   const handleSendInvitation = async (data) => {
+    const checkFields = data;
+    if (!checkFields.invitation_email || !checkFields.role) {
+      setAlert({
+        status: "error",
+        message: t(
+          "rolesManagement.invitation.errors.errSentInvitationsEmailRoleRequired",
+        ),
+      });
+      return;
+    }
+
+    console.log("Check Fields", checkFields);
     const invitation = await newInvitation(data);
 
     if (invitation.status === "success") {
       setAlert({
         status: invitation.status,
-        title: t("rolesManagement.alert.sendInvitationTitle"),
-        message:
-          t("rolesManagement.alert.sendInvitationMessage") +
-          `${invitation.data.message}`,
+        title: t("rolesManagement.invitation.sendInvitationTitle"),
+        message: t("rolesManagement.invitation.sendInvitationMsg", {
+          email: invitation.data.message,
+        }),
       });
     } else if (invitation.status === "error") {
       setAlert({
         status: invitation.status,
-        title: t("rolesManagement.alert.errSendInvitationTitle"),
-        message: t("rolesManagement.alert.errSendInvitation"),
+        title: t("rolesManagement.invitation.errors.errSendInvitationTitle"),
+        message: invitation.message.startsWith("apiFetchErrors.")
+          ? t(invitation.message)
+          : t(`rolesManagement.invitation.errors.${invitation.message}`),
       });
     }
     fetchUserInvitations();
@@ -118,22 +151,25 @@ export default function RolesManagement() {
     if (response.status === "success") {
       setAlert({
         status: response.status,
-        title: "",
-        message: t("rolesManagement.alert.deleteUserMessage", {
+        message: t("rolesManagement.users.deleteUserSuccessMsg", {
           useremail: response.data.message,
         }),
       });
-      fetchUserList();
+      const response = await refreshUsers();
+      if (response.status === "error") {
+        setAlert({
+          status: response.status,
+          title: t("rolesManagement.users.errors.errFetchUsersTitle"),
+          message: t(response.message),
+        });
+      }
     } else {
-      // Handle errors returned from backend
       setAlert({
         status: "error",
-        title: t("rolesManagement.alert.errDeleteUserTitle"),
-        message:
-          t("rolesManagement.alert.errDeleteUserMessage") +
-          response.message.startsWith("apiFetchErrors.")
-            ? t(response.message)
-            : t(`rolesManagement.alert.${response.message}`),
+        title: t("rolesManagement.users.errors.errDeleteUserTitle"), //same msg as in rolesManagement
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`rolesManagement.users.errors.${response.message}`),
       });
     }
   };
@@ -145,7 +181,7 @@ export default function RolesManagement() {
       setAlert({
         status: response.status,
         title: "",
-        message: t("rolesManagement.alert.deleteInvitationMessage", {
+        message: t("rolesManagement.invitation.deleteInvitationMsg", {
           email: response.data.message,
         }),
       });
@@ -154,14 +190,13 @@ export default function RolesManagement() {
       // Handle errors returned from backend
       setAlert({
         status: "error",
-        title: t("rolesManagement.alert.errDeleteInvitationTitle"),
-        message:
-          t("rolesManagement.alert.errDeleteInvitationMessage") +
-          `${response.message || ""}`,
+        title: t("rolesManagement.invitation.errors.errDeleteInvitationTitle"),
+        message: response.message.startsWith("apiFetchErrors.")
+          ? t(response.message)
+          : t(`rolesManagement.invitation.errors.${response.message}`),
       });
     }
   };
-
   return (
     <>
       <Stack direction="row" spacing={1} alignItems="top" marginBlockEnd={3}>
