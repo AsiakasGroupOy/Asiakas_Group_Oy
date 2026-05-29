@@ -43,24 +43,23 @@ export const secureApiFetch = async (url, options = {}) => {
   const result = await apiFetch(url, options);
 
   // Process backend validation results for expired, invalid, or missing tokens
-  if (result.httpStatus === "401") {
-    {
-      console.info(`${result.message} → attempting refresh...`);
-      const refresh = await refreshToken();
+  if (result.status === "error" && result.httpStatus === 401) {
+    console.info(`${result.message} → attempting refresh...`);
+    const refresh = await refreshToken();
 
-      if (refresh.status === "success") {
-        console.info("Token refresh successful → retrying original request");
-        return await apiFetch(url, options);
-      }
-
-      console.error("Refresh token invalid → logging out ");
-
-      window.alert(i18n.t("apiFetchErrors.auth.sessionExpired"));
-      await invokeGlobalLogout(); // this triggers logout() in AuthProvider // force logout
-
-      return { status: "session-expired" };
+    if (refresh.status === "success") {
+      console.info("Token refresh successful → retrying original request");
+      return await apiFetch(url, options);
     }
+
+    console.error("Refresh token invalid → logging out ");
+
+    window.alert(i18n.t("apiFetchErrors.auth.sessionExpired"));
+    await invokeGlobalLogout(); // this triggers logout() in AuthProvider // force logout
+
+    return { status: "session-expired" };
   }
+
   return result;
 };
 
