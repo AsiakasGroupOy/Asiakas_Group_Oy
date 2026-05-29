@@ -17,6 +17,12 @@ def auth_required(f):
            return jsonify({"error": "Unauthorized"}), 401
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"], options={"verify_exp": True})
+            if data.get("type") != "access":
+                security_logger.warning(
+                    "Non-access token used for protected route: ip=%s path=%s", request.remote_addr, request.path
+                )
+                return jsonify({"error": "Invalid token"}), 401
+            
             g.user_id = data["user_id"]                       # To get user_id, customer_id and role from cookies
             g.customer_id = data["customer_id"]
             g.role = data["role"]

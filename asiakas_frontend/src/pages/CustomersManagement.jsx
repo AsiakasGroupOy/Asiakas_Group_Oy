@@ -47,6 +47,15 @@ export default function CustomersManagement() {
   };
 
   const handleUpdateCustomer = async (customer) => {
+    const checkFields = customer;
+    if (!checkFields.customer_name || !checkFields.customer_address) {
+      setAlert({
+        status: "error",
+        message: t("customersManagement.errors.errFieldsRequired"),
+      });
+      return;
+    }
+
     const updatedCustomer = await updateCustomer(
       customer.customer_id,
       customer,
@@ -55,7 +64,7 @@ export default function CustomersManagement() {
       setAlert({
         status: updatedCustomer.status,
         message: t("customersManagement.updateSuccessMsg", {
-          customer_name: updatedCustomer.data.message,
+          customer_name: updatedCustomer.data,
         }),
       });
     } else {
@@ -77,7 +86,7 @@ export default function CustomersManagement() {
         setAlert({
           status: customerDeleted.status,
           message: t("customersManagement.removeSuccessMsg", {
-            customer_name: customerDeleted.data.message,
+            customer_name: customerDeleted.data,
           }),
         });
 

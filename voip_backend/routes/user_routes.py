@@ -237,7 +237,7 @@ def refresh():
             security_logger.warning("Invalid token type during token refresh attempt: ip=%s", request.remote_addr)
             return jsonify({"error": "Unauthorized"}), 401
     except jwt.ExpiredSignatureError:
-        security_logger.info("Refresh token expired: user_id=%s, customer_id=%s", data.get("user_id"),  data.get("customer_id"))    
+        security_logger.info("Refresh token expired: ip=%s", request.remote_addr)    
         return jsonify({"error": "Refresh token expired"}), 401
     except jwt.InvalidTokenError as e:
         security_logger.error("Invalid refresh token: ip=%s", request.remote_addr)

@@ -21,11 +21,27 @@ export default function ActiveCustomers({
       headerName: "Company Name",
       field: "customer_name",
       editable: true,
+      valueSetter: (params) => {
+        if (!params.newValue?.trim()) {
+          return false;
+        }
+
+        params.data.customer_name = params.newValue;
+        return true;
+      },
     },
     {
       headerName: "Company Address",
       field: "customer_address",
       editable: true,
+      valueSetter: (params) => {
+        if (!params.newValue?.trim()) {
+          return false;
+        }
+
+        params.data.customer_address = params.newValue;
+        return true;
+      },
     },
     {
       headerName: "Created at",

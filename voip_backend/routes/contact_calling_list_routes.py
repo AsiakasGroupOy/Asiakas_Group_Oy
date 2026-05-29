@@ -330,6 +330,7 @@ def get_contact_calling_list_full():
             ContactList.first_name,
             ContactList.last_name,
             ContactList.phone,
+            ContactList.email,
             Organization.organization_name,
             Organization.website,
             CallingList.calling_list_id,
@@ -362,9 +363,9 @@ def get_contact_calling_list_full():
                 "first_name": row.first_name,
                 "last_name": row.last_name,
                 "phone": row.phone,
-                               
+                "email":row.email,
                 "organization_name": row.organization_name,
-                "website": row.website,
+                
             },
             "calling_list": {
                 "calling_list_id": row.calling_list_id,

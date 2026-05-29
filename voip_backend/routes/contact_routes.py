@@ -106,17 +106,17 @@ def create_contact():
     except IntegrityError as e:
         db.session.rollback()
         app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "duplicateValues"}), 400
+        return jsonify({"error": "duplicateValues"}), 400
 
     except DataError as e:
         db.session.rollback()
         app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "dataError"}), 400
+        return jsonify({"error": "dataError"}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
         app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "unexpectedError"}), 500
+        return jsonify({"error": "unexpectedError"}), 500
         
     return jsonify({"message": "successMessage"}), 201  
         
@@ -303,17 +303,17 @@ def upload_contacts():
     except IntegrityError as e:
         db.session.rollback()
         app_logger.error("IntegrityError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "dbIntegrityErr"}), 400
+        return jsonify({"error": "dbIntegrityErr"}), 400
 
     except DataError as e:
         db.session.rollback()
         app_logger.error("DataError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "dbDataErr"}), 400
+        return jsonify({"error": "dbDataErr"}), 400
 
     except SQLAlchemyError as e:
         db.session.rollback()
         app_logger.error("SQLAlchemyError: %s, user_id=%s, customer_id=%s", g.user_id,  g.customer_id, str(e))
-        return jsonify({"message": "dbUnexpectedErr"}), 500
+        return jsonify({"error": "dbUnexpectedErr"}), 500
     
     return jsonify({
         "inserted_contacts": inserted_count,
