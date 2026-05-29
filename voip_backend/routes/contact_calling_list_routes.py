@@ -332,7 +332,6 @@ def get_contact_calling_list_full():
             ContactList.phone,
             ContactList.email,
             Organization.organization_name,
-            Organization.website,
             CallingList.calling_list_id,
             CallingList.calling_list_name,
             LatestLog.c.status.label('latest_status'),
