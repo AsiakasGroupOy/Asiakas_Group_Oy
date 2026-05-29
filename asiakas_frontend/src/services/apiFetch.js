@@ -20,8 +20,8 @@ export const apiFetch = async (url, options = {}) => {
     if (!response.ok) {
       return {
         status: "error",
-        message:
-          data.error || data.message || "apiFetchErrors.system.commonError",
+        httpStatus: response.status,
+        message: data.error || "apiFetchErrors.system.commonError",
       };
     }
 
@@ -43,16 +43,9 @@ export const secureApiFetch = async (url, options = {}) => {
   const result = await apiFetch(url, options);
 
   // Process backend validation results for expired, invalid, or missing tokens
-  if (result.status === "error") {
-    const err = result.message;
-
-    // Token expired → refresh + retry once
-    if (
-      err === "Token expired" ||
-      err === "Unauthorized" ||
-      err === "Invalid token"
-    ) {
-      console.info(`${err} → attempting refresh...`);
+  if (result.httpStatus === "401") {
+    {
+      console.info(`${result.message} → attempting refresh...`);
       const refresh = await refreshToken();
 
       if (refresh.status === "success") {
@@ -60,7 +53,7 @@ export const secureApiFetch = async (url, options = {}) => {
         return await apiFetch(url, options);
       }
 
-      console.error("Refresh token invalid → logging out ", refresh.message);
+      console.error("Refresh token invalid → logging out ");
 
       window.alert(i18n.t("apiFetchErrors.auth.sessionExpired"));
       await invokeGlobalLogout(); // this triggers logout() in AuthProvider // force logout
@@ -85,7 +78,7 @@ export const refreshToken = async () => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      return { status: "error", message: data.error || "Refresh failed" };
+      return { status: "error", message: "Refresh failed" };
     }
 
     return { status: "success", message: data.message };

@@ -68,7 +68,7 @@ def delete_customer():
 
     audit_logger.info("Customer DELETED: customer_id=%s customer_name=%s by user_id=%s", customer.customer_id, customer.customer_name, g.user_id)
 
-    return jsonify({"message": customer.customer_name}), 200
+    return jsonify(customer.customer_name), 200
 
 # ✅ Update Customer 
 @customer_bp.route('/<int:customer_id>', methods=['PUT'])
@@ -79,6 +79,7 @@ def update_customer(customer_id):
         return jsonify({"error": "Forbidden"}), 403
 
     data = request.get_json()
+    
     customer_name = data.get("customer_name").strip()
     customer_address = data.get("customer_address").strip()
     assigned_number = data.get("assigned_number")
@@ -92,6 +93,8 @@ def update_customer(customer_id):
     customer = Customer.query.get(customer_id)
     if not customer:
         return jsonify({"error": "errUpdateCustomerNotFound"}), 404
+    if not customer_name or not customer_address :
+        return jsonify({"error":["errFieldsRequired"]}), 400
 
     customer.customer_name = customer_name
     customer.customer_address = customer_address
@@ -100,4 +103,4 @@ def update_customer(customer_id):
     
     audit_logger.info("Customer UPDATED: customer_id=%s customer_name=%s by user_id=%s", customer.customer_id, customer.customer_name, g.user_id)
 
-    return jsonify({"message": customer.customer_name}), 200
+    return jsonify(customer.customer_name), 200

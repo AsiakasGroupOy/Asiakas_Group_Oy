@@ -61,8 +61,8 @@ export default function ContactList() {
       },
       { headerName: t("contactListTable.phone"), field: "contact.phone" },
       {
-        headerName: t("contactListTable.additionalInformation"),
-        field: "contact.website",
+        headerName: t("contactListTable.email"),
+        field: "contact.email",
       },
       {
         headerName: t("contactListTable.status"),
