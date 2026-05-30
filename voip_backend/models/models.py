@@ -69,11 +69,11 @@ class ContactList(db.Model):
 # -----------------------------------------
 
 class CallStatus(enum.Enum):
-    MEETING_SCHEDULED = "Meeting Scheduled"
-    OPEN = "Open"
-    NOT_INTERESTED = "Not Interested"
-    SCHEDULED_CALL = "Scheduled Call"
-    NO_ANSWER = "No Answer"
+    MEETING_SCHEDULED = "meetingScheduled"
+    OPEN = "open"
+    NOT_INTERESTED = "notInterested"
+    SCHEDULED_CALL = "scheduledCall"
+    NO_ANSWER = "noAnswer"
 
 # -----------------------------------------
 # CALL LOG MODEL

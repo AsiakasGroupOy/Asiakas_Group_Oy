@@ -98,7 +98,7 @@ export const addNote = async (ccl_id, noteValue) => {
 export const addStatus = async (ccl_id, data) => {
   const { status, scheduledCall = null } = data;
 
-  return await apiFetch(
+  return await secureApiFetch(
     `${import.meta.env.VITE_BACKEND_URL}/api/calllogs/${ccl_id}/status`,
     {
       method: "POST",

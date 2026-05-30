@@ -16,7 +16,7 @@ app_logger = logging.getLogger("app")
 
 # CREATE a new call log
 @calllog_bp.route('/<int:concal_id>/status', methods=['POST'])
-
+@auth_required
 def create_call_log(concal_id):
     
     data = request.get_json()
