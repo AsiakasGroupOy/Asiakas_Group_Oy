@@ -111,6 +111,11 @@ export default function ContactList() {
         },
       },
       {
+        headerName: t("contactListTable.scheduledBy"),
+        field: "latest_call_log.scheduled_call_by_username",
+        filter: true,
+      },
+      {
         headerName: t("contactListTable.numberOfCalls"),
         field: "latest_call_log.call_count",
         filter: true,
@@ -348,7 +353,7 @@ export default function ContactList() {
                 disableRipple
                 sx={{ fontWeight: "bold" }}
               >
-                {areAllColumnsVisible
+                {areAllColumnsVisible()
                   ? `${t("contactList.columnMenuDeselectAll")}`
                   : `${t("contactList.columnMenuSelectAll")}`}
               </MenuItem>
@@ -387,6 +392,7 @@ export default function ContactList() {
           display: "flex",
           marginTop: 20,
           height: "calc(100vh - 240px)", // Adjust based on total height above
+          width: "100%",
         }}
       >
         <div
@@ -396,10 +402,7 @@ export default function ContactList() {
             width: "100%",
           }}
         >
-          <div
-            className="ag-theme-material"
-            style={{ height: "100%", width: "100%" }}
-          >
+          <div className="ag-theme-material">
             <AgGridReact
               rowData={contactList}
               columnDefs={columnDefs}

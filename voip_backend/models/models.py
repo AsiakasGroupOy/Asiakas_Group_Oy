@@ -83,6 +83,7 @@ class CallLog(db.Model):
 
     call_id = db.Column(db.Integer, primary_key=True)
     concal_id = db.Column(db.Integer, db.ForeignKey('contact_calling_list.concal_id', ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=True)
     status = db.Column(db.Enum(CallStatus), nullable=False)
     scheduled_call = db.Column(db.DateTime(timezone=True), nullable=True)
     call_timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
@@ -91,7 +92,7 @@ class CallLog(db.Model):
     
     # Relationships
     contact_calling_list = db.relationship('ContactCallingList', back_populates='call_logs',  passive_deletes=True)
-
+    user = db.relationship('User', back_populates='call_logs')
 # -----------------------------------------
 # CONTACT CALLING LIST MODEL
 # -----------------------------------------
@@ -151,6 +152,7 @@ class User(db.Model):
     twilio_agent_status = db.relationship('TwilioAgentStatus', back_populates='user', uselist=False)
     customer = db.relationship('Customer',back_populates='users')
     created_invitations = db.relationship('Invitation', back_populates='created_by_user', lazy=True)
+    call_logs = db.relationship('CallLog', back_populates='user')
 
     def set_password(self, userpassword):
         self.password_hash = generate_password_hash(userpassword)

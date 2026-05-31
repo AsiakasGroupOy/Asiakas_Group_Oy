@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, g
 from extensions import db
 from sqlalchemy.orm import aliased
 from sqlalchemy import func
-from models.models import ContactList, CallingList, ContactCallingList, Organization, CallLog   
+from models.models import ContactList, CallingList, ContactCallingList, Organization, CallLog, User  
 from helpers.helpers import auth_required
 import logging
 
@@ -299,6 +299,9 @@ def get_contact_calling_list_full():
         ).label('rn')
     ).subquery()
     )
+
+    LatestLog = aliased(log_ranked)
+    
     # Subquery to count calls per concal_id
     call_count_subq = (
     db.session.query(
@@ -309,18 +312,21 @@ def get_contact_calling_list_full():
     .subquery()
     )
   
-    LatestLog = aliased(log_ranked)
-
-     # Subquery to get the scheduled call value if exists
-    scheduled_call_subq = (
+     # Subquery to get the scheduled call value if exists and user, who created this scheduled call
+    scheduled_call_ranked = (
     db.session.query(
-            CallLog.concal_id,
-            func.max(CallLog.scheduled_call).label('latest_scheduled_call'),
-           )
-    .filter(CallLog.scheduled_call.isnot(None))
-    .group_by(CallLog.concal_id)
-    .subquery()
+        CallLog.concal_id,
+        CallLog.user_id,
+        CallLog.scheduled_call,
+        func.row_number().over(
+            partition_by=CallLog.concal_id,
+            order_by=CallLog.scheduled_call.desc()
+        ).label("rn")
     )
+    .filter(CallLog.scheduled_call.isnot(None))
+    .subquery()
+)
+    ScheduledCall = aliased(scheduled_call_ranked)
 
     # Main query: join all tables and latest call log
     results = (
@@ -337,7 +343,9 @@ def get_contact_calling_list_full():
             LatestLog.c.status.label('latest_status'),
             LatestLog.c.call_timestamp.label('latest_call_timestamp'),
             call_count_subq.c.call_count.label("call_count"),
-            scheduled_call_subq.c.latest_scheduled_call.label('latest_scheduled_call')
+            ScheduledCall.c.scheduled_call.label('latest_scheduled_call'),
+            User.username.label("scheduled_call_by_username")
+
         )
         .select_from(ContactCallingList).filter(ContactCallingList.customer_id == g.customer_id)
         .join(ContactList, ContactCallingList.contact_id == ContactList.contact_id)
@@ -345,12 +353,13 @@ def get_contact_calling_list_full():
         .join(Organization, ContactList.organization_id == Organization.organization_id)
         .outerjoin(LatestLog, (ContactCallingList.concal_id == LatestLog.c.concal_id) & (LatestLog.c.rn == 1))
         .outerjoin(call_count_subq, ContactCallingList.concal_id == call_count_subq.c.concal_id)
-        .outerjoin(scheduled_call_subq, ContactCallingList.concal_id == scheduled_call_subq.c.concal_id)
+        .outerjoin(ScheduledCall, (ContactCallingList.concal_id == ScheduledCall.c.concal_id) & (ScheduledCall.c.rn == 1))
+        .outerjoin(User, ScheduledCall.c.user_id == User.user_id)
         .order_by(CallingList.calling_list_name.asc(),
                   Organization.organization_name.asc(),)
         .all()
     )
-      
+    
     # Format results
     data = []
     for row in results:
@@ -374,7 +383,8 @@ def get_contact_calling_list_full():
                 "status": row.latest_status.value if row.latest_status else None,
                 "call_timestamp": row.latest_call_timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_call_timestamp else None,
                 "call_count": row.call_count if row.call_count else None,
-                "latest_scheduled_call": row.latest_scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_scheduled_call else None
+                "latest_scheduled_call": row.latest_scheduled_call.strftime('%Y-%m-%dT%H:%M:%SZ') if row.latest_scheduled_call else None,
+                "scheduled_call_by_username":row.scheduled_call_by_username
             }
         })
     
