@@ -35,11 +35,13 @@ def create_call_log(concal_id):
         concal_id, request.method, request.path, request.remote_addr
     )
         return jsonify({"error": "dataNotFound"}), 404
-
+    
     new_log = CallLog (
         concal_id=concal_id,
+        user_id=g.user_id,
         status=status,
         scheduled_call=scheduled_call
+
     )
     db.session.add(new_log)
     db.session.commit()

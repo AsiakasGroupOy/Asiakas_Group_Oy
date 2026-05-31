@@ -1,4 +1,3 @@
-from logging import Manager
 from flask import Blueprint, request, jsonify,g
 from extensions import db
 from models.models import CallingList

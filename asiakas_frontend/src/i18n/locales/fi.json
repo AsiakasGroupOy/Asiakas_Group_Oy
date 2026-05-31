@@ -145,6 +145,7 @@
     "status": "Tila",
     "lastActivity": "Viimeisin toiminta",
     "latestScheduledCall": "Viimeisin sovittu puhelu",
+    "scheduledBy": "Käyttäjä",
     "numberOfCalls": "Puheluiden määrä"
     
   } ,
