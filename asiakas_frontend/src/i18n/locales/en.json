@@ -144,7 +144,7 @@
     "status": "Status",
     "lastActivity": "Last Activity",
     "latestScheduledCall": "Latest Scheduled Call",
-    "scheduledBy": "User Name",
+    "createdBy": "User Name",
     "numberOfCalls": "Number of Calls"
     
 
