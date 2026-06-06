@@ -1,4 +1,4 @@
-from gc import callbacks
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify,g
 from extensions import db
 from models.models import TwilioCall
@@ -25,15 +25,17 @@ def get_calls_history():
             if not customer_id:
                 app_logger.warning("Missing customer_id in calls history request by App Admin: user_id=%s,customer_id=%s method=%s path=%s ip=%s",g.user_id, customer_id, request.method, request.path, request.remote_addr)
                 return jsonify({"error": "errCustomerIdMissing"}), 400
+            cutoff = datetime.now() - timedelta(weeks=5)
     else:
             customer_id = g.customer_id
             if not customer_id:
                 app_logger.warning("Customer ID not found in session for calls history request: user_id=%s method=%s path=%s ip=%s", g.user_id, request.method, request.path, request.remote_addr)
                 return jsonify({"error": "errCustomerIdMissing"}), 400
+            cutoff = datetime.now() - timedelta(weeks=2)
 
     calls = (TwilioCall.query
              .filter_by(customer_id=customer_id)
-             .order_by(TwilioCall.started_at.desc())
-             .limit(1000)).all()
+             .filter(TwilioCall.started_at >= cutoff)
+             .order_by(TwilioCall.started_at.desc())).all()
     return jsonify(callbacks_schema.dump(calls)), 200
 

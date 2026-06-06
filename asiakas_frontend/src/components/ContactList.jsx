@@ -111,8 +111,8 @@ export default function ContactList() {
         },
       },
       {
-        headerName: t("contactListTable.scheduledBy"),
-        field: "latest_call_log.scheduled_call_by_username",
+        headerName: t("contactListTable.createdBy"),
+        field: "latest_call_log.created_by_username",
         filter: true,
       },
       {

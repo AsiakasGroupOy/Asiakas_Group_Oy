@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["sh", "-c", "python setup.py && gunicorn --worker-class gevent --workers 4 --bind 0.0.0.0:5000 app:app"]
+CMD ["sh", "-c", "python setup.py && gunicorn --worker-class gevent --workers 2 --max-requests 1000 --max-requests-jitter 100 --bind 0.0.0.0:5000 app:app"] 
