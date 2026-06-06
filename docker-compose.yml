@@ -11,7 +11,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-    mem_limit: 250m
+    mem_limit: 300m
     healthcheck: # Ensures the DB is ready before backend starts
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
