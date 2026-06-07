@@ -124,7 +124,7 @@ export default function ContactList() {
     [t],
   );
 
-  const [setColumnStateVersion] = useState(0);
+  const [, setColumnStateVersion] = useState(0);
   const [agGridFilter, setAgGridFilter] = useState(true);
   const [alert, setAlert] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
