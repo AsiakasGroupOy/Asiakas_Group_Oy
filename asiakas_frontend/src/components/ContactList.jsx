@@ -68,6 +68,10 @@ export default function ContactList() {
         headerName: t("contactListTable.status"),
         field: "latest_call_log.status",
         filter: true,
+
+        filterValueGetter: (params) =>
+          t(`callStatusArea.${params.getValue("latest_call_log.status")}`),
+
         valueFormatter: (params) =>
           params.value ? t(`callStatusArea.${params.value}`) : "",
       },
