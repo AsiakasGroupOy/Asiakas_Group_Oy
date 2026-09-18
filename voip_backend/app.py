@@ -48,10 +48,8 @@ allowed_origins = [
     frontend_url,
     "http://localhost",        # For local testing
     "http://localhost:3000",   # For local testing
-    "https://app.soitto.ai",       #  PRODUCTION DOMAIN
-    
-    ]
-CORS(app,supports_credentials=True, origins=allowed_origins)
+        ]
+CORS(app, supports_credentials=True, origins=allowed_origins)
 
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)
