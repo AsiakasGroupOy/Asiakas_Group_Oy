@@ -26,9 +26,7 @@ def validate_phone(phone):
     # Replace leading 0 with Finland country code
     if cleaned.startswith("0"):
         cleaned = "358" + cleaned[1:]
-        
-    elif not cleaned.startswith("358"):
-        cleaned = "358" + cleaned
+ 
     # Length between 6 and 15 digits
     if re.match(r"^\d{6,15}$", cleaned): 
         return "+" + cleaned
