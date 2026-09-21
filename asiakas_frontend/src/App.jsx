@@ -39,9 +39,9 @@ function App() {
               }}
             >
               <img
-                src="/soitto.ai_white.png"
+                src="/Calls2_Online.png"
                 style={{
-                  height: "55px",
+                  height: "45px",
                 }}
                 alt="Logo"
               />
